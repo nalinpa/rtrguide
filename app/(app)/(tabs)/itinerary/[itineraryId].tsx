@@ -6,6 +6,7 @@ import { Plus, MoreHorizontal, X } from "lucide-react-native";
 import { randomUUID } from "expo-crypto";
 
 import { LoadingState, AppText, components } from "@/lib/uiKit";
+import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { tokens } from "@/lib/ui/tokens";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
@@ -468,6 +469,25 @@ export default function ItineraryDetailPage() {
           )}
         </View>
       </ScrollView>
+
+      <EditItemModal
+        item={editingItem}
+        currentDayId={activeDayId || ""}
+        availableDays={localTrip.days.map((d, idx) => {
+          let full = false;
+          if (editingItem) {
+            const otherItems = d.items.filter((i) => i.id !== editingItem.id);
+            const simulated = runPhysicsEngine([...otherItems, { ...editingItem, slotIndex: 0 }]);
+            const last = simulated[simulated.length - 1];
+            full = !!last && (last.slotIndex ?? 0) + (last.durationSlots ?? 2) > MAX_GRID_SLOTS;
+          }
+          return { id: d.id, label: `Day ${idx + 1}`, full };
+        })}
+        onClose={() => setEditingItem(null)}
+        onSave={handleSaveEdit}
+        onRemove={handleRemoveItem}
+        onMoveDay={handleMoveDay}
+      />
     </SafeAreaView>
   );
 }

@@ -1,15 +1,170 @@
-import React from "react";
-import { Screen, AppText, Stack } from "@/lib/uiKit";
+import { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { Calendar, ChevronRight, Plus } from "lucide-react-native";
 
-export default function ItineraryScreen() {
+import { Screen, LoadingState, CardShell, Stack, AppText, components } from "@/lib/uiKit";
+import { tokens } from "@/lib/ui/tokens";
+import { useSession } from "@/lib/providers/SessionProvider";
+import { useItineraries } from "@/lib/hooks/useItineraries";
+import { PLANNER } from "@/lib/constants/gameplay";
+import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
+
+function formatTripDates(startDate: string, endDate: string): string {
+  const fmt = (iso: string) =>
+    new Date(iso + "T00:00:00").toLocaleDateString("en-NZ", { day: "numeric", month: "short" });
+  if (!endDate || endDate === startDate) return fmt(startDate);
+  return `${fmt(startDate)} — ${fmt(endDate)}`;
+}
+
+export default function ItineraryListPage() {
+  const { session } = useSession();
+  const { itineraries, loading } = useItineraries();
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    if (itineraries.length === 1) {
+      router.replace(`/(app)/(tabs)/itinerary/${itineraries[0].id}`);
+    }
+  }, [itineraries]);
+
+  if (session.status === "guest") {
+    return (
+      <Screen>
+        <Stack gap="md" style={styles.paddedSection}>
+          <AppText variant="h1">Itinerary</AppText>
+          <CardShell status="surf" onPress={() => router.push("/(auth)/login")}>
+            <Stack gap="xs">
+              <AppText variant="sectionTitle">Sign In to Plan a Trip</AppText>
+              <AppText variant="label" status="hint">
+                Create an account to build and save a Rotorua itinerary.
+              </AppText>
+            </Stack>
+          </CardShell>
+        </Stack>
+      </Screen>
+    );
+  }
+
+  if (session.status === "loading" || loading) {
+    return (
+      <Screen>
+        <LoadingState label="Loading your trips..." />
+      </Screen>
+    );
+  }
+
+  if (itineraries.length === 0) {
+    return (
+      <>
+        <components.EmptyItineraryState
+          onCreateNew={() => setIsCreating(true)}
+          onBrowse={() => router.push("/(app)/(tabs)/sites")}
+          description="Create a trip and start adding Rotorua's sites, walks, and hidden gems to build your perfect itinerary."
+          browseLabel="Browse Rotorua Sites"
+        />
+        <CreateItineraryModal
+          visible={isCreating}
+          onClose={() => setIsCreating(false)}
+          onCreated={(id) => {
+            setIsCreating(false);
+            router.replace(`/(app)/(tabs)/itinerary/${id}`);
+          }}
+        />
+      </>
+    );
+  }
+
+  // itineraries.length === 1 redirects via the effect above — this only
+  // renders the picker when there's more than one trip.
   return (
-    <Screen padded>
-      <Stack gap="sm">
-        <AppText variant="screenTitle">Itinerary</AppText>
-        <AppText variant="body" status="hint">
-          Coming soon.
-        </AppText>
-      </Stack>
-    </Screen>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <AppText variant="h1">My Trips</AppText>
+      </View>
+      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+        {itineraries.map((itin) => (
+          <TouchableOpacity
+            key={itin.id}
+            style={styles.tripCard}
+            onPress={() => router.push(`/(app)/(tabs)/itinerary/${itin.id}`)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.tripCardIcon}>
+              <Calendar size={22} color={tokens.colors.accent} />
+            </View>
+            <View style={styles.tripCardInner}>
+              <AppText style={styles.tripCardTitle} numberOfLines={1}>
+                {itin.title}
+              </AppText>
+              <AppText style={styles.tripCardMeta}>
+                {formatTripDates(itin.startDate, itin.endDate)}
+                {itin.days?.length ? ` · ${itin.days.length} ${itin.days.length === 1 ? "day" : "days"}` : ""}
+              </AppText>
+            </View>
+            <ChevronRight size={20} color={tokens.colors.text2} />
+          </TouchableOpacity>
+        ))}
+
+        {itineraries.length < PLANNER.MAX_ITINERARIES && (
+          <TouchableOpacity style={styles.tripCardCreate} onPress={() => setIsCreating(true)} activeOpacity={0.7}>
+            <Plus size={18} color={tokens.colors.accent} />
+            <AppText style={styles.tripCardCreateText}>Create new trip</AppText>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+
+      <CreateItineraryModal
+        visible={isCreating}
+        onClose={() => setIsCreating(false)}
+        onCreated={(id) => {
+          setIsCreating(false);
+          if (id) router.replace(`/(app)/(tabs)/itinerary/${id}`);
+        }}
+      />
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: tokens.colors.bgBase },
+  paddedSection: { paddingHorizontal: 16, paddingTop: 12 },
+  header: { paddingHorizontal: tokens.space.md, paddingTop: tokens.space.md, paddingBottom: 16 },
+  body: { padding: tokens.space.md, gap: 14, paddingBottom: 40 },
+  tripCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    backgroundColor: tokens.colors.bgCard,
+    borderRadius: tokens.radius.lg,
+    paddingHorizontal: 20,
+    paddingVertical: 22,
+    borderWidth: 1,
+    borderColor: tokens.colors.borderSubtle,
+  },
+  tripCardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.colors.accentDim,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tripCardInner: { flex: 1, gap: 5 },
+  tripCardTitle: { fontSize: 18, fontWeight: "700", color: tokens.colors.text },
+  tripCardMeta: { fontSize: 14, color: tokens.colors.text2 },
+  tripCardCreate: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: tokens.radius.lg,
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: tokens.colors.accent,
+    marginTop: 6,
+  },
+  tripCardCreateText: { fontSize: 15, fontWeight: "600", color: tokens.colors.accent },
+});

@@ -3,8 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import NetInfo from "@react-native-community/netinfo";
 import { client } from "@/lib/api";
+import type { Site } from "@/lib/models";
 
-export const hooksBag = createHooks(client, {
+export const hooksBag = createHooks<Site>(client, {
   appId: "rotoruaguide",
   queryKeyPrefix: ["rotoruaguide"],
   storage: AsyncStorage,
@@ -63,4 +64,5 @@ export const {
   useSyncManager,
   useMyReview,
   useLocationReviewsSummary,
+  useEntitlements,
 } = hooksBag;

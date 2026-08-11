@@ -21,6 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,
+    associatedDomains: ["applinks:commerce.blacksands.app"],
     infoPlist: {
       NSLocationWhenInUseUsageDescription: "Rotorua Guide uses your location to verify your visits.",
       ITSAppUsesNonExemptEncryption: false,
@@ -36,6 +37,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     permissions: ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
     edgeToEdgeEnabled: true,
+    intentFilters: [
+      {
+        action: "VIEW",
+        autoVerify: true,
+        data: [{ scheme: "https", host: "commerce.blacksands.app", pathPrefix: "/claim" }],
+        category: ["BROWSABLE", "DEFAULT"],
+      },
+    ],
   },
 
   plugins: [

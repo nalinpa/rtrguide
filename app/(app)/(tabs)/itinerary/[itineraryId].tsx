@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity, AppState, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { Plus, MoreHorizontal, X } from "lucide-react-native";
 import { randomUUID } from "expo-crypto";
+import { Plus, MoreHorizontal, X } from "lucide-react-native";
 
-import { LoadingState, AppText, components } from "@/lib/uiKit";
+import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKit";
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { tokens } from "@/lib/ui/tokens";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -43,7 +43,7 @@ export default function ItineraryDetailPage() {
     jumpToDay?: string;
     jumpToSlot?: string;
   }>();
-  const { itineraries, loading, saveItinerary, deleteItinerary } = useItineraries();
+  const { itineraries, loading, error, refetch, saveItinerary, deleteItinerary } = useItineraries();
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);
@@ -337,6 +337,14 @@ export default function ItineraryDetailPage() {
       <SafeAreaView style={styles.safeArea}>
         <LoadingState label="Loading your trip..." />
       </SafeAreaView>
+    );
+  }
+
+  if (error && !localTrip) {
+    return (
+      <Screen>
+        <ErrorCard title="Couldn't load your trip" message={error} action={{ label: "Try Again", onPress: () => refetch() }} />
+      </Screen>
     );
   }
 

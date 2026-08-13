@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@blacksands/client": "^0.4.1",
+    "@blacksands/client": "^0.4.2",
     "@blacksands/components": "^0.5.2",
     "@blacksands/hooks": "^0.4.2",
     "@blacksands/ui": "^0.5.0",

@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Calendar, ChevronRight, Plus } from "lucide-react-native";
 
-import { Screen, LoadingState, CardShell, Stack, AppText, components } from "@/lib/uiKit";
+import { Screen, LoadingState, ErrorCard, CardShell, Stack, AppText, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -20,7 +20,7 @@ function formatTripDates(startDate: string, endDate: string): string {
 
 export default function ItineraryListPage() {
   const { session } = useSession();
-  const { itineraries, loading } = useItineraries();
+  const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
@@ -51,6 +51,14 @@ export default function ItineraryListPage() {
     return (
       <Screen>
         <LoadingState label="Loading your trips..." />
+      </Screen>
+    );
+  }
+
+  if (error && itineraries.length === 0) {
+    return (
+      <Screen>
+        <ErrorCard title="Couldn't load your trips" message={error} action={{ label: "Try Again", onPress: () => refetch() }} />
       </Screen>
     );
   }

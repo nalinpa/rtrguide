@@ -19,16 +19,18 @@ const ALL_TABS: Array<{
   { key: "account", title: "Profile", icon: "person-outline", activeIcon: "person" },
 ];
 
+const normalizeRouteName = (name: string) => name.replace(/\/index$/, "");
+
 function TabBar({ state, navigation }: any) {
   const insets = useSafeAreaInsets();
-  const activeRouteName = state.routes[state.index]?.name ?? "sites";
+  const activeRouteName = normalizeRouteName(state.routes[state.index]?.name ?? "sites");
 
   const onSelect = (tabKey: string) => {
-    const targetRoute = state.routes.find((r: any) => r.name === tabKey);
+    const targetRoute = state.routes.find((r: any) => normalizeRouteName(r.name) === tabKey);
     if (!targetRoute) return;
     const event = navigation.emit({ type: "tabPress", target: targetRoute.key, canPreventDefault: true });
     if (!event.defaultPrevented) {
-      navigation.navigate(tabKey);
+      navigation.navigate(targetRoute.name);
     }
   };
 

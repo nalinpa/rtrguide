@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "@blacksands/client";
 
 import { itineraryService } from "@/lib/services/itineraryService";
 import { useSession } from "@/lib/providers/SessionProvider";
@@ -11,9 +12,16 @@ export function useItineraries() {
 
   const queryKey = ["rotoruaguide", "itineraries", uid];
 
-  const { data: itineraries = [], isLoading, error } = useQuery({
+  const { data: itineraries = [], isLoading, error, refetch } = useQuery({
     queryKey,
-    queryFn: () => itineraryService.getMyItineraries(),
+    queryFn: async () => {
+      try {
+        return await itineraryService.getMyItineraries();
+      } catch (e) {
+        console.error("[useItineraries] load failed:", e instanceof ApiError ? `status=${e.status} message=${e.message}` : e);
+        throw e;
+      }
+    },
     enabled: !!uid,
   });
 
@@ -34,7 +42,12 @@ export function useItineraries() {
   return {
     itineraries,
     loading: isLoading,
-    error: error ? "Couldn't load your trips." : null,
+    error: error
+      ? error instanceof ApiError && error.status === 401
+        ? "Your session expired. Please sign in again."
+        : "Couldn't load your trips."
+      : null,
+    refetch,
     saveItinerary: saveMutation.mutateAsync,
     deleteItinerary: deleteMutation.mutateAsync,
     isSaving: saveMutation.isPending,

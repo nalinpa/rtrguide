@@ -1,6 +1,6 @@
 import React from "react";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, defaultShouldDehydrateQuery } from "@tanstack/react-query";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -21,7 +21,18 @@ const persister = createAsyncStoragePersister({
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        // savedSites query data is a Set, which JSON.stringify can't round-trip
+        // (persister serializes to "{}") — exclude it, refetches fine on launch.
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) =>
+            query.queryKey[0] !== "savedSites" && defaultShouldDehydrateQuery(query),
+        },
+      }}
+    >
       <SessionProvider>{children}</SessionProvider>
     </PersistQueryClientProvider>
   );

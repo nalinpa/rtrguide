@@ -1,6 +1,8 @@
 import { createUI } from "@blacksands/ui";
-import { createComponents } from "@blacksands/components";
+import { createComponents, boundingRegionFrom } from "@blacksands/components";
 import { tokens } from "@/lib/ui/tokens";
+
+export { boundingRegionFrom };
 
 export const uiKit = createUI(tokens);
 export const components = createComponents(tokens, uiKit);

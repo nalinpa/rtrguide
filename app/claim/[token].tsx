@@ -6,7 +6,7 @@ import { useSession } from "@/lib/providers/SessionProvider";
 import { client } from "@/lib/api";
 import { tokens } from "@/lib/ui/tokens";
 
-const COMMERCE_BASE_URL = "https://commerce.blacksands.app";
+const COMMERCE_BASE_URL = "https://neat-areas-hear.loca.lt";
 
 type ClaimInfo = { productName: string | null; used: boolean; expired: boolean; refunded: boolean };
 
@@ -23,12 +23,18 @@ export default function ClaimScreen() {
 
   useEffect(() => {
     fetch(`${COMMERCE_BASE_URL}/v1/claim/${encodeURIComponent(token)}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server unavailable (${res.status}).`);
+        return res.json();
+      })
       .then((body: any) => {
         if (!body.ok) throw new Error(body.error ?? "invalid_token");
         setInfo(body.data);
       })
-      .catch((e) => setInfoErr(e instanceof Error ? e.message : "Couldn't load this link."));
+      .catch((e) => {
+        console.error("[claim] load info failed:", e);
+        setInfoErr(e instanceof Error ? e.message : "Couldn't load this link.");
+      });
   }, [token]);
 
   const handleClaim = async () => {
@@ -38,6 +44,7 @@ export default function ClaimScreen() {
       await client.entitlements!.claim(token);
       setClaimed(true);
     } catch (e) {
+      console.error("[claim] claim failed:", e);
       setClaimErr(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
       setClaiming(false);

@@ -16,10 +16,11 @@ type SitesListViewProps = {
   rows: SiteRow[];
   header?: React.ReactElement | null;
   onPressSite: (id: string) => void;
+  isLocked?: (site: Site) => boolean;
   ListEmptyComponent?: React.ReactElement | null;
 };
 
-export function SitesListView({ rows, header, onPressSite, ListEmptyComponent }: SitesListViewProps) {
+export function SitesListView({ rows, header, onPressSite, isLocked, ListEmptyComponent }: SitesListViewProps) {
   const renderItem = useCallback(
     ({ item, index }: { item: SiteRow; index: number }) => (
       <SiteListItem
@@ -28,11 +29,12 @@ export function SitesListView({ rows, header, onPressSite, ListEmptyComponent }:
         description={item.location.description}
         imageUrl={item.location.imageThumbnailUrl ?? item.location.imageUrl}
         distanceMeters={item.distanceMeters}
+        locked={isLocked ? isLocked(item.location) : false}
         onPress={onPressSite}
         index={index}
       />
     ),
-    [onPressSite],
+    [onPressSite, isLocked],
   );
 
   return (

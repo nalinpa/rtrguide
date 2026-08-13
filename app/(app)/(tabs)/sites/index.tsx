@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -17,13 +17,21 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppIconButton } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useSession } from "@/lib/providers/SessionProvider";
-import { SITE_CATEGORIES, type SiteCategory } from "@/lib/models";
+import { SITE_CATEGORIES, type SiteCategory, type Site } from "@/lib/models";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { SitesListView } from "@/components/site/list/SitesListView";
 
 export default function SiteListPage() {
   const { session } = useSession();
   const isGuest = session.status === "guest";
+  const uid = session.status === "authed" ? session.uid : null;
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const isSiteLocked = useCallback(
+    (site: Site) => !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID),
+    [entitledProductIds],
+  );
 
   const { locations, loading: entitiesLoading, err: entitiesErr } = hooksBag.useLocations();
   const { loading: compLoading } = hooksBag.useMyCompletions(
@@ -50,20 +58,23 @@ export default function SiteListPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       list = list.filter((l) => l.name.toLowerCase().includes(q));
+      list = list.filter((l) => !isSiteLocked(l));
     }
     return list;
-  }, [activeLocations, category, searchQuery]);
+  }, [activeLocations, category, searchQuery, isSiteLocked]);
 
   const rows = hooksBag.useSortedRows(filteredLocations, lockedLoc);
 
   const featuredSite = useMemo(() => {
     if (!rows.length) return null;
-    const withFeatured = rows.filter((r) => (r.location.featured ?? 0) > 0);
-    if (!withFeatured.length) return rows[0];
+    const eligible = rows.filter((r) => !isSiteLocked(r.location));
+    if (!eligible.length) return null;
+    const withFeatured = eligible.filter((r) => (r.location.featured ?? 0) > 0);
+    if (!withFeatured.length) return eligible[0];
     return withFeatured.reduce((best, r) =>
       (r.location.featured ?? 0) > (best.location.featured ?? 0) ? r : best,
     );
-  }, [rows]);
+  }, [rows, isSiteLocked]);
 
   const listRows = useMemo(
     () => (featuredSite ? rows.filter((r) => r.location.id !== featuredSite.location.id) : rows),
@@ -72,7 +83,7 @@ export default function SiteListPage() {
 
   const openRegionPlaceholder = () => Alert.alert("Region filter", "Coming soon.");
 
-  if (entitiesLoading || session.status === "loading" || compLoading) {
+  if (entitiesLoading || session.status === "loading" || compLoading || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Finding Locations..." />
@@ -237,6 +248,7 @@ export default function SiteListPage() {
         rows={listRows}
         header={header}
         onPressSite={(id) => router.push(`/(app)/(tabs)/sites/${id}`)}
+        isLocked={isSiteLocked}
         ListEmptyComponent={
           activeLocations.length === 0 ? (
             <View style={styles.paddedSection}>

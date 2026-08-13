@@ -6,7 +6,9 @@ import * as Haptics from "expo-haptics";
 import { Screen, LoadingState, ErrorCard, components, boundingRegionFrom } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useSession } from "@/lib/providers/SessionProvider";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 // NOTE: react-native-maps is a peerDependency of @blacksands/components
 // (TrackedMarker) but @blacksands/create-app doesn't install it
@@ -20,22 +22,27 @@ export default function MapScreen() {
   const uid = session.status === "authed" ? session.uid : null;
 
   const { locations, loading, err } = hooksBag.useLocations();
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const visibleLocations = useMemo(
+    () => locations.filter((l) => !l.isPremium || entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)),
+    [locations, entitledProductIds],
+  );
   const { completedLocationIds } = hooksBag.useMyCompletions(uid);
   const { loc } = hooksBag.useUserLocation({ autoRequest: true });
   const { selectedLocationId, setSelectedLocationId } = hooksBag.useMapStore();
 
-  const nearestUnvisited = hooksBag.useNearestUnvisited(locations, completedLocationIds, loc);
+  const nearestUnvisited = hooksBag.useNearestUnvisited(visibleLocations, completedLocationIds, loc);
 
   const selectedLocation = useMemo(
-    () => locations.find((l) => l.id === selectedLocationId) ?? null,
-    [locations, selectedLocationId],
+    () => visibleLocations.find((l) => l.id === selectedLocationId) ?? null,
+    [visibleLocations, selectedLocationId],
   );
   const gate = hooksBag.useGPSGate(selectedLocation, loc);
 
   const initialRegion = useMemo(() => {
-    if (loading || locations.length === 0) return DEFAULT_REGION;
-    return boundingRegionFrom(locations.map((l) => ({ lat: l.lat, lng: l.lng }))) ?? DEFAULT_REGION;
-  }, [loading, locations]);
+    if (loading || visibleLocations.length === 0) return DEFAULT_REGION;
+    return boundingRegionFrom(visibleLocations.map((l) => ({ lat: l.lat, lng: l.lng }))) ?? DEFAULT_REGION;
+  }, [loading, visibleLocations]);
 
   const handlePressMarker = useCallback(
     (id: string) => {
@@ -45,7 +52,7 @@ export default function MapScreen() {
     [setSelectedLocationId],
   );
 
-  if (loading) {
+  if (loading || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Loading map..." />
@@ -78,7 +85,7 @@ export default function MapScreen() {
 
       <View style={styles.flex1}>
         <MapView style={styles.flex1} initialRegion={initialRegion}>
-          {locations.map((location) => (
+          {visibleLocations.map((location) => (
             <components.TrackedMarker
               key={location.id}
               data={{ id: location.id, lat: location.lat, lng: location.lng }}

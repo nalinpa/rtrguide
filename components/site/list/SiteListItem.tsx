@@ -1,6 +1,6 @@
 // components/site/list/SiteListItem.tsx
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { Image as ImageIcon } from "lucide-react-native";
+import { Image as ImageIcon, Lock } from "lucide-react-native";
 import { MotiView } from "moti";
 import { formatDistanceMeters } from "@blacksands/hooks";
 
@@ -13,6 +13,7 @@ type SiteListItemProps = {
   description?: string;
   distanceMeters?: number | null;
   imageUrl?: string | null;
+  locked?: boolean;
   onPress: (id: string) => void;
   index: number;
 };
@@ -23,9 +24,27 @@ export function SiteListItem({
   description,
   distanceMeters,
   imageUrl,
+  locked,
   onPress,
   index,
 }: SiteListItemProps) {
+  if (locked) {
+    return (
+      <MotiView
+        from={{ opacity: 0, translateY: 20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: "timing", duration: 250, delay: Math.min(index * 50, 300) }}
+      >
+        <TouchableOpacity activeOpacity={0.7} onPress={() => onPress(id)} style={[styles.card, styles.lockedCard]}>
+          <Lock size={22} color={tokens.colors.borderStrong} />
+          <AppText variant="label" status="hint" style={styles.lockedLabel}>
+            Premium
+          </AppText>
+        </TouchableOpacity>
+      </MotiView>
+    );
+  }
+
   return (
     <MotiView
       from={{ opacity: 0, translateY: 20 }}
@@ -80,6 +99,13 @@ const styles = StyleSheet.create({
     elevation: 2,
     overflow: "hidden",
   },
+  lockedCard: {
+    minHeight: 96,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  lockedLabel: { letterSpacing: 1, textTransform: "uppercase" },
   main: {
     flex: 1,
     marginRight: tokens.space.sm,

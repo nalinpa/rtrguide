@@ -1,6 +1,6 @@
 // components/account/ItinerariesCard.tsx
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { router } from "expo-router";
 import { ChevronRight, Plus } from "lucide-react-native";
 
@@ -9,6 +9,9 @@ import { useItineraries } from "@/lib/hooks/useItineraries";
 import { tokens } from "@/lib/ui/tokens";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
+import { useSession } from "@/lib/providers/SessionProvider";
+import { hooksBag } from "@/lib/hooksBag";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 function formatTripDates(startDate: string, endDate: string): string {
   const fmt = (iso: string) =>
@@ -19,6 +22,9 @@ function formatTripDates(startDate: string, endDate: string): string {
 
 export function ItinerariesCard() {
   const { itineraries, error } = useItineraries();
+  const { session } = useSession();
+  const uid = session.status === "authed" ? session.uid : null;
+  const { entitledProductIds } = hooksBag.useEntitlements(uid);
   const atLimit = itineraries.length >= PLANNER.MAX_ITINERARIES;
   const [isCreating, setIsCreating] = useState(false);
 
@@ -66,7 +72,17 @@ export function ItinerariesCard() {
       {atLimit ? (
         <Text style={styles.limitText}>Up to {PLANNER.MAX_ITINERARIES} itineraries allowed.</Text>
       ) : (
-        <TouchableOpacity style={styles.createBtn} onPress={() => setIsCreating(true)} activeOpacity={0.6}>
+        <TouchableOpacity
+          style={styles.createBtn}
+          onPress={() => {
+            if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+              Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
+              return;
+            }
+            setIsCreating(true);
+          }}
+          activeOpacity={0.6}
+        >
           <Plus size={13} color={tokens.colors.accent} strokeWidth={2.5} />
           <Text style={styles.createBtnText}>New Itinerary</Text>
         </TouchableOpacity>

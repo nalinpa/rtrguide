@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Calendar, ChevronRight, Plus } from "lucide-react-native";
@@ -8,7 +8,9 @@ import { Screen, LoadingState, ErrorCard, CardShell, Stack, AppText, components 
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
+import { hooksBag } from "@/lib/hooksBag";
 import { PLANNER } from "@/lib/constants/gameplay";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 
 function formatTripDates(startDate: string, endDate: string): string {
@@ -20,6 +22,8 @@ function formatTripDates(startDate: string, endDate: string): string {
 
 export default function ItineraryListPage() {
   const { session } = useSession();
+  const uid = session.status === "authed" ? session.uid : null;
+  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -47,10 +51,30 @@ export default function ItineraryListPage() {
     );
   }
 
-  if (session.status === "loading" || loading) {
+  if (session.status === "loading" || loading || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Loading your trips..." />
+      </Screen>
+    );
+  }
+
+  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+  if (!isEntitled) {
+    return (
+      <Screen>
+        <Stack gap="md" style={styles.paddedSection}>
+          <AppText variant="h1">Itinerary</AppText>
+          <components.RequirePurchaseCard
+            productId={FULL_GUIDE_PRODUCT_ID}
+            entitledProductIds={entitledProductIds}
+            title="Unlock Trip Planning"
+            message="Build multi-day itineraries with the full guide unlock."
+            onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+          >
+            {null}
+          </components.RequirePurchaseCard>
+        </Stack>
       </Screen>
     );
   }

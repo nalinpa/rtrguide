@@ -8,10 +8,13 @@ import { Plus, MoreHorizontal, X } from "lucide-react-native";
 import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKit";
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { tokens } from "@/lib/ui/tokens";
+import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
+import { hooksBag } from "@/lib/hooksBag";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import type { Itinerary, ItineraryItem } from "@/lib/models";
 
 const { SLOT_HEIGHT, MAX_GRID_SLOTS } = PLANNER;
@@ -44,6 +47,9 @@ export default function ItineraryDetailPage() {
     jumpToSlot?: string;
   }>();
   const { itineraries, loading, error, refetch, saveItinerary, deleteItinerary } = useItineraries();
+  const { session } = useSession();
+  const uid = session.status === "authed" ? session.uid : null;
+  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);
@@ -332,7 +338,7 @@ export default function ItineraryDetailPage() {
     }
   };
 
-  if (loading) {
+  if (loading || entitlementsLoading) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <LoadingState label="Loading your trip..." />
@@ -351,6 +357,23 @@ export default function ItineraryDetailPage() {
   if (!localTrip) {
     router.replace("/(app)/(tabs)/itinerary");
     return null;
+  }
+
+  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+  if (!isEntitled) {
+    return (
+      <Screen>
+        <components.RequirePurchaseCard
+          productId={FULL_GUIDE_PRODUCT_ID}
+          entitledProductIds={entitledProductIds}
+          title="Unlock Trip Planning"
+          message="Build multi-day itineraries with the full guide unlock."
+          onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+        >
+          {null}
+        </components.RequirePurchaseCard>
+      </Screen>
+    );
   }
 
   return (

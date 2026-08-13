@@ -8,7 +8,7 @@ import { Screen, LoadingState, ErrorCard, CardShell, Stack, AppText, components 
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
-import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
@@ -23,7 +23,7 @@ function formatTripDates(startDate: string, endDate: string): string {
 export default function ItineraryListPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
-  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 

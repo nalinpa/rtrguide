@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppIconButton } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { SITE_CATEGORIES, type SiteCategory, type Site } from "@/lib/models";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
@@ -26,7 +27,7 @@ export default function SiteListPage() {
   const { session } = useSession();
   const isGuest = session.status === "guest";
   const uid = session.status === "authed" ? session.uid : null;
-  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const isSiteLocked = useCallback(
     (site: Site) => !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID),
     [entitledProductIds],

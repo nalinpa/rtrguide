@@ -10,7 +10,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { useSession } from "@/lib/providers/SessionProvider";
-import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 function formatTripDates(startDate: string, endDate: string): string {
@@ -24,7 +24,7 @@ export function ItinerariesCard() {
   const { itineraries, error } = useItineraries();
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
-  const { entitledProductIds } = hooksBag.useEntitlements(uid);
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const atLimit = itineraries.length >= PLANNER.MAX_ITINERARIES;
   const [isCreating, setIsCreating] = useState(false);
 
@@ -75,6 +75,7 @@ export function ItinerariesCard() {
         <TouchableOpacity
           style={styles.createBtn}
           onPress={() => {
+            if (entitlementsLoading) return;
             if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
               Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
               return;

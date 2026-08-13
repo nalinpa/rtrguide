@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react-native";
 import { LoadingState, ErrorCard, Stack, AppText, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useSavedSites } from "@/lib/hooks/useSavedSites";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -27,7 +28,7 @@ export default function SiteDetailRoute() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
 
-  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
 
   const {
     completedLocationIds,

@@ -10,7 +10,7 @@ import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
-import { hooksBag } from "@/lib/hooksBag";
+import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
@@ -49,7 +49,7 @@ export default function ItineraryDetailPage() {
   const { itineraries, loading, error, refetch, saveItinerary, deleteItinerary } = useItineraries();
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
-  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
+  const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);

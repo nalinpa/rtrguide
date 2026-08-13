@@ -31,6 +31,7 @@ export type Site = {
   imageUrl?: string | null;
   imageThumbnailUrl?: string | null;
   featured?: number;
+  isPremium?: boolean;
 };
 
 export type ItineraryItem = {

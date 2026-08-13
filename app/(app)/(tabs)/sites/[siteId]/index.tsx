@@ -16,6 +16,7 @@ import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModa
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
 import { SiteActionsBar } from "@/components/site/detail/SiteActionsBar";
+import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 const MAX_ACCURACY_METERS = 50;
 
@@ -25,6 +26,8 @@ export default function SiteDetailRoute() {
 
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
+
+  const { entitledProductIds, loading: entitlementsLoading } = hooksBag.useEntitlements(uid);
 
   const {
     completedLocationIds,
@@ -134,7 +137,7 @@ export default function SiteDetailRoute() {
     extrapolate: "clamp",
   });
 
-  if (entityLoading || compsLoading || session.status === "loading") {
+  if (entityLoading || compsLoading || session.status === "loading" || entitlementsLoading) {
     return (
       <View style={styles.container}>
         <LoadingState label="Loading..." />
@@ -150,6 +153,48 @@ export default function SiteDetailRoute() {
           message={entityErr || "Could not find this Location."}
           action={{ label: "Go Back", onPress: () => router.replace("/(app)/(tabs)/sites") }}
         />
+      </View>
+    );
+  }
+
+  const isLocked = !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+
+  if (isLocked) {
+    return (
+      <View style={styles.container}>
+        <ExpoStack.Screen options={{ headerShown: false }} />
+
+        <View style={styles.heroWrap}>
+          <SiteHero imageUrl={site.imageUrl} imageThumbnailUrl={site.imageThumbnailUrl} />
+        </View>
+
+        <View style={{ marginTop: SITE_HERO_HEIGHT - 32 }}>
+          <View style={styles.sheet}>
+            <View style={styles.dragHandle} />
+            <Stack gap="md" style={styles.content}>
+              <AppText variant="h1">{site.name}</AppText>
+              <components.RequirePurchaseCard
+                productId={FULL_GUIDE_PRODUCT_ID}
+                entitledProductIds={entitledProductIds}
+                title="Unlock This Location"
+                message="This is a premium location. Unlock the full guide to see details, check in, and leave a review."
+                onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+              >
+                {null}
+              </components.RequirePurchaseCard>
+            </Stack>
+          </View>
+        </View>
+
+        <SafeAreaView style={styles.backButtonWrap} pointerEvents="box-none">
+          <Pressable
+            style={styles.backButton}
+            onPress={() => router.back()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <ArrowLeft color="#FFFFFF" size={22} />
+          </Pressable>
+        </SafeAreaView>
       </View>
     );
   }
@@ -213,12 +258,22 @@ export default function SiteDetailRoute() {
                 router.push({ pathname: "/share-frame", params: { entityId: id, entityName: site.name } })
               }
               isSaved={isSaved}
-              onToggleSave={() => toggleSavedSite({ siteId: id, isSaving: !isSaved })}
+              onToggleSave={() => {
+                if (!isSaved && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+                  Alert.alert("Premium Feature", "Saving sites requires the full guide unlock.");
+                  return;
+                }
+                toggleSavedSite({ siteId: id, isSaving: !isSaved });
+              }}
             />
 
             <Pressable
               style={itineraryStyles.button}
               onPress={() => {
+                if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+                  Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
+                  return;
+                }
                 if (itineraries.length === 0) {
                   setIsCreatingItinerary(true);
                 } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {

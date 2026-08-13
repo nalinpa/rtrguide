@@ -113,21 +113,49 @@ Existing docs without the field are treated as free (falsy). Docs are
 edited directly (same as every other site field today — no CMS/admin UI
 exists or is being built here).
 
-### List / map / search — teaser stays visible
+### List — blurred teaser, only while browsing
 
-Locked sites keep showing in list, map, and search with full name,
-thumbnail, and category — never hidden. Add a small lock badge:
+`sites/index.tsx` (the only site-list screen — search is an inline text
+filter over the same `rows`/`SiteListItem` cards, there's no separate
+search screen):
 
-- `SiteListItem` gets a new `isPremium?: boolean` prop → renders a small
-  lock icon/pill on the card when true, so a user can tell before tapping.
-- Callers (`sites/index.tsx` via `SitesListView`, `saved-sites.tsx`) pass
-  `site.isPremium` through.
-- Map pins: no change. Cosmetic-only concern, deferred — the real gate is
-  enforced at the detail screen regardless of entry point (list, map, saved,
-  or a deep link all route through `sites/${id}`), so an un-badged pin is
-  not a gating gap, just a slightly less informative pin.
+- **Browsing** (no search query, category filter alone doesn't count as
+  searching): locked sites still render as a card in the list, but
+  `SiteListItem` gets a new `isPremium?: boolean` prop that switches it to a
+  **blurred card** — blurred/obscured image, no name, no description, no
+  distance pill, no other identifying detail. Just a lock icon over the
+  blur so the user knows something is there and it's premium. This card is
+  still tappable and still navigates to `sites/${id}` like any other card —
+  the detail screen's own gate (below) is what actually stops content from
+  showing, the blur is purely so the list itself never leaks details.
+- **Searching** (`searchQuery.trim()` non-empty): locked sites are dropped
+  from `filteredLocations` entirely — they don't appear in results at all,
+  blurred or otherwise.
+- `saved-sites.tsx` reuses `SiteListItem` too, but never needs the
+  `isPremium` prop wired — a locked site can never end up saved (Gate 2
+  blocks the save action at the source), so this case can't occur there.
+- The **featured hero card** at the top of this screen (`featuredSite`,
+  picked from `rows` by highest `featured` value) shows full name, image,
+  and description with no blur treatment — a locked site must never be
+  selected as `featuredSite`. Fix: filter locked sites out before the
+  `withFeatured`/`featuredSite` computation, same as the search case above.
 
-### Detail screen — locked content swap
+### Map — locked sites excluded entirely, for now
+
+`map/index.tsx` filters `locations` before rendering pins: add
+`hooksBag.useEntitlements(uid)` there and drop any site where
+`site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)` from the
+array passed to `TrackedMarker`. No blurred-pin treatment — locked sites
+simply don't have a pin. Explicitly a "for now" simplification; a teaser
+pin treatment can follow later without changing the underlying gate.
+
+### Detail screen — the actual gate
+
+List and map are just discovery surfaces that avoid *advertising* locked
+content — neither one is what actually enforces the paywall, and both can
+be bypassed (deep link, browser history, back-navigation, a stale cached
+list). `sites/[siteId]/index.tsx` is the real gate and must enforce it
+independently of how the user got there.
 
 `sites/[siteId]/index.tsx` doesn't call `hooksBag.useEntitlements` yet —
 add it alongside the existing hooks (`uid` from `session`, same as other
@@ -147,19 +175,14 @@ feel broken) plus `components.RequirePurchaseCard` as the paywall, and
 `SiteActionsBar` (no check-in, no save, no share), no "Add to Itinerary".
 When not locked, the screen renders exactly as it does today.
 
-### Reviews route — same lock, reachable independently
+### Reviews route — explicitly free, not gated
 
-`sites/[siteId]/reviews.tsx` is a separate route
-(`sites/${id}/reviews`) and doesn't fetch the site doc today — under normal
-navigation it's only reached via the detail screen's `ReviewsSummaryCard`,
-which is already hidden when locked, but it's a real route and can be
-reached by a direct/deep link, so it needs the same check independently
-rather than relying on the detail screen to gatekeep it.
-
-Add `hooksBag.useLocation(id)` and `hooksBag.useEntitlements(uid)` to this
-screen. If `site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)`,
-redirect back (`goBack()`, already defined) instead of rendering the review
-list.
+`sites/[siteId]/reviews.tsx` is **not** gated by `isPremium` — reviews are
+free to read for every user regardless of entitlement, by direct
+instruction. (An earlier draft of this spec added a lock here during
+self-review reasoning it was an inconsistent deep-link path; that reasoning
+was overridden — reviews are intentionally open. No changes needed to this
+route at all.)
 
 ## Loading UX
 
@@ -175,6 +198,6 @@ check has resolved. No optimistic render-then-revoke.
   behavior) — separate IAP spec.
 - Any admin/CMS tooling for setting `isPremium` — direct Firestore edit,
   same as every other site field.
-- Map pin lock badges — cosmetic follow-up, not a gating requirement.
-- Gating `map/index.tsx` itself — it only navigates to the site detail
-  route, which already enforces the gate.
+- A teaser/blurred-pin treatment for locked sites on the map — they're
+  fully excluded for now instead.
+- Gating the reviews route by `isPremium` — explicitly left open, see Gate 3.

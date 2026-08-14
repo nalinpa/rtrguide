@@ -1,5 +1,3 @@
-// rotorua-guide/lib/iap/deriveAppAccountToken.ts
-//
 // Ported verbatim from enginev1/commerce-api/src/lib/appAccountToken.ts —
 // see that file's comment for why the namespace doesn't need to be secret.
 // The namespace constant and bit-twiddling below MUST stay byte-identical

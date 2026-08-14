@@ -1,4 +1,3 @@
-// rotorua-guide/lib/iap/usePurchase.ts
 import { usePurchaseContext } from "./PurchaseProvider";
 
 export function usePurchase(productId: string) {
@@ -6,6 +5,6 @@ export function usePurchase(productId: string) {
   return {
     buy: () => requestBuy(productId),
     purchasing: purchasingProductId === productId,
-    error: purchasingProductId === productId ? error : null,
+    error: error?.productId === productId ? error.message : null,
   };
 }

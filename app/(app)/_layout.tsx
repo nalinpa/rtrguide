@@ -3,6 +3,7 @@ import { Redirect, Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 
 import { useSession } from "@/lib/providers/SessionProvider";
+import { PurchaseProvider } from "@/lib/iap/PurchaseProvider";
 
 export default function AppLayout() {
   const { session } = useSession();
@@ -21,5 +22,9 @@ export default function AppLayout() {
     return <Redirect href="/(auth)/login" />;
   }
 
-  return <Slot />;
+  return (
+    <PurchaseProvider>
+      <Slot />
+    </PurchaseProvider>
+  );
 }

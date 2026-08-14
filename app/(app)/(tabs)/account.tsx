@@ -14,6 +14,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { UserInfoCard } from "@/components/account/UserInfoCard";
 import { ItinerariesCard } from "@/components/account/ItinerariesCard";
 import { SavedSitesCard } from "@/components/account/SavedSitesCard";
+import { RestorePurchasesCard } from "@/components/account/RestorePurchasesCard";
 import { DangerZoneCard } from "@/components/account/DangerZoneCard";
 
 export default function AccountScreen() {
@@ -88,6 +89,8 @@ export default function AccountScreen() {
               <ItinerariesCard />
               <View style={styles.divider} />
               <SavedSitesCard />
+              <View style={styles.divider} />
+              <RestorePurchasesCard />
               <View style={styles.divider} />
               <DangerZoneCard />
             </>

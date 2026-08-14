@@ -21,7 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,
-    associatedDomains: ["applinks:commerce.blacksands.app"],
+    associatedDomains: ["applinks:commerce.blacksands.app", "applinks:commerce-staging.blacksands.app"],
     infoPlist: {
       NSLocationWhenInUseUsageDescription: "Rotorua Guide uses your location to verify your visits.",
       ITSAppUsesNonExemptEncryption: false,

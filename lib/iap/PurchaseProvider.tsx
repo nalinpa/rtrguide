@@ -1,5 +1,5 @@
 // rotorua-guide/lib/iap/PurchaseProvider.tsx
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useIAP, ErrorCode, type Purchase } from "expo-iap";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
@@ -14,6 +14,7 @@ type PurchaseContextValue = {
   requestBuy: (productId: string) => void;
   purchasingProductId: string | null;
   error: string | null;
+  restore: () => Promise<{ restored: number }>;
 };
 
 const PurchaseContext = createContext<PurchaseContextValue | null>(null);
@@ -24,6 +25,10 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [purchasingProductId, setPurchasingProductId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const restorePromiseRef = useRef<{
+    resolve: (value: { restored: number }) => void;
+    reject: (reason?: any) => void;
+  } | null>(null);
 
   async function completePurchase(purchase: Purchase, finishTransaction: (args: { purchase: Purchase; isConsumable: boolean }) => Promise<void>) {
     try {
@@ -45,7 +50,7 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const { connected, requestPurchase, finishTransaction, fetchProducts } = useIAP({
+  const { connected, requestPurchase, finishTransaction, fetchProducts, getAvailablePurchases, availablePurchases } = useIAP({
     onPurchaseSuccess: (purchase) => {
       void completePurchase(purchase, finishTransaction);
     },
@@ -59,6 +64,28 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (connected) fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" });
   }, [connected, fetchProducts]);
+
+  // Process restore when availablePurchases updates after getAvailablePurchases() fetch
+  useEffect(() => {
+    if (restorePromiseRef.current && availablePurchases !== undefined) {
+      const processRestore = async () => {
+        let restored = 0;
+        try {
+          for (const purchase of availablePurchases) {
+            const result = await client.entitlements!.register(purchase.transactionId ?? purchase.id);
+            if (result.granted) restored += 1;
+          }
+          queryClient.invalidateQueries({ queryKey: ["rotoruaguide", "entitlements", uid] });
+          restorePromiseRef.current!.resolve({ restored });
+        } catch (e) {
+          restorePromiseRef.current!.reject(e);
+        } finally {
+          restorePromiseRef.current = null;
+        }
+      };
+      void processRestore();
+    }
+  }, [availablePurchases, uid, queryClient]);
 
   const value = useMemo<PurchaseContextValue>(
     () => ({
@@ -75,8 +102,14 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
           });
         });
       },
+      restore: async () => {
+        return new Promise<{ restored: number }>((resolve, reject) => {
+          restorePromiseRef.current = { resolve, reject };
+          getAvailablePurchases().catch(reject);
+        });
+      },
     }),
-    [connected, purchasingProductId, error, uid, requestPurchase],
+    [connected, purchasingProductId, error, uid, requestPurchase, getAvailablePurchases],
   );
 
   return <PurchaseContext.Provider value={value}>{children}</PurchaseContext.Provider>;

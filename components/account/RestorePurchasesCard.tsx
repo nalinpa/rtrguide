@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { RotateCcw } from "lucide-react-native";
-import { useIAP } from "expo-iap";
-import { useQueryClient } from "@tanstack/react-query";
 
-import { useSession } from "@/lib/providers/SessionProvider";
-import { client } from "@/lib/api";
+import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { tokens } from "@/lib/ui/tokens";
 
 export function RestorePurchasesCard() {
-  const { session } = useSession();
-  const uid = session.status === "authed" ? session.uid : null;
-  const queryClient = useQueryClient();
-  const { getAvailablePurchases, availablePurchases } = useIAP();
+  const { restore } = usePurchaseContext();
   const [restoring, setRestoring] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -20,14 +14,8 @@ export function RestorePurchasesCard() {
     setRestoring(true);
     setMessage(null);
     try {
-      await getAvailablePurchases();
-      let restored = 0;
-      for (const purchase of availablePurchases) {
-        const result = await client.entitlements!.register(purchase.transactionId ?? purchase.id);
-        if (result.granted) restored += 1;
-      }
-      queryClient.invalidateQueries({ queryKey: ["rotoruaguide", "entitlements", uid] });
-      setMessage(restored > 0 ? `Restored ${restored} purchase${restored === 1 ? "" : "s"}.` : "Nothing to restore.");
+      const result = await restore();
+      setMessage(result.restored > 0 ? `Restored ${result.restored} purchase${result.restored === 1 ? "" : "s"}.` : "Nothing to restore.");
     } catch (e) {
       setMessage("Couldn't restore purchases. Please try again.");
     } finally {

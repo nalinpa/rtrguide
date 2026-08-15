@@ -61,7 +61,7 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    if (connected) fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" });
+    if (connected) fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" }).catch(() => {});
   }, [connected, fetchProducts]);
 
   const value = useMemo<PurchaseContextValue>(

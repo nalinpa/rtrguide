@@ -63,6 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         organization: "REPLACE_ME_SENTRY_ORG",
       },
     ],
+    "expo-iap",
   ],
 
   extra: {

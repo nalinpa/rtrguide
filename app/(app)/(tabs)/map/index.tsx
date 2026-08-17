@@ -71,11 +71,14 @@ export default function MapScreen() {
   const overlayDistance = selectedLocation && gate ? gate.distanceMeters : nearestUnvisited?.distanceMeters;
 
   // GAP: real map screens (cones/rings/eats) show a richer overlay below
-  // (MapOverlayCard, @gorhom/bottom-sheet). That component isn't in
-  // @blacksands/components yet, so this reuses NearestUnvisitedCard
-  // (view-details only) as a working stand-in. `gate` above (already
-  // wired) exposes distance/GPS status for a richer overlay if one is
-  // added later.
+  // with an inline GPS-gated "I'm here" check-in button (MapOverlayCard,
+  // @gorhom/bottom-sheet). That component isn't in @blacksands/components
+  // yet -- components/task-progress.md flags it explicitly: "inlines a
+  // full check-in flow ... needs the check-in flow extracted to
+  // @blacksands/hooks first." This reuses NearestUnvisitedCard
+  // (view-details only) as a working stand-in. hooksBag.useCheckIn and
+  // the `gate` above (already wired) are what a richer overlay needs
+  // once that extraction happens.
   return (
     <Screen padded={false}>
       <Stack.Screen options={{ title: "Map", headerTransparent: true }} />

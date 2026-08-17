@@ -39,11 +39,14 @@ export const hooksBag = createHooks<Site>(client, {
 });
 
 export const {
+  useMyCompletions,
+  useCheckIn,
   useOfflineQueue,
   useMyReviews,
   useSubmitReview,
   useGPSGate,
   useDraftsStore,
+  useTrackingStore,
   useGuestStore,
   useMapStore,
   useAppSettingsStore,

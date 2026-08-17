@@ -16,6 +16,7 @@ import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 // screen fails to bundle.
 
 const DEFAULT_REGION = { latitude: -36.8485, longitude: 174.7633, latitudeDelta: 0.15, longitudeDelta: 0.15 };
+const NO_COMPLETIONS = new Set<string>();
 
 export default function MapScreen() {
   const { session } = useSession();
@@ -27,11 +28,10 @@ export default function MapScreen() {
     () => locations.filter((l) => !l.isPremium || entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)),
     [locations, entitledProductIds],
   );
-  const { completedLocationIds } = hooksBag.useMyCompletions(uid);
   const { loc } = hooksBag.useUserLocation({ autoRequest: true });
   const { selectedLocationId, setSelectedLocationId } = hooksBag.useMapStore();
 
-  const nearestUnvisited = hooksBag.useNearestUnvisited(visibleLocations, completedLocationIds, loc);
+  const nearestUnvisited = hooksBag.useNearestUnvisited(visibleLocations, NO_COMPLETIONS, loc);
 
   const selectedLocation = useMemo(
     () => visibleLocations.find((l) => l.id === selectedLocationId) ?? null,
@@ -90,11 +90,11 @@ export default function MapScreen() {
               key={location.id}
               data={{ id: location.id, lat: location.lat, lng: location.lng }}
               selected={location.id === selectedLocationId}
-              completed={completedLocationIds.has(location.id)}
+              completed={false}
               onPress={handlePressMarker}
               renderMarker={(_data, state, onMarkerReady) => (
                 <View
-                  style={[styles.pin, state.completed && styles.pinCompleted, state.selected && styles.pinSelected]}
+                  style={[styles.pin, state.selected && styles.pinSelected]}
                   onLayout={onMarkerReady}
                 />
               )}
@@ -121,6 +121,5 @@ const styles = StyleSheet.create({
   flex1: { flex: 1 },
   overlay: { position: "absolute", bottom: 24, left: 16, right: 16 },
   pin: { width: 16, height: 16, borderRadius: 8, backgroundColor: tokens.colors.accent, borderWidth: 2, borderColor: tokens.colors.bgCard },
-  pinCompleted: { backgroundColor: tokens.colors.success },
   pinSelected: { width: 20, height: 20, borderRadius: 10 },
 });

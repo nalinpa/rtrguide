@@ -10,13 +10,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
-
-  splash: {
-    image: "./assets/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#FBF7F1",
-  },
 
   ios: {
     bundleIdentifier: "app.blacksands.rtrguide",
@@ -36,7 +29,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: "#FBF7F1",
     },
     permissions: ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
-    edgeToEdgeEnabled: true,
     intentFilters: [
       {
         action: "VIEW",
@@ -49,6 +41,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     "expo-router",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/splash-icon.png",
+        resizeMode: "contain",
+        backgroundColor: "#FBF7F1",
+      },
+    ],
     [
       "expo-location",
       {

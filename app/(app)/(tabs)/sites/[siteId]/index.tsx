@@ -9,6 +9,7 @@ import { LoadingState, ErrorCard, Stack, AppText, components } from "@/lib/uiKit
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
+import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useSavedSites } from "@/lib/hooks/useSavedSites";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -29,6 +30,7 @@ export default function SiteDetailRoute() {
   const uid = session.status === "authed" ? session.uid : null;
 
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const { requestBuy } = usePurchaseContext();
 
   const {
     completedLocationIds,
@@ -179,7 +181,7 @@ export default function SiteDetailRoute() {
                 entitledProductIds={entitledProductIds}
                 title="Unlock This Location"
                 message="This is a premium location. Unlock the full guide to see details, check in, and leave a review."
-                onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+                onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
               >
                 {null}
               </components.RequirePurchaseCard>

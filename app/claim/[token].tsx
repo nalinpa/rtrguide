@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { Screen, AppText, AppButton, components } from "@/lib/uiKit";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { client } from "@/lib/api";
 import { tokens } from "@/lib/ui/tokens";
 
-const COMMERCE_BASE_URL = "https://neat-areas-hear.loca.lt";
+const COMMERCE_BASE_URL = "https://commerce-staging.blacksands.app";
 
 type ClaimInfo = { productName: string | null; used: boolean; expired: boolean; refunded: boolean };
 
@@ -20,6 +21,15 @@ export default function ClaimScreen() {
   const [claiming, setClaiming] = useState(false);
   const [claimErr, setClaimErr] = useState<string | null>(null);
   const [claimed, setClaimed] = useState(false);
+
+  // This route sits outside both (auth) and (app) — the only two layouts
+  // that call SplashScreen.hideAsync(). A cold-start deep link straight into
+  // /claim/:token (Universal Link tap, app not already running) never mounts
+  // either layout, so without this the native splash screen stays up forever,
+  // covering everything this screen renders.
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
 
   useEffect(() => {
     fetch(`${COMMERCE_BASE_URL}/v1/claim/${encodeURIComponent(token)}`)

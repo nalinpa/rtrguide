@@ -11,6 +11,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
+import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
@@ -50,6 +51,7 @@ export default function ItineraryDetailPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const { requestBuy } = usePurchaseContext();
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);
@@ -368,7 +370,7 @@ export default function ItineraryDetailPage() {
           entitledProductIds={entitledProductIds}
           title="Unlock Trip Planning"
           message="Build multi-day itineraries with the full guide unlock."
-          onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+          onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
         >
           {null}
         </components.RequirePurchaseCard>

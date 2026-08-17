@@ -5,6 +5,6 @@ import type { Site } from "@/lib/models";
 
 export const client = createClient<Site>("rotoruaguide", {
   getToken,
-  commerceBaseUrl: "https://neat-areas-hear.loca.lt",
+  commerceBaseUrl: "https://commerce-staging.blacksands.app",
 });
 export const itinerariesApi = createItinerariesApi("rotoruaguide", { getToken });

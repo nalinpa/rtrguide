@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Calendar, ChevronRight, Plus } from "lucide-react-native";
@@ -9,6 +9,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
+import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
@@ -24,6 +25,7 @@ export default function ItineraryListPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const { requestBuy } = usePurchaseContext();
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -70,7 +72,7 @@ export default function ItineraryListPage() {
             entitledProductIds={entitledProductIds}
             title="Unlock Trip Planning"
             message="Build multi-day itineraries with the full guide unlock."
-            onBuy={() => Alert.alert("Unlock Full Guide", "Purchasing from the app is coming soon.")}
+            onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
           >
             {null}
           </components.RequirePurchaseCard>

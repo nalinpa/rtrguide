@@ -64,6 +64,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     "expo-iap",
+    [
+      "expo-image-picker",
+      {
+        photosPermission: "Rotorua Guide accesses your photos so you can build a share card.",
+        cameraPermission: "Rotorua Guide uses your camera so you can take a photo for your share card.",
+        microphonePermission: false,
+      },
+    ],
   ],
 
   extra: {

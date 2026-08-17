@@ -1,5 +1,5 @@
 import { Share as RNShare } from "react-native";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import * as Sentry from "@sentry/react-native";
 
@@ -30,10 +30,7 @@ async function shareImageAsync(fileUri: string): Promise<boolean> {
 
 async function safeUnlink(uri: string) {
   try {
-    // @ts-ignore
-    if (FileSystem.cacheDirectory && uri.startsWith(FileSystem.cacheDirectory)) {
-      await FileSystem.deleteAsync(uri, { idempotent: true });
-    }
+    await FileSystem.deleteAsync(uri, { idempotent: true });
   } catch (e) {
     Sentry.captureException(e);
     // ignore

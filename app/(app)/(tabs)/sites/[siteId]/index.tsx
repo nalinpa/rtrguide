@@ -101,7 +101,7 @@ export default function SiteDetailRoute() {
                 productId={FULL_GUIDE_PRODUCT_ID}
                 entitledProductIds={entitledProductIds}
                 title="Unlock This Location"
-                message="This is a premium location. Unlock the full guide to see details, check in, and leave a review."
+                message="This is a premium location. Unlock the full guide to see details and leave a review."
                 onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
               >
                 {null}

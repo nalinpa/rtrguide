@@ -34,9 +34,6 @@ export default function SiteListPage() {
   );
 
   const { locations, loading: entitiesLoading, err: entitiesErr } = hooksBag.useLocations();
-  const { loading: compLoading } = hooksBag.useMyCompletions(
-    session.status === "authed" ? session.uid : null,
-  );
 
   const { loc: liveLoc, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
   const [lockedLoc, setLockedLoc] = useState(() => hooksBag.useLocationStore.getState().location);
@@ -83,7 +80,7 @@ export default function SiteListPage() {
 
   const openRegionPlaceholder = () => Alert.alert("Region filter", "Coming soon.");
 
-  if (entitiesLoading || session.status === "loading" || compLoading || entitlementsLoading) {
+  if (entitiesLoading || session.status === "loading" || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Finding Locations..." />

@@ -12,7 +12,10 @@ export function getAppleSignInErrorMessage(error: unknown): string {
 }
 
 export async function signInWithApple(): Promise<void> {
-  const rawNonce = Math.random().toString(36).slice(2);
+  const nonceBytes = await Crypto.getRandomBytesAsync(16);
+  const rawNonce = Array.from(nonceBytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   const hashedNonce = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, rawNonce);
 
   const appleCredential = await AppleAuthentication.signInAsync({

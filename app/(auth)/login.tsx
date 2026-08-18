@@ -12,6 +12,8 @@ import { Screen, AppText, components } from "@/lib/uiKit";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { tokens } from "@/lib/ui/tokens";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { signInWithApple, getAppleSignInErrorMessage } from "@/lib/auth/appleSignIn";
 
 export default function LoginScreen() {
   const f = useAuthForm("login");
@@ -31,6 +33,18 @@ export default function LoginScreen() {
   const handleGuestEntry = async () => {
     if (session.status !== "loggedOut") return;
     await enableGuest();
+  };
+
+  const [appleErr, setAppleErr] = React.useState<string | null>(null);
+
+  const handleAppleSignIn = async () => {
+    setAppleErr(null);
+    try {
+      await signInWithApple();
+    } catch (e) {
+      if ((e as { code?: string })?.code === "ERR_REQUEST_CANCELED") return;
+      setAppleErr(getAppleSignInErrorMessage(e));
+    }
   };
 
   return (
@@ -60,7 +74,7 @@ export default function LoginScreen() {
                 password={f.password}
                 confirm={f.confirm}
                 busy={busy}
-                err={f.err}
+                err={f.err ?? appleErr}
                 notice={f.notice}
                 canSubmit={f.canSubmit}
                 onChangeMode={f.setMode}
@@ -69,6 +83,17 @@ export default function LoginScreen() {
                 onChangeConfirm={f.setConfirm}
                 onSubmit={() => void f.submit()}
                 onGuest={handleGuestEntry}
+                appleButton={
+                  Platform.OS === "ios" ? (
+                    <AppleAuthentication.AppleAuthenticationButton
+                      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                      cornerRadius={12}
+                      style={{ width: "100%", height: 50 }}
+                      onPress={() => void handleAppleSignIn()}
+                    />
+                  ) : undefined
+                }
               />
             </View>
           </KeyboardAvoidingView>

@@ -50,6 +50,22 @@ export function SiteActionsBar({
     </Row>
   );
 
+  const shareSection = (
+    <View style={styles.card}>
+      <Stack gap="sm">
+        <AppText variant="label">Share</AppText>
+        <AppButton
+          variant={shareBonus ? "success" : "primary"}
+          disabled={shareBonus}
+          onPress={onShareBonus}
+          icon={shareBonus ? CheckCircle : Camera}
+        >
+          {shareBonus ? "Photo Successfully Shared" : "Share a Photo"}
+        </AppButton>
+      </Stack>
+    </View>
+  );
+
   if (!completed) {
     let buttonText: string;
     if (completionMode === "tick") buttonText = "Mark as Done";
@@ -74,23 +90,28 @@ export function SiteActionsBar({
             You must be at this site to check in.
           </AppText>
         )}
+        {shareSection}
       </Stack>
     );
   }
 
   if (isSyncing) {
     return (
-      <View style={[styles.card, styles.syncCard]}>
-        <Stack gap="md">
-          <Row gap="sm" align="center">
-            <CloudUpload size={20} color={tokens.colors.warning} />
-            <AppText style={styles.syncTitle}>Visit Saved Locally</AppText>
-          </Row>
-          <AppText style={styles.syncBody}>
-            You are currently offline. We will sync this visit as soon as you reconnect!
-          </AppText>
-        </Stack>
-      </View>
+      <Stack gap="sm">
+        {saveRow}
+        <View style={[styles.card, styles.syncCard]}>
+          <Stack gap="md">
+            <Row gap="sm" align="center">
+              <CloudUpload size={20} color={tokens.colors.warning} />
+              <AppText style={styles.syncTitle}>Visit Saved Locally</AppText>
+            </Row>
+            <AppText style={styles.syncBody}>
+              You are currently offline. We will sync this visit as soon as you reconnect!
+            </AppText>
+          </Stack>
+        </View>
+        {shareSection}
+      </Stack>
     );
   }
 
@@ -124,20 +145,9 @@ export function SiteActionsBar({
               )}
             </Stack>
           </View>
-
-          <Stack gap="sm">
-            <AppText variant="label">Share</AppText>
-            <AppButton
-              variant={shareBonus ? "success" : "primary"}
-              disabled={shareBonus}
-              onPress={onShareBonus}
-              icon={shareBonus ? CheckCircle : Camera}
-            >
-              {shareBonus ? "Photo Successfully Shared" : "Share a Photo"}
-            </AppButton>
-          </Stack>
         </Stack>
       </View>
+      {shareSection}
     </Stack>
   );
 }

@@ -46,22 +46,31 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const { connected, requestPurchase, finishTransaction, fetchProducts } = useIAP({
+  const { connected, products, requestPurchase, finishTransaction, fetchProducts } = useIAP({
     onPurchaseSuccess: (purchase) => {
+      console.log("[iap-debug] onPurchaseSuccess", JSON.stringify(purchase));
       void completePurchase(purchase, finishTransaction);
     },
     onPurchaseError: (err) => {
+      console.log("[iap-debug] onPurchaseError", JSON.stringify(err));
       setPurchasingProductId(null);
       if (err.code === ErrorCode.UserCancelled) return;
       if (purchasingProductId) setError({ productId: purchasingProductId, message: err.message ?? "Purchase failed." });
     },
-    onError: () => {
-      // No UI surface for "products failed to load" in this branch's scope.
+    onError: (err) => {
+      console.log("[iap-debug] onError (fetchProducts/etc)", err);
     },
   });
 
   useEffect(() => {
-    if (connected) fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" }).catch(() => {});
+    console.log("[iap-debug] products array now:", JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    if (connected)
+      fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" })
+        .then(() => console.log("[iap-debug] fetchProducts call resolved"))
+        .catch((e) => console.log("[iap-debug] fetchProducts error:", e));
   }, [connected, fetchProducts]);
 
   const value = useMemo<PurchaseContextValue>(
@@ -70,12 +79,17 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
       purchasingProductId,
       error,
       requestBuy: (productId: string) => {
+        console.log("[iap-debug] requestBuy called", { productId, uid, connected });
         if (!uid) return;
         setError(null);
         setPurchasingProductId(productId);
         deriveAppAccountToken(uid)
-          .then((appAccountToken) => requestPurchase({ request: { apple: { sku: productId, appAccountToken } }, type: "in-app" }))
-          .catch(() => {
+          .then((appAccountToken) => {
+            console.log("[iap-debug] calling requestPurchase", { productId, appAccountToken });
+            return requestPurchase({ request: { apple: { sku: productId, appAccountToken } }, type: "in-app" });
+          })
+          .catch((e) => {
+            console.log("[iap-debug] requestBuy chain error:", e);
             // Synchronous rejection (not connected, Android — this request only sets `apple`, etc.):
             // never reaches onPurchaseError, so clear state here or the button stays disabled forever.
             setPurchasingProductId(null);

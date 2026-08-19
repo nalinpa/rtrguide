@@ -48,7 +48,6 @@ export default function MapScreen() {
   );
 
   const { locations, loading, err } = hooksBag.useLocations();
-  const { completedLocationIds } = hooksBag.useMyCompletions(uid);
   const { loc, err: locErr, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
   const { selectedLocationId: selectedSiteId, setSelectedLocationId: setSelectedSiteId } = hooksBag.useMapStore();
   const { itineraries } = useItineraries();
@@ -95,9 +94,8 @@ export default function MapScreen() {
         lat: s.lat,
         lng: s.lng,
         category: s.category,
-        completed: completedLocationIds.has(s.id),
       }));
-  }, [visibleSites, searchQuery, categoryFilter, completedLocationIds]);
+  }, [visibleSites, searchQuery, categoryFilter]);
 
   useEffect(() => {
     if (searchQuery.trim() && mapSites.length === 1) {

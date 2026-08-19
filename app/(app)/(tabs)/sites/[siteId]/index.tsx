@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, Animated, View, StyleSheet, Alert, Pressable } from "react-native";
+import { useRef, useState } from "react";
+import { Animated, View, StyleSheet, Alert, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack as ExpoStack, router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -20,8 +20,6 @@ import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
 import { SiteActionsBar } from "@/components/site/detail/SiteActionsBar";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
-const MAX_ACCURACY_METERS = 50;
-
 export default function SiteDetailRoute() {
   const { siteId } = useLocalSearchParams<{ siteId: string }>();
   const id = String(siteId);
@@ -32,22 +30,7 @@ export default function SiteDetailRoute() {
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const { requestBuy } = usePurchaseContext();
 
-  const {
-    completedLocationIds,
-    pendingLocationIds,
-    sharedLocationIds,
-    loading: compsLoading,
-  } = hooksBag.useMyCompletions(uid);
-
-  const isCompleted = completedLocationIds.has(id);
-  const isSyncing = pendingLocationIds.has(id);
-  const hasShareBonus = sharedLocationIds.has(id);
-
   const { location: site, loading: entityLoading, err: entityErr } = hooksBag.useLocation(id);
-  const { loc: userCoords, err: locErr, refresh: refreshLocation } = hooksBag.useUserLocation();
-  const locStatus = locErr ? "denied" : userCoords ? "granted" : "unknown";
-
-  const gate = hooksBag.useGPSGate(site, userCoords);
 
   const {
     avgRating,
@@ -67,71 +50,9 @@ export default function SiteDetailRoute() {
   const [isAddingToTrip, setIsAddingToTrip] = useState(false);
   const [pendingItineraryId, setPendingItineraryId] = useState<string | null>(null);
 
-  const [err, setErr] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
   const { drafts, setDraft, clearDraft } = hooksBag.useDraftsStore();
   const currentDraft = drafts[id] || { rating: null, text: "" };
-
-  const { isTracking, targetId, targetName, startTracking, stopTracking, triggerSuccessUI } =
-    hooksBag.useTrackingStore();
-  const isTargetingThis = isTracking && targetId === id;
-  const isTrackingSomethingElse = isTracking && !!targetId && targetId !== id;
-  const handleStartTracking = useCallback(() => {
-    startTracking(id, site?.name ?? "");
-  }, [id, site?.name, startTracking]);
-
-  const { checkIn } = hooksBag.useCheckIn();
-  const checkInInFlight = useRef(false);
-
-  const handleCheckIn = async () => {
-    if (checkInInFlight.current || !uid || !site || !userCoords) return;
-    if (!gate.inRange) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setErr("GPS wasn't quite right — try checking in again.");
-      return;
-    }
-    checkInInFlight.current = true;
-    try {
-      const result = await checkIn({
-        uid,
-        locationId: id,
-        locationName: site.name,
-        coords: [userCoords.coords.latitude, userCoords.coords.longitude],
-        accuracyMeters: userCoords.coords.accuracy ?? null,
-        gate: {
-          inRange: gate.inRange,
-          checkpointId: gate.checkpointId,
-          checkpointLabel: gate.checkpointLabel,
-          checkpointLat: gate.checkpointLat,
-          checkpointLng: gate.checkpointLng,
-        },
-      });
-      if (result.ok === true || result.ok === "queued") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        triggerSuccessUI(site.name, id);
-      } else {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        setErr("Couldn't save your visit. Please try again.");
-      }
-    } finally {
-      checkInInFlight.current = false;
-    }
-  };
-
-  useEffect(() => {
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active" && (!userCoords || (gate.accuracyMeters ?? 0) > MAX_ACCURACY_METERS)) {
-        if (locStatus !== "denied") refreshLocation();
-      }
-    });
-    return () => sub.remove();
-  }, [userCoords, gate.accuracyMeters, locStatus, refreshLocation]);
-
-  useEffect(() => {
-    if (!err) return;
-    const timeoutId = setTimeout(() => setErr(""), 10000);
-    return () => clearTimeout(timeoutId);
-  }, [err]);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const imageTranslateY = scrollY.interpolate({
@@ -140,7 +61,7 @@ export default function SiteDetailRoute() {
     extrapolate: "clamp",
   });
 
-  if (entityLoading || compsLoading || session.status === "loading" || entitlementsLoading) {
+  if (entityLoading || session.status === "loading" || entitlementsLoading) {
     return (
       <View style={styles.container}>
         <LoadingState label="Loading..." />
@@ -180,7 +101,7 @@ export default function SiteDetailRoute() {
                 productId={FULL_GUIDE_PRODUCT_ID}
                 entitledProductIds={entitledProductIds}
                 title="Unlock This Location"
-                message="This is a premium location. Unlock the full guide to see details, check in, and leave a review."
+                message="This is a premium location. Unlock the full guide to see details and leave a review."
                 onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
               >
                 {null}
@@ -228,35 +149,20 @@ export default function SiteDetailRoute() {
               {site.description}
             </AppText>
 
-            {err && <ErrorCard status="warning" title="Check-in Issue" message={err} />}
-
             <components.ReviewsSummaryCard
               ratingCount={ratingCount}
               avgRating={avgRating}
               onViewAll={() => router.push(`/(app)/(tabs)/sites/${id}/reviews`)}
-              isCompleted={isCompleted}
+              isCompleted={true}
               hasUserReviewed={!!myRating}
               onAddReview={() => setReviewOpen(true)}
             />
 
             <SiteActionsBar
-              id={id}
-              title={site.name}
-              completed={isCompleted}
-              completionMode="gps"
-              isSyncing={isSyncing}
-              locStatus={locStatus}
-              hasLoc={!!userCoords}
-              canCheckIn={gate.inRange}
               hasReview={!!myRating}
               myReviewRating={myRating ?? undefined}
               myReviewText={myReviewText ?? undefined}
               onOpenReview={() => setReviewOpen(true)}
-              onCheckIn={() => {
-                startTracking(id, site.name);
-                handleCheckIn();
-              }}
-              shareBonus={hasShareBonus}
               onShareBonus={() =>
                 router.push({ pathname: "/share-frame", params: { entityId: id, entityName: site.name } })
               }

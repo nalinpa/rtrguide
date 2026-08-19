@@ -34,9 +34,6 @@ export default function SiteListPage() {
   );
 
   const { locations, loading: entitiesLoading, err: entitiesErr } = hooksBag.useLocations();
-  const { loading: compLoading } = hooksBag.useMyCompletions(
-    session.status === "authed" ? session.uid : null,
-  );
 
   const { loc: liveLoc, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
   const [lockedLoc, setLockedLoc] = useState(() => hooksBag.useLocationStore.getState().location);
@@ -83,7 +80,7 @@ export default function SiteListPage() {
 
   const openRegionPlaceholder = () => Alert.alert("Region filter", "Coming soon.");
 
-  if (entitiesLoading || session.status === "loading" || compLoading || entitlementsLoading) {
+  if (entitiesLoading || session.status === "loading" || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Finding Locations..." />
@@ -155,7 +152,7 @@ export default function SiteListPage() {
           <ErrorCard
             status="warning"
             title="Location Disabled"
-            message="Enable location to see distances and check in to nearby sites."
+            message="Enable location to see distances to nearby sites."
             action={{ label: "Open Settings", onPress: handleRefreshGPS }}
           />
         </View>
@@ -165,9 +162,9 @@ export default function SiteListPage() {
         <View style={styles.paddedSection}>
           <CardShell status="surf" onPress={() => router.push("/(auth)/login")}>
             <Stack gap="xs">
-              <AppText variant="sectionTitle">Unlock Tracking</AppText>
+              <AppText variant="sectionTitle">Sign In for More</AppText>
               <AppText variant="label" status="hint">
-                Sign in to filter by completion and track your visits.
+                Sign in to save sites, plan itineraries, and leave reviews.
               </AppText>
             </Stack>
           </CardShell>

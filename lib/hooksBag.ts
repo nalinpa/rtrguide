@@ -1,6 +1,7 @@
 import { createHooks } from "@blacksands/hooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import * as StoreReview from "expo-store-review";
 import NetInfo from "@react-native-community/netinfo";
 import { client } from "@/lib/api";
 import type { Site } from "@/lib/models";
@@ -36,6 +37,10 @@ export const hooksBag = createHooks<Site>(client, {
         cb({ isConnected: state.isConnected, isInternetReachable: state.isInternetReachable }),
       ),
   },
+  storeReview: {
+    isAvailable: () => StoreReview.isAvailableAsync(),
+    requestReview: () => StoreReview.requestReview(),
+  },
 });
 
 export const {
@@ -65,4 +70,5 @@ export const {
   useMyReview,
   useLocationReviewsSummary,
   useEntitlements,
+  useReviewPrompt,
 } = hooksBag;

@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
 
+import { hooksBag } from "@/lib/hooksBag";
 import { itineraryService } from "@/lib/services/itineraryService";
 import { useSession } from "@/lib/providers/SessionProvider";
 import type { Itinerary } from "@/lib/models";
@@ -9,6 +11,7 @@ export function useItineraries() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const queryClient = useQueryClient();
+  const { requestReview } = hooksBag.useReviewPrompt();
 
   const queryKey = ["rotoruaguide", "itineraries", uid];
 
@@ -25,10 +28,16 @@ export function useItineraries() {
     enabled: !!uid,
   });
 
+  const preSaveCountRef = useRef(itineraries.length);
+  preSaveCountRef.current = itineraries.length;
+
   const saveMutation = useMutation({
     mutationFn: (data: Partial<Itinerary>) => itineraryService.saveItinerary(data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey });
+      if (!variables.id && preSaveCountRef.current === 0) {
+        requestReview();
+      }
     },
   });
 

@@ -26,6 +26,17 @@ import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModa
 
 const ROTORUA_BOUNDS = { minLat: -38.3, maxLat: -37.95, minLng: 176.05, maxLng: 176.45 };
 
+function isInRotorua(lat: number | null | undefined, lng: number | null | undefined): boolean {
+  return (
+    lat != null &&
+    lng != null &&
+    lat >= ROTORUA_BOUNDS.minLat &&
+    lat <= ROTORUA_BOUNDS.maxLat &&
+    lng >= ROTORUA_BOUNDS.minLng &&
+    lng <= ROTORUA_BOUNDS.maxLng
+  );
+}
+
 export default function MapScreen() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
@@ -97,17 +108,12 @@ export default function MapScreen() {
   const hasAutoSelected = useRef(false);
   useEffect(() => {
     if (hasAutoSelected.current || loading || !visibleSites.length || selectedSiteId) return;
+    if (!loc && locStatus !== "denied" && !locErr) return;
     hasAutoSelected.current = true;
 
     const userLat = loc?.coords.latitude;
     const userLng = loc?.coords.longitude;
-    const inRotorua =
-      userLat != null &&
-      userLng != null &&
-      userLat >= ROTORUA_BOUNDS.minLat &&
-      userLat <= ROTORUA_BOUNDS.maxLat &&
-      userLng >= ROTORUA_BOUNDS.minLng &&
-      userLng <= ROTORUA_BOUNDS.maxLng;
+    const inRotorua = isInRotorua(userLat, userLng);
 
     if (inRotorua && userLat != null && userLng != null) {
       const nearest = [...visibleSites].sort(
@@ -120,7 +126,7 @@ export default function MapScreen() {
       const featured = [...visibleSites].sort((a, b) => (b.featured ?? 0) - (a.featured ?? 0))[0];
       if (featured) setSelectedSiteId(featured.id);
     }
-  }, [loading, visibleSites, selectedSiteId, loc, setSelectedSiteId]);
+  }, [loading, visibleSites, selectedSiteId, loc, locStatus, locErr, setSelectedSiteId]);
 
   const selectedSite = useMemo(
     () => visibleSites.find((s) => s.id === selectedSiteId) ?? null,
@@ -129,7 +135,10 @@ export default function MapScreen() {
 
   const initialRegion = useMemo(() => {
     if (loading) return null;
-    return initialRegionFrom(loc?.coords.latitude ?? null, loc?.coords.longitude ?? null, mapSites);
+    const userLat = loc?.coords.latitude ?? null;
+    const userLng = loc?.coords.longitude ?? null;
+    const inBounds = isInRotorua(userLat, userLng);
+    return initialRegionFrom(inBounds ? userLat : null, inBounds ? userLng : null, mapSites);
   }, [loading, loc, mapSites]);
 
   const todayItems = useMemo<ActiveItineraryItem[] | null>(() => {
@@ -330,6 +339,7 @@ export default function MapScreen() {
         todayItems={todayItems}
         locStatus={locStatus}
         hasLoc={!!loc}
+        locError={!!locErr}
         bottomSheetRef={bottomSheetRef}
       />
 

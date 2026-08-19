@@ -47,6 +47,7 @@ interface MapOverlayProps {
   todayItems: ActiveItineraryItem[] | null;
   locStatus: "unknown" | "granted" | "denied";
   hasLoc: boolean;
+  locError?: boolean;
   refreshingGPS?: boolean;
   bottomSheetRef: React.RefObject<BottomSheet | null>;
 }
@@ -92,6 +93,7 @@ export function MapOverlayCard({
   todayItems,
   locStatus,
   hasLoc,
+  locError = false,
   distanceMeters,
   refreshingGPS = false,
   bottomSheetRef,
@@ -127,7 +129,7 @@ export function MapOverlayCard({
   }, [todayItems, windowWidth]);
 
   const isDenied = locStatus === "denied";
-  const isRequesting = !isDenied && !hasLoc;
+  const isRequesting = !isDenied && !locError && !hasLoc;
 
   const renderCard = () => {
     if (!site) return null;

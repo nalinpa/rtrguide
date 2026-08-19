@@ -66,16 +66,10 @@ const SERIF = Platform.OS === "ios" ? "Georgia" : "serif";
 // ponytail: lib/utils/navigation.ts (and its getDirections export) doesn't exist in this
 // repo — the brief's premise about sites/[siteId]/index.tsx having a handleDirections to
 // port from doesn't hold either (no directions handler exists anywhere in this codebase).
-// Inlining the standard cross-platform maps deep link here per the brief's fallback
-// instruction, instead of importing a nonexistent helper.
-function getDirections(lat: number, lng: number, label: string) {
-  const encodedLabel = encodeURIComponent(label);
-  const url = Platform.select({
-    ios: `maps:0,0?q=${encodedLabel}@${lat},${lng}`,
-    android: `geo:0,0?q=${lat},${lng}(${encodedLabel})`,
-    default: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-  });
-  if (url) Linking.openURL(url);
+// Universal Google Maps directions URL works cross-platform (opens the Maps app if
+// installed, else browser) — no Platform branching needed.
+function getDirections(lat: number, lng: number, _label: string) {
+  Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
 }
 
 function timeLabelToMinutes(label: string): number {

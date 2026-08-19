@@ -74,6 +74,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     "expo-apple-authentication",
+    "expo-image",
+    "expo-sharing",
   ],
 
   extra: {

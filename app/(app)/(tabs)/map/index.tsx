@@ -146,9 +146,9 @@ export default function MapScreen() {
     }
     if (!todayDay?.items?.length) return null;
     const result = todayDay.items
-      .filter((item) => !!item.siteId && locations.some((s) => s.id === item.siteId))
+      .filter((item) => !!item.siteId && visibleSites.some((s) => s.id === item.siteId))
       .map((item) => {
-        const siteData = locations.find((s) => s.id === item.siteId)!;
+        const siteData = visibleSites.find((s) => s.id === item.siteId)!;
         return {
           id: item.id,
           siteId: item.siteId,
@@ -159,7 +159,7 @@ export default function MapScreen() {
         };
       });
     return result.length > 0 ? result : null;
-  }, [itineraries, locations]);
+  }, [itineraries, visibleSites]);
 
   const hasSnappedForItinerary = useRef(false);
   useEffect(() => {

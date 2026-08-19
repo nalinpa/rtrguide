@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { formatDistanceMeters } from "@blacksands/hooks";
 import { CATEGORY_CONFIG } from "@/components/map/SiteMarker";
+import { tokens } from "@/lib/ui/tokens";
 import type { Site, SiteCategory } from "@/lib/models";
 
 export type NearbySite = {
@@ -56,7 +57,7 @@ const SNAP_DEFAULT = ["12%", "22%", "40%"];
 
 const SheetBackground = ({ style }: { style?: any }) => (
   <LinearGradient
-    colors={["#001233", "#001233", "#F8FAFC"]}
+    colors={[tokens.colors.text, tokens.colors.text, tokens.colors.bgBase]}
     locations={[0, 0.32, 1]}
     style={style as any}
   />
@@ -251,7 +252,7 @@ export function MapOverlayCard({
                         imageStyle={styles.cardImage}
                       >
                         <LinearGradient
-                          colors={["transparent", "rgba(0,10,30,0.82)"]}
+                          colors={["transparent", "rgba(36,26,18,0.82)"]}
                           locations={[0.35, 1]}
                           style={StyleSheet.absoluteFill}
                         />
@@ -335,10 +336,10 @@ const styles = StyleSheet.create({
     flex: 1, paddingVertical: 14, borderRadius: 10,
     backgroundColor: "rgba(255,255,255,0.92)", alignItems: "center", justifyContent: "center",
   },
-  btnDetailsText: { fontSize: 14, fontWeight: "600", color: "#001233", letterSpacing: 0.1 },
+  btnDetailsText: { fontSize: 14, fontWeight: "600", color: tokens.colors.text, letterSpacing: 0.1 },
   btnDirections: {
     flex: 1, flexDirection: "row", gap: 6, paddingVertical: 14, borderRadius: 10,
-    backgroundColor: "#005EB8", alignItems: "center", justifyContent: "center",
+    backgroundColor: tokens.colors.accent, alignItems: "center", justifyContent: "center",
   },
   btnDirectionsText: { fontSize: 14, fontWeight: "600", color: "#FFFFFF", letterSpacing: 0.1 },
   actionsSecondary: { paddingHorizontal: 20, paddingBottom: 8, marginTop: 20 },
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   },
   nearbyRow: {
     flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingVertical: 13,
-    marginHorizontal: 12, marginBottom: 6, borderRadius: 12, backgroundColor: "rgba(0,18,51,0.55)",
+    marginHorizontal: 12, marginBottom: 6, borderRadius: 12, backgroundColor: "rgba(36,26,18,0.55)",
   },
   nearbyDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   nearbyName: { flex: 1, fontSize: 14, fontWeight: "600", color: "#FFFFFF", letterSpacing: -0.1 },
@@ -368,7 +369,7 @@ const styles = StyleSheet.create({
   carouselCard: { width: 128, height: 168, borderRadius: 14, overflow: "hidden" },
   cardImageBg: { width: 128, height: 168, justifyContent: "space-between", padding: 10 },
   cardImage: { borderRadius: 14 },
-  cardFallback: { backgroundColor: "rgba(0,18,51,0.7)", borderLeftWidth: 3 },
+  cardFallback: { backgroundColor: "rgba(36,26,18,0.7)", borderLeftWidth: 3 },
   cardTime: { fontSize: 10, fontWeight: "700", letterSpacing: 0.5, color: "rgba(255,255,255,0.65)", textTransform: "uppercase" },
   cardBottom: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between" },
   cardName: { flex: 1, fontSize: 13, fontWeight: "700", color: "#FFFFFF", letterSpacing: -0.1, lineHeight: 17, marginRight: 6 },

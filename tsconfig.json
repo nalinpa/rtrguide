@@ -4,6 +4,7 @@
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "types": ["jest"],
     "paths": {
       "@/*": ["./*"]
     }

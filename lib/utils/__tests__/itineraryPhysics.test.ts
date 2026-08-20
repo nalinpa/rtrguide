@@ -74,4 +74,21 @@ describe("runPhysicsEngine", () => {
     expect(result[0].slotIndex).toBe(24);
     expect(result[0].timeLabel).toBe("8:00 PM");
   });
+
+  it("cascades an overrun clamp backward through earlier items", () => {
+    const items = [
+      makeItem({ id: "a", siteId: "s1", slotIndex: 20, durationSlots: 2 }),
+      makeItem({ id: "b", siteId: "s2", slotIndex: 23, durationSlots: 2 }),
+      makeItem({ id: "c", siteId: "s3", slotIndex: 26, durationSlots: 4 }),
+    ];
+
+    const result = runPhysicsEngine(items);
+
+    expect(result[0].slotIndex).toBe(18);
+    expect(result[1].slotIndex).toBe(21);
+    expect(result[2].slotIndex).toBe(24);
+    expect(result[0].timeLabel).toBe("5:00 PM");
+    expect(result[1].timeLabel).toBe("6:30 PM");
+    expect(result[2].timeLabel).toBe("8:00 PM");
+  });
 });

@@ -46,5 +46,6 @@ describe("useEntitlementGate", () => {
 
     expect(result.current.loading).toBe(false);
     expect(result.current.entitledProductIds).toEqual(["prod-1"]);
+    expect(mockUseEntitlements).toHaveBeenCalledWith("user-1");
   });
 });

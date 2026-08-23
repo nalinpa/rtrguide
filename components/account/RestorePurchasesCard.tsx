@@ -17,6 +17,7 @@ export function RestorePurchasesCard() {
       const result = await restore();
       setMessage(result.restored > 0 ? `Restored ${result.restored} purchase${result.restored === 1 ? "" : "s"}.` : "Nothing to restore.");
     } catch (e) {
+      console.log("[iap-debug] restore failed", e);
       setMessage("Couldn't restore purchases. Please try again.");
     } finally {
       setRestoring(false);

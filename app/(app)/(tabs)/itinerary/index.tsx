@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Calendar, ChevronRight, Plus } from "lucide-react-native";
+import { Calendar, ChevronRight, LogIn, Plus } from "lucide-react-native";
 
-import { Screen, LoadingState, ErrorCard, CardShell, Stack, AppText, components } from "@/lib/uiKit";
+import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppButton, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
+import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
@@ -25,7 +26,7 @@ export default function ItineraryListPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy } = usePurchaseContext();
+  const { requestBuy, pendingProductId } = usePurchaseContext();
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -38,14 +39,20 @@ export default function ItineraryListPage() {
   if (session.status === "guest") {
     return (
       <Screen>
-        <Stack gap="md" style={styles.paddedSection}>
+        <Stack gap="lg" style={styles.paddedSection}>
           <AppText variant="h1">Itinerary</AppText>
-          <CardShell status="surf" onPress={() => router.push("/(auth)/login")}>
-            <Stack gap="xs">
-              <AppText variant="sectionTitle">Sign In to Plan a Trip</AppText>
-              <AppText variant="label" status="hint">
+          <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
+            <Stack gap="md" align="center">
+              <Row gap="sm" align="center">
+                <LogIn size={28} color={tokens.colors.accent} />
+                <AppText variant="h1">Sign In to Plan a Trip</AppText>
+              </Row>
+              <AppText variant="body" status="hint" style={styles.centerText}>
                 Create an account to build and save a Rotorua itinerary.
               </AppText>
+              <AppButton variant="primary" size="lg" fullWidth onPress={() => router.push("/(auth)/login")}>
+                Sign In
+              </AppButton>
             </Stack>
           </CardShell>
         </Stack>
@@ -67,15 +74,19 @@ export default function ItineraryListPage() {
       <Screen>
         <Stack gap="md" style={styles.paddedSection}>
           <AppText variant="h1">Itinerary</AppText>
-          <components.RequirePurchaseCard
-            productId={FULL_GUIDE_PRODUCT_ID}
-            entitledProductIds={entitledProductIds}
-            title="Unlock Trip Planning"
-            message="Build multi-day itineraries with the full guide unlock."
-            onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
-          >
-            {null}
-          </components.RequirePurchaseCard>
+          {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
+            <PurchasePendingBanner />
+          ) : (
+            <components.RequirePurchaseCard
+              productId={FULL_GUIDE_PRODUCT_ID}
+              entitledProductIds={entitledProductIds}
+              title="Unlock Trip Planning"
+              message="Build multi-day itineraries with the full guide unlock."
+              onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
+            >
+              {null}
+            </components.RequirePurchaseCard>
+          )}
         </Stack>
       </Screen>
     );
@@ -166,6 +177,8 @@ const styles = StyleSheet.create({
   paddedSection: { paddingHorizontal: 16, paddingTop: 12 },
   header: { paddingHorizontal: tokens.space.md, paddingTop: tokens.space.md, paddingBottom: 16 },
   body: { padding: tokens.space.md, gap: 14, paddingBottom: 40 },
+  signInCard: { paddingVertical: tokens.space.xl, paddingHorizontal: tokens.space.lg },
+  centerText: { textAlign: "center" },
   tripCard: {
     flexDirection: "row",
     alignItems: "center",

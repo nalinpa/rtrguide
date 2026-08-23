@@ -12,6 +12,7 @@ import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
+import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
@@ -51,7 +52,7 @@ export default function ItineraryDetailPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy } = usePurchaseContext();
+  const { requestBuy, pendingProductId } = usePurchaseContext();
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);
@@ -365,15 +366,19 @@ export default function ItineraryDetailPage() {
   if (!isEntitled) {
     return (
       <Screen>
-        <components.RequirePurchaseCard
-          productId={FULL_GUIDE_PRODUCT_ID}
-          entitledProductIds={entitledProductIds}
-          title="Unlock Trip Planning"
-          message="Build multi-day itineraries with the full guide unlock."
-          onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
-        >
-          {null}
-        </components.RequirePurchaseCard>
+        {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
+          <PurchasePendingBanner />
+        ) : (
+          <components.RequirePurchaseCard
+            productId={FULL_GUIDE_PRODUCT_ID}
+            entitledProductIds={entitledProductIds}
+            title="Unlock Trip Planning"
+            message="Build multi-day itineraries with the full guide unlock."
+            onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
+          >
+            {null}
+          </components.RequirePurchaseCard>
+        )}
       </Screen>
     );
   }

@@ -25,8 +25,8 @@ import { SitesListView } from "@/components/site/list/SitesListView";
 
 export default function SiteListPage() {
   const { session } = useSession();
-  const isGuest = session.status === "guest";
   const uid = session.status === "authed" ? session.uid : null;
+  const isGuest = session.status === "guest";
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
   const isSiteLocked = useCallback(
     (site: Site) => !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID),

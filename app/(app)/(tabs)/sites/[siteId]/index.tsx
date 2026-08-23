@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Animated, View, StyleSheet, Alert, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack as ExpoStack, router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
+import * as Linking from "expo-linking";
 import { ArrowLeft } from "lucide-react-native";
 
 import { LoadingState, ErrorCard, Stack, AppText, components } from "@/lib/uiKit";
@@ -10,6 +11,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
+import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useSavedSites } from "@/lib/hooks/useSavedSites";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -17,7 +19,7 @@ import { PLANNER } from "@/lib/constants/gameplay";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
-import { SiteActionsBar } from "@/components/site/detail/SiteActionsBar";
+import { SiteActionsBar, SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 export default function SiteDetailRoute() {
@@ -28,7 +30,10 @@ export default function SiteDetailRoute() {
   const uid = session.status === "authed" ? session.uid : null;
 
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy } = usePurchaseContext();
+  const { requestBuy, pendingProductId } = usePurchaseContext();
+
+  const { sharedLocationIds } = hooksBag.useMyCompletions(uid);
+  const hasShareBonus = sharedLocationIds.has(id);
 
   const { location: site, loading: entityLoading, err: entityErr } = hooksBag.useLocation(id);
 
@@ -53,6 +58,12 @@ export default function SiteDetailRoute() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const { drafts, setDraft, clearDraft } = hooksBag.useDraftsStore();
   const currentDraft = drafts[id] || { rating: null, text: "" };
+
+  const handleDirections = useCallback(() => {
+    Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${site?.lat},${site?.lng}`).catch(() => {
+      Alert.alert("Couldn't Open Maps", "No maps app is available to show directions.");
+    });
+  }, [site?.lat, site?.lng]);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const imageTranslateY = scrollY.interpolate({
@@ -96,16 +107,22 @@ export default function SiteDetailRoute() {
           <View style={styles.sheet}>
             <View style={styles.dragHandle} />
             <Stack gap="md" style={styles.content}>
-              <AppText variant="h1">{site.name}</AppText>
-              <components.RequirePurchaseCard
-                productId={FULL_GUIDE_PRODUCT_ID}
-                entitledProductIds={entitledProductIds}
-                title="Unlock This Location"
-                message="This is a premium location. Unlock the full guide to see details and leave a review."
-                onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
-              >
-                {null}
-              </components.RequirePurchaseCard>
+              <AppText variant="h1" style={styles.blurredTitle}>
+                {site.name}
+              </AppText>
+              {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
+                <PurchasePendingBanner />
+              ) : (
+                <components.RequirePurchaseCard
+                  productId={FULL_GUIDE_PRODUCT_ID}
+                  entitledProductIds={entitledProductIds}
+                  title="Unlock This Location"
+                  message="This is a premium location. Unlock the full guide to see details and leave a review."
+                  onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
+                >
+                  {null}
+                </components.RequirePurchaseCard>
+              )}
             </Stack>
           </View>
         </View>
@@ -145,6 +162,25 @@ export default function SiteDetailRoute() {
 
           <Stack gap="md" style={styles.content}>
             <AppText variant="h1">{site.name}</AppText>
+
+            <SiteQuickActions
+              onDirections={handleDirections}
+              onOpenReview={() => setReviewOpen(true)}
+              hasReview={!!myRating}
+              shareBonus={hasShareBonus}
+              onShareBonus={() =>
+                router.push({ pathname: "/share-frame", params: { entityId: id, entityName: site.name } })
+              }
+              isSaved={isSaved}
+              onToggleSave={() => {
+                if (!isSaved && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+                  Alert.alert("Premium Feature", "Saving sites requires the full guide unlock.");
+                  return;
+                }
+                toggleSavedSite({ siteId: id, isSaving: !isSaved });
+              }}
+            />
+
             <AppText variant="body" status="hint">
               {site.description}
             </AppText>
@@ -163,17 +199,6 @@ export default function SiteDetailRoute() {
               myReviewRating={myRating ?? undefined}
               myReviewText={myReviewText ?? undefined}
               onOpenReview={() => setReviewOpen(true)}
-              onShareBonus={() =>
-                router.push({ pathname: "/share-frame", params: { entityId: id, entityName: site.name } })
-              }
-              isSaved={isSaved}
-              onToggleSave={() => {
-                if (!isSaved && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-                  Alert.alert("Premium Feature", "Saving sites requires the full guide unlock.");
-                  return;
-                }
-                toggleSavedSite({ siteId: id, isSaving: !isSaved });
-              }}
             />
 
             <Pressable
@@ -273,6 +298,13 @@ export default function SiteDetailRoute() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: tokens.colors.bgBase },
+  // ponytail: textShadow blur, no expo-blur dep. Android renders it softer than iOS — swap for BlurView if that's not enough.
+  blurredTitle: {
+    color: "transparent",
+    textShadowColor: tokens.colors.text,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+  },
   heroWrap: { position: "absolute", top: 0, left: 0, right: 0 },
   sheet: {
     backgroundColor: tokens.colors.bgBase,

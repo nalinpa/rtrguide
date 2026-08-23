@@ -66,6 +66,25 @@ export default function LoginScreen() {
                 </AppText>
               </View>
 
+              {Platform.OS === "ios" && (
+                <View style={styles.appleSection}>
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                    buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                    cornerRadius={12}
+                    style={styles.appleButton}
+                    onPress={() => void handleAppleSignIn()}
+                  />
+                  <View style={styles.orRow}>
+                    <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
+                    <AppText variant="label" style={{ color: tokens.colors.text2 }}>
+                      or
+                    </AppText>
+                    <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
+                  </View>
+                </View>
+              )}
+
               <components.AuthCard
                 mode={f.mode}
                 title={f.title}
@@ -83,17 +102,6 @@ export default function LoginScreen() {
                 onChangeConfirm={f.setConfirm}
                 onSubmit={() => void f.submit()}
                 onGuest={handleGuestEntry}
-                appleButton={
-                  Platform.OS === "ios" ? (
-                    <AppleAuthentication.AppleAuthenticationButton
-                      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-                      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-                      cornerRadius={12}
-                      style={{ width: "100%", height: 50 }}
-                      onPress={() => void handleAppleSignIn()}
-                    />
-                  ) : undefined
-                }
               />
             </View>
           </KeyboardAvoidingView>
@@ -126,5 +134,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: tokens.colors.text2,
     letterSpacing: 3,
+  },
+  appleSection: {
+    gap: tokens.space.md,
+    marginBottom: tokens.space.lg,
+  },
+  appleButton: {
+    width: "100%",
+    height: 50,
+  },
+  orRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
   },
 });

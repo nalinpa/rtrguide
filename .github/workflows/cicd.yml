@@ -1,0 +1,240 @@
+name: React Native CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      buildType:
+        type: choice
+        description: "Build type to run"
+        options:
+          - preview-device
+          - ios-prod
+          - publish-stores
+          - all
+      includePreviewBuild:
+        type: boolean
+        description: "Also run a local preview build before ios-prod/publish-stores/all (ignored for preview-device, which is always a preview build)"
+        default: false
+
+env:
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+  EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+  EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
+  GITHUB_TOKEN: ${{ secrets.NPM_GITHUB_TOKEN }}
+  NODE_OPTIONS: --openssl-legacy-provider
+  SENTRY_DISABLE_AUTO_UPLOAD: true
+
+jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Skip CI check
+        run: echo "Proceeding with workflow"
+
+  # TypeScript check. Lightweight safety net on pushes/PRs.
+  # It does NOT gate the preview build.
+  typecheck:
+    needs: check-skip
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - name: 📦 Install dependencies
+        run: npm ci
+      - name: 🧪 Run TypeScript check
+        run: npm run typecheck
+
+  # Unit/component tests via jest-expo.
+  test:
+    needs: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - name: 📦 Install dependencies
+        run: npm ci
+      - name: 🧪 Run tests
+        run: npm test -- --ci
+
+  # ── Standalone PREVIEW build for a registered iPhone ──
+  # Runs after typecheck + test. Skipped by default otherwise — it's opt-in:
+  # a preview-device dispatch always runs it (that IS the job), but for the
+  # ios-prod/publish-stores/all/push+[build] paths it only runs when
+  # explicitly flagged (includePreviewBuild input, or a [preview] tag
+  # alongside [build] in the commit message). build-and-deploy does not hard-
+  # require this job to succeed — see its own `if` below — so leaving it out
+  # is the normal case, not a failure state.
+  # Builds locally on the runner (no EAS cloud-build quota used). Output is a
+  # self-contained .ipa that runs without Metro — install it and walk around
+  # to test location-based features.
+  preview-build:
+    needs: test
+    if: >
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.buildType == 'preview-device') ||
+      (github.event_name == 'workflow_dispatch' &&
+        (github.event.inputs.buildType == 'ios-prod' ||
+         github.event.inputs.buildType == 'publish-stores' ||
+         github.event.inputs.buildType == 'all') &&
+        github.event.inputs.includePreviewBuild == 'true') ||
+      (github.event_name == 'push' &&
+        contains(github.event.head_commit.message, '[build]') &&
+        contains(github.event.head_commit.message, '[preview]'))
+    runs-on: macos-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci
+          npm install -g eas-cli@latest
+
+      - name: 🔄 Verify EAS CLI
+        run: eas --version
+
+      - name: 📄 Write .env
+        run: |
+          cat > .env <<EOF
+          EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
+          EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
+          EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=${{ secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          EXPO_PUBLIC_GOOGLE_IOS_REVERSED_CLIENT_ID=${{ secrets.EXPO_PUBLIC_GOOGLE_IOS_REVERSED_CLIENT_ID }}
+          EOF
+
+      - name: 📄 Inject Firebase iOS Config
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_IOS }}" | base64 --decode > ./GoogleService-Info.plist
+
+      - name: 🍏 Setup Latest Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest-stable
+
+      - name: 📱 Build iOS Preview (device)
+        run: |
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+          eas build --platform ios --profile preview --local --non-interactive --output=./app-ios-preview.ipa
+        env:
+          NODE_ENV: production
+          CI_BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: 📦 Upload preview build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtrguide-preview-build
+          path: ./app-ios-preview.ipa
+          retention-days: 7
+
+  # ── Production build + App Store submit ──
+  # Requires test (and transitively typecheck) to have actually succeeded —
+  # checked explicitly below since using a status function in `if` disables
+  # the default implicit needs-success check for ALL needs, not just one.
+  # preview-build is optional: it's normally skipped (see its own comment),
+  # and a skip must not block this job — only an actual preview-build
+  # FAILURE should. Hence accepting 'success' OR 'skipped' for it specifically.
+  # `if` here is intentionally NOT widened to include preview-device — a
+  # manual preview-device dispatch must never cascade into a real production
+  # build + App Store submission.
+  build-and-deploy:
+    needs: [test, preview-build]
+    if: >
+      needs.test.result == 'success' &&
+      (needs.preview-build.result == 'success' || needs.preview-build.result == 'skipped') &&
+      (
+        (github.event_name == 'workflow_dispatch' &&
+          (github.event.inputs.buildType == 'ios-prod' ||
+           github.event.inputs.buildType == 'publish-stores' ||
+           github.event.inputs.buildType == 'all')) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, '[build]'))
+      )
+    runs-on: macos-latest
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - name: 📦 Install dependencies
+        run: |
+          npm ci
+          npm install -g eas-cli@latest
+      - name: 🔄 Verify EAS CLI installation
+        run: |
+          echo "EAS CLI version:"
+          eas --version
+      - name: 📄 Write .env
+        run: |
+          cat > .env <<EOF
+          EXPO_PUBLIC_FIREBASE_API_KEY=${{ secrets.EXPO_PUBLIC_FIREBASE_API_KEY }}
+          EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          EXPO_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_PROJECT_ID }}
+          EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          EXPO_PUBLIC_FIREBASE_APP_ID=${{ secrets.EXPO_PUBLIC_FIREBASE_APP_ID }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=${{ secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          EXPO_PUBLIC_GOOGLE_IOS_REVERSED_CLIENT_ID=${{ secrets.EXPO_PUBLIC_GOOGLE_IOS_REVERSED_CLIENT_ID }}
+          EOF
+      - name: 📄 Inject Firebase iOS Config
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_IOS }}" | base64 --decode > ./GoogleService-Info.plist
+      - name: 🍏 Setup Latest Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest-stable
+      - name: 📱 Build iOS Production
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod' || github.event_name == 'push'
+        run: |
+          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+          eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
+        env:
+          NODE_ENV: production
+          CI_BUILD_NUMBER: ${{ github.run_number }}
+      - name: 🚀 Submit to App Store
+        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'publish-stores' || github.event_name == 'push'
+        run: |
+          eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
+          EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
+      - name: 📦 Upload build artifacts to GitHub
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtrguide-builds
+          path: |
+            ./app-ios-prod.ipa
+          retention-days: 7

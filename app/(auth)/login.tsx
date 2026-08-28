@@ -13,7 +13,9 @@ import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { tokens } from "@/lib/ui/tokens";
 import * as AppleAuthentication from "expo-apple-authentication";
+import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { signInWithApple, getAppleSignInErrorMessage } from "@/lib/auth/appleSignIn";
+import { signInWithGoogle, getGoogleSignInErrorMessage } from "@/lib/auth/googleSignIn";
 
 export default function LoginScreen() {
   const f = useAuthForm("login");
@@ -35,15 +37,24 @@ export default function LoginScreen() {
     await enableGuest();
   };
 
-  const [appleErr, setAppleErr] = React.useState<string | null>(null);
+  const [authErr, setAuthErr] = React.useState<string | null>(null);
 
   const handleAppleSignIn = async () => {
-    setAppleErr(null);
+    setAuthErr(null);
     try {
       await signInWithApple();
     } catch (e) {
       if ((e as { code?: string })?.code === "ERR_REQUEST_CANCELED") return;
-      setAppleErr(getAppleSignInErrorMessage(e));
+      setAuthErr(getAppleSignInErrorMessage(e));
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthErr(null);
+    try {
+      await signInWithGoogle();
+    } catch (e) {
+      setAuthErr(getGoogleSignInErrorMessage(e));
     }
   };
 
@@ -66,8 +77,8 @@ export default function LoginScreen() {
                 </AppText>
               </View>
 
-              {Platform.OS === "ios" && (
-                <View style={styles.appleSection}>
+              <View style={styles.appleSection}>
+                {Platform.OS === "ios" && (
                   <AppleAuthentication.AppleAuthenticationButton
                     buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
                     buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
@@ -75,15 +86,24 @@ export default function LoginScreen() {
                     style={styles.appleButton}
                     onPress={() => void handleAppleSignIn()}
                   />
-                  <View style={styles.orRow}>
-                    <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
-                    <AppText variant="label" style={{ color: tokens.colors.text2 }}>
-                      or
-                    </AppText>
-                    <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
-                  </View>
+                )}
+                {/* ponytail: iOS-only until the Android app is registered in Firebase (needs SHA-1) */}
+                {Platform.OS === "ios" && (
+                  <GoogleSigninButton
+                    size={GoogleSigninButton.Size.Wide}
+                    color={GoogleSigninButton.Color.Dark}
+                    style={styles.appleButton}
+                    onPress={() => void handleGoogleSignIn()}
+                  />
+                )}
+                <View style={styles.orRow}>
+                  <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
+                  <AppText variant="label" style={{ color: tokens.colors.text2 }}>
+                    or
+                  </AppText>
+                  <View style={[styles.orLine, { backgroundColor: tokens.colors.border }]} />
                 </View>
-              )}
+              </View>
 
               <components.AuthCard
                 mode={f.mode}
@@ -93,7 +113,7 @@ export default function LoginScreen() {
                 password={f.password}
                 confirm={f.confirm}
                 busy={busy}
-                err={f.err ?? appleErr}
+                err={f.err ?? authErr}
                 notice={f.notice}
                 canSubmit={f.canSubmit}
                 onChangeMode={f.setMode}

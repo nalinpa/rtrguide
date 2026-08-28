@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { ExpoConfig, ConfigContext } from "expo/config";
+import type { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -15,6 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,
     usesAppleSignIn: true,
+    googleServicesFile: "./GoogleService-Info.plist",
     associatedDomains: ["applinks:commerce.blacksands.app", "applinks:commerce-staging.blacksands.app"],
     infoPlist: {
       NSLocationWhenInUseUsageDescription: "Rotorua Guide uses your location to verify your visits.",
@@ -74,6 +75,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     "expo-apple-authentication",
+    [
+      "@react-native-google-signin/google-signin",
+      {
+        iosUrlScheme: process.env.EXPO_PUBLIC_GOOGLE_IOS_REVERSED_CLIENT_ID,
+      },
+    ],
     "expo-image",
     "expo-sharing",
   ],
@@ -89,6 +96,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
       messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+    },
+    google: {
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     },
   },
 });

@@ -22,15 +22,11 @@ export function DangerZoneCard() {
     setError(null);
 
     try {
-      await userService.deleteAccount(user);
+      await userService.deleteAccount();
       await disableGuest();
       router.replace("/(auth)/login");
-    } catch (e: any) {
-      if (e.code === "auth/requires-recent-login") {
-        setError("Security: Please log out and back in before deleting.");
-      } else {
-        setError("Error deleting data. Please try again.");
-      }
+    } catch {
+      setError("Error deleting data. Please try again.");
       setShowConfirm(false);
     } finally {
       setIsDeleting(false);

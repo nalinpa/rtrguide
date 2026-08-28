@@ -1,28 +1,26 @@
-jest.mock("firebase/auth", () => ({ deleteUser: jest.fn() }));
+jest.mock("@/lib/api", () => ({ client: { auth: { deleteAccount: jest.fn() } } }));
 
-import { deleteUser, type User } from "firebase/auth";
+import { client } from "@/lib/api";
 import { userService } from "@/lib/services/userService";
 
-const mockDeleteUser = deleteUser as jest.Mock;
+const mockDeleteAccount = client.auth.deleteAccount as jest.Mock;
 
 describe("userService.deleteAccount", () => {
   beforeEach(() => {
-    mockDeleteUser.mockReset();
+    mockDeleteAccount.mockReset();
   });
 
-  it("delegates to firebase's deleteUser with the given user", async () => {
-    mockDeleteUser.mockResolvedValue(undefined);
-    const user = { uid: "user-1" } as User;
+  it("delegates to the API client's deleteAccount", async () => {
+    mockDeleteAccount.mockResolvedValue(null);
 
-    await userService.deleteAccount(user);
+    await userService.deleteAccount();
 
-    expect(mockDeleteUser).toHaveBeenCalledWith(user);
+    expect(mockDeleteAccount).toHaveBeenCalledTimes(1);
   });
 
-  it("propagates errors from deleteUser", async () => {
-    mockDeleteUser.mockRejectedValue(new Error("requires-recent-login"));
-    const user = { uid: "user-1" } as User;
+  it("propagates errors from the API call", async () => {
+    mockDeleteAccount.mockRejectedValue(new Error("server error"));
 
-    await expect(userService.deleteAccount(user)).rejects.toThrow("requires-recent-login");
+    await expect(userService.deleteAccount()).rejects.toThrow("server error");
   });
 });

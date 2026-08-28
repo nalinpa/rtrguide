@@ -16,8 +16,7 @@ export function DangerZoneCard() {
   const [error, setError] = useState<string | null>(null);
 
   const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
+    if (!auth.currentUser) return;
     setIsDeleting(true);
     setError(null);
 

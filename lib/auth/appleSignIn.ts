@@ -1,6 +1,7 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
 import { OAuthProvider, signInWithCredential } from "firebase/auth";
+import * as Sentry from "@sentry/react-native";
 import { auth } from "@/lib/firebase";
 import { client } from "@/lib/api";
 
@@ -48,6 +49,7 @@ export async function signInWithApple(): Promise<void> {
       await client.auth.linkApple(appleCredential.authorizationCode);
     } catch (err) {
       console.error("failed to store Apple refresh token:", err);
+      Sentry.captureException(err);
     }
   }
 }

@@ -13,10 +13,12 @@ jest.mock("firebase/auth", () => ({
   OAuthProvider: jest.fn(),
   signInWithCredential: jest.fn(),
 }));
+jest.mock("@sentry/react-native", () => ({ captureException: jest.fn() }));
 
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
 import { OAuthProvider, signInWithCredential } from "firebase/auth";
+import * as Sentry from "@sentry/react-native";
 import { client } from "@/lib/api";
 import { getAppleSignInErrorMessage, signInWithApple } from "@/lib/auth/appleSignIn";
 
@@ -26,6 +28,7 @@ const mockDigest = Crypto.digestStringAsync as jest.Mock;
 const mockOAuthProvider = OAuthProvider as unknown as jest.Mock;
 const mockSignInWithCredential = signInWithCredential as jest.Mock;
 const mockLinkApple = client.auth.linkApple as jest.Mock;
+const mockCaptureException = Sentry.captureException as jest.Mock;
 
 describe("getAppleSignInErrorMessage", () => {
   it("returns a friendly message for the account-exists conflict", () => {
@@ -58,6 +61,7 @@ describe("signInWithApple", () => {
     mockSignInWithCredential.mockReset();
     mockCredentialFn.mockClear();
     mockLinkApple.mockReset().mockResolvedValue(null);
+    mockCaptureException.mockReset();
   });
 
   it("exchanges the Apple identity token for a Firebase credential", async () => {
@@ -103,10 +107,14 @@ describe("signInWithApple", () => {
   });
 
   it("does not fail sign-in when storing the authorization code fails", async () => {
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     mockSignInAsync.mockResolvedValue({ identityToken: "apple-id-token", authorizationCode: "auth-code-123" });
     mockSignInWithCredential.mockResolvedValue(undefined);
     mockLinkApple.mockRejectedValue(new Error("network down"));
 
     await expect(signInWithApple()).resolves.toBeUndefined();
+    expect(mockCaptureException).toHaveBeenCalledWith(expect.any(Error));
+
+    consoleErrorSpy.mockRestore();
   });
 });

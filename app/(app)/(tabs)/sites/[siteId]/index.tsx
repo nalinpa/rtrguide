@@ -4,9 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack as ExpoStack, router, useLocalSearchParams } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as Linking from "expo-linking";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, Globe } from "lucide-react-native";
 
-import { LoadingState, ErrorCard, Stack, AppText, components } from "@/lib/uiKit";
+import { LoadingState, ErrorCard, Stack, Row, AppText, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
@@ -19,7 +19,7 @@ import { PLANNER } from "@/lib/constants/gameplay";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
-import { SiteActionsBar, SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
+import { SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 
 export default function SiteDetailRoute() {
@@ -59,11 +59,33 @@ export default function SiteDetailRoute() {
   const { drafts, setDraft, clearDraft } = hooksBag.useDraftsStore();
   const currentDraft = drafts[id] || { rating: null, text: "" };
 
+  const { reviewCount } = hooksBag.useMyReviews(uid);
+  const preReviewCountRef = useRef(reviewCount);
+  preReviewCountRef.current = reviewCount;
+  const { requestReview } = hooksBag.useReviewPrompt();
+
   const handleDirections = useCallback(() => {
     Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${site?.lat},${site?.lng}`).catch(() => {
       Alert.alert("Couldn't Open Maps", "No maps app is available to show directions.");
     });
   }, [site?.lat, site?.lng]);
+
+  const handleOpenWebsite = useCallback((raw: string) => {
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      Alert.alert("Invalid Link", "This website link is not valid.");
+      return;
+    }
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      Alert.alert("Invalid Link", "This website link is not valid.");
+      return;
+    }
+    Linking.openURL(url.toString()).catch(() => {
+      Alert.alert("Couldn't Open Link", "No browser is available to open this website.");
+    });
+  }, []);
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const imageTranslateY = scrollY.interpolate({
@@ -185,6 +207,22 @@ export default function SiteDetailRoute() {
               {site.description}
             </AppText>
 
+            {(site.price || site.website) && (
+              <Row gap="md" align="center">
+                {site.price && <AppText variant="body">{site.price}</AppText>}
+                {site.website && (
+                  <Pressable onPress={() => handleOpenWebsite(site.website!)}>
+                    <Row gap="xs" align="center">
+                      <Globe size={16} color={tokens.colors.accent} />
+                      <AppText variant="body" style={{ color: tokens.colors.accent }}>
+                        Visit website
+                      </AppText>
+                    </Row>
+                  </Pressable>
+                )}
+              </Row>
+            )}
+
             <components.ReviewsSummaryCard
               ratingCount={ratingCount}
               avgRating={avgRating}
@@ -194,31 +232,6 @@ export default function SiteDetailRoute() {
               onAddReview={() => setReviewOpen(true)}
             />
 
-            <SiteActionsBar
-              hasReview={!!myRating}
-              myReviewRating={myRating ?? undefined}
-              myReviewText={myReviewText ?? undefined}
-              onOpenReview={() => setReviewOpen(true)}
-            />
-
-            <Pressable
-              style={itineraryStyles.button}
-              onPress={() => {
-                if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-                  Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
-                  return;
-                }
-                if (itineraries.length === 0) {
-                  setIsCreatingItinerary(true);
-                } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
-                  setShowTripChoice(true);
-                } else {
-                  setIsAddingToTrip(true);
-                }
-              }}
-            >
-              <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>
-            </Pressable>
           </Stack>
         </View>
       </Animated.ScrollView>
@@ -230,6 +243,27 @@ export default function SiteDetailRoute() {
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
           <ArrowLeft color="#FFFFFF" size={22} />
+        </Pressable>
+      </SafeAreaView>
+
+      <SafeAreaView style={styles.itineraryFloatingWrap} pointerEvents="box-none">
+        <Pressable
+          style={itineraryStyles.button}
+          onPress={() => {
+            if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+              Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
+              return;
+            }
+            if (itineraries.length === 0) {
+              setIsCreatingItinerary(true);
+            } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
+              setShowTripChoice(true);
+            } else {
+              setIsAddingToTrip(true);
+            }
+          }}
+        >
+          <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>
         </Pressable>
       </SafeAreaView>
 
@@ -251,6 +285,7 @@ export default function SiteDetailRoute() {
             clearDraft(id);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             setReviewOpen(false);
+            if (preReviewCountRef.current === 0) requestReview();
           } else {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           }
@@ -336,15 +371,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  itineraryFloatingWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: tokens.space.md,
+    paddingTop: 12,
+  },
 });
 
 const itineraryStyles = StyleSheet.create({
   button: {
     borderRadius: tokens.radius.lg,
-    borderWidth: 1,
-    borderColor: tokens.colors.borderStrong,
-    paddingVertical: 14,
+    backgroundColor: tokens.colors.accent,
+    paddingVertical: 20,
     alignItems: "center",
+    shadowColor: "#241A12",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 8,
   },
-  text: { color: tokens.colors.text2, fontWeight: "700" },
+  text: { color: "#FFFFFF", fontWeight: "700" },
 });

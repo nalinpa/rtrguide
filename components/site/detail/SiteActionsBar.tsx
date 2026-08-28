@@ -25,7 +25,7 @@ function QuickAction({
   disabled?: boolean;
   active?: boolean;
 }) {
-  const color = active ? tokens.colors.success : tokens.colors.accent;
+  const color = active ? tokens.colors.accent : tokens.colors.surf;
   return (
     <Pressable style={styles.quickAction} onPress={onPress} disabled={disabled} hitSlop={6}>
       <Icon size={22} color={color} />
@@ -97,9 +97,9 @@ export function SiteActionsBar({ hasReview, myReviewRating, myReviewText, onOpen
 const styles = StyleSheet.create({
   quickRow: {
     borderRadius: tokens.radius.lg,
-    borderWidth: 1,
-    borderColor: tokens.colors.borderSubtle,
-    backgroundColor: tokens.colors.bgCard,
+    borderWidth: 1.5,
+    borderColor: tokens.colors.surf,
+    backgroundColor: tokens.colors.surfDim,
     paddingVertical: tokens.space.md,
     paddingHorizontal: tokens.space.sm,
   },

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Flame, Landmark, Mountain, Trees, Waves, Utensils, MapPin, Check } from "lucide-react-native";
+import { Flame, Landmark, Compass, Trees, Waves, Camera, Utensils, Bed, MapPin, Check } from "lucide-react-native";
 import { tokens } from "@/lib/ui/tokens";
 import type { SiteCategory } from "@/lib/models";
 
@@ -12,11 +12,13 @@ type IconComponent = React.ComponentType<{
 
 export const CATEGORY_CONFIG: Record<SiteCategory | "other", { Icon: IconComponent; color: string }> = {
   Geothermal: { Icon: Flame, color: "#E8590C" },
-  "Māori Culture": { Icon: Landmark, color: "#8C3D10" },
-  Adventure: { Icon: Mountain, color: "#0D9488" },
-  "Walks & Nature": { Icon: Trees, color: "#1F4B3D" },
-  "Lake & Water": { Icon: Waves, color: "#0369A1" },
+  Walks: { Icon: Trees, color: "#1F4B3D" },
+  Attractions: { Icon: Camera, color: "#7C3AED" },
+  Cultural: { Icon: Landmark, color: "#8C3D10" },
+  Hotpools: { Icon: Waves, color: "#0369A1" },
+  Adventure: { Icon: Compass, color: "#0D9488" },
   "Food & Drink": { Icon: Utensils, color: "#DC2626" },
+  Stay: { Icon: Bed, color: "#4338CA" },
   other: { Icon: MapPin, color: "#475569" },
 };
 

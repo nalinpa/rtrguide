@@ -40,7 +40,7 @@ export default function ItineraryListPage() {
     return (
       <Screen>
         <Stack gap="lg" style={styles.paddedSection}>
-          <AppText variant="h1">Itinerary</AppText>
+          <AppText variant="h1">Plans</AppText>
           <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
             <Stack gap="md" align="center">
               <Row gap="sm" align="center">
@@ -73,7 +73,7 @@ export default function ItineraryListPage() {
     return (
       <Screen>
         <Stack gap="md" style={styles.paddedSection}>
-          <AppText variant="h1">Itinerary</AppText>
+          <AppText variant="h1">Plans</AppText>
           {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
             <PurchasePendingBanner />
           ) : (

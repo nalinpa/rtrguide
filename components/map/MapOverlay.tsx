@@ -43,6 +43,7 @@ interface MapOverlayProps {
   distanceMeters: number;
   onOpen: () => void;
   onSelectSite: (id: string) => void;
+  onFocusSite: () => void;
   onAddToItinerary?: () => void;
   nearbySites: NearbySite[];
   todayItems: ActiveItineraryItem[] | null;
@@ -89,6 +90,7 @@ export function MapOverlayCard({
   site,
   onOpen,
   onSelectSite,
+  onFocusSite,
   onAddToItinerary,
   nearbySites,
   todayItems,
@@ -143,9 +145,11 @@ export function MapOverlayCard({
               <ActivityIndicator color="rgba(255,255,255,0.7)" size="small" />
               <Text style={styles.loadingLabel}>CALIBRATING GPS</Text>
             </View>
-            <Text style={styles.siteName} numberOfLines={2}>
-              {site.name}
-            </Text>
+            <Pressable onPress={onFocusSite}>
+              <Text style={styles.siteName} numberOfLines={2}>
+                {site.name}
+              </Text>
+            </Pressable>
           </View>
           <View style={styles.actions}>
             <Pressable onPress={onOpen} style={styles.btnDetails}>
@@ -156,7 +160,7 @@ export function MapOverlayCard({
       );
     }
 
-    const metaLine = [site.category, site.region]
+    const metaLine = [site.category[0], site.region]
       .filter(Boolean)
       .join(" · ")
       .toUpperCase();
@@ -166,12 +170,12 @@ export function MapOverlayCard({
       <>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <View style={styles.headerLeft}>
+            <Pressable style={styles.headerLeft} onPress={onFocusSite}>
               <Text style={styles.siteName} numberOfLines={2}>
                 {site.name}
               </Text>
               {metaLine ? <Text style={styles.siteMeta}>{metaLine}</Text> : null}
-            </View>
+            </Pressable>
             {hasLoc && (
               <View style={styles.distancePill}>
                 <Navigation size={10} color="rgba(255,255,255,0.85)" strokeWidth={2} />
@@ -345,8 +349,7 @@ const styles = StyleSheet.create({
   actionsSecondary: { paddingHorizontal: 20, paddingBottom: 8, marginTop: 20 },
   btnAddToTrip: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    paddingVertical: 13, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.10)",
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.18)",
+    paddingVertical: 13, borderRadius: 10, backgroundColor: tokens.colors.surf,
   },
   btnAddToTripText: { fontSize: 14, fontWeight: "600", color: "#FFFFFF", letterSpacing: 0.1 },
   nearbySection: { paddingTop: 4 },

@@ -8,10 +8,9 @@ import {
   ScrollView,
   Pressable,
   Linking,
-  Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { Search, X, Bookmark, Compass, Image as ImageIcon } from "lucide-react-native";
+import { Search, X, Bookmark, Image as ImageIcon } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppIconButton } from "@/lib/uiKit";
@@ -51,7 +50,7 @@ export default function SiteListPage() {
 
   const filteredLocations = useMemo(() => {
     let list = activeLocations;
-    if (category) list = list.filter((l) => l.category === category);
+    if (category) list = list.filter((l) => l.category.includes(category));
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       list = list.filter((l) => l.name.toLowerCase().includes(q));
@@ -77,8 +76,6 @@ export default function SiteListPage() {
     () => (featuredSite ? rows.filter((r) => r.location.id !== featuredSite.location.id) : rows),
     [rows, featuredSite],
   );
-
-  const openRegionPlaceholder = () => Alert.alert("Region filter", "Coming soon.");
 
   if (entitiesLoading || session.status === "loading" || entitlementsLoading) {
     return (
@@ -121,11 +118,6 @@ export default function SiteListPage() {
               icon={Bookmark}
               onPress={() => router.push("/(app)/saved-sites")}
               accessibilityLabel="Saved sites"
-            />
-            <AppIconButton
-              icon={Compass}
-              onPress={openRegionPlaceholder}
-              accessibilityLabel="Filter by region"
             />
           </Row>
         </Row>
@@ -283,12 +275,12 @@ const styles = StyleSheet.create({
   categoryTabContent: { gap: 20, paddingRight: 16 },
   categoryTab: { paddingVertical: 8, alignItems: "center" },
   categoryTabText: { fontSize: 14, fontWeight: "600", color: tokens.colors.text2 },
-  categoryTabTextActive: { color: tokens.colors.text, fontWeight: "700" },
+  categoryTabTextActive: { color: tokens.colors.surf, fontWeight: "700" },
   categoryTabIndicator: {
     marginTop: 6,
     height: 2,
     width: "100%",
-    backgroundColor: tokens.colors.accent,
+    backgroundColor: tokens.colors.surf,
     borderRadius: 1,
   },
   featuredCard: {
@@ -310,12 +302,18 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   featuredBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: tokens.colors.surf,
     color: "#FFFFFF",
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    marginBottom: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginBottom: 8,
+    overflow: "hidden",
   },
   featuredTitle: { color: "#FFFFFF", fontSize: 22, fontWeight: "800", marginBottom: 4 },
   featuredSubtitle: { color: "rgba(255,255,255,0.85)", fontSize: 13 },

@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { Search, SlidersHorizontal, Crosshair, Layers, AlertCircle } from "lucide-react-native";
+import { Search, SlidersHorizontal, Crosshair, Layers, AlertCircle, Lock, ChevronRight } from "lucide-react-native";
 import type { MapType } from "react-native-maps";
 
 import { LoadingState, ErrorCard, components } from "@/lib/uiKit";
@@ -70,6 +70,11 @@ export default function MapScreen() {
     [locations, isSiteLocked],
   );
 
+  const lockedSites = useMemo(
+    () => locations.filter((l) => l.active !== false && isSiteLocked(l)),
+    [locations, isSiteLocked],
+  );
+
   const handleAddToItinerary = useCallback(() => {
     if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
       Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
@@ -87,13 +92,13 @@ export default function MapScreen() {
   const mapSites = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return visibleSites
-      .filter((s) => (!q || s.name.toLowerCase().includes(q)) && (!categoryFilter || s.category === categoryFilter))
+      .filter((s) => (!q || s.name.toLowerCase().includes(q)) && (!categoryFilter || s.category.includes(categoryFilter)))
       .map((s) => ({
         id: s.id,
         name: s.name,
         lat: s.lat,
         lng: s.lng,
-        category: s.category,
+        category: s.category[0],
       }));
   }, [visibleSites, searchQuery, categoryFilter]);
 
@@ -161,7 +166,7 @@ export default function MapScreen() {
           siteId: item.siteId,
           siteName: item.siteName,
           timeLabel: item.timeLabel,
-          category: siteData.category,
+          category: siteData.category[0],
           imageUrl: siteData.imageThumbnailUrl ?? null,
         };
       });
@@ -182,7 +187,7 @@ export default function MapScreen() {
       .map((s) => ({
         id: s.id,
         name: s.name,
-        category: s.category,
+        category: s.category[0],
         distanceMeters: distanceMeters({ lat: selectedSite.lat, lng: selectedSite.lng }, { lat: s.lat, lng: s.lng }),
       }))
       .sort((a, b) => (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0))
@@ -262,13 +267,34 @@ export default function MapScreen() {
               style={styles.filterBtn}
             >
               <SlidersHorizontal
-                color={categoryFilter ? tokens.colors.accent : "rgba(36,26,18,0.45)"}
+                color={categoryFilter ? tokens.colors.surf : "rgba(36,26,18,0.45)"}
                 size={18}
                 strokeWidth={categoryFilter ? 2.25 : 1.75}
               />
             </TouchableOpacity>
           </View>
         </View>
+
+        {lockedSites.length > 0 && (
+          <View style={styles.premiumBannerContainer}>
+            <TouchableOpacity
+              style={styles.premiumBanner}
+              activeOpacity={0.88}
+              onPress={() => router.push(`/(app)/(tabs)/sites/${lockedSites[0].id}`)}
+            >
+              <View style={styles.premiumBannerIconWrap}>
+                <Lock size={18} color="#FFFFFF" strokeWidth={2.5} />
+              </View>
+              <View style={styles.premiumBannerTextWrap}>
+                <Text style={styles.premiumBannerTitle}>
+                  {lockedSites.length} Premium {lockedSites.length === 1 ? "Location" : "Locations"} Nearby
+                </Text>
+                <Text style={styles.premiumBannerSubtitle}>Unlock the full guide to explore</Text>
+              </View>
+              <ChevronRight size={20} color="#FFFFFF" strokeWidth={2.5} />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {showFilters && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -320,7 +346,7 @@ export default function MapScreen() {
           }}
         >
           <Layers
-            color={mapType === "satellite" ? tokens.colors.accent : tokens.colors.text}
+            color={mapType === "satellite" ? tokens.colors.surf : tokens.colors.text}
             size={20}
             strokeWidth={1.75}
           />
@@ -332,6 +358,11 @@ export default function MapScreen() {
         distanceMeters={overlayDistance}
         onOpen={() => selectedSite && router.push(`/(app)/(tabs)/sites/${selectedSite.id}`)}
         onSelectSite={handleSitePress}
+        onFocusSite={() => {
+          if (!selectedSite) return;
+          Haptics.impactAsync();
+          mapViewRef.current?.focusOn(selectedSite.lat, selectedSite.lng);
+        }}
         onAddToItinerary={session.status !== "guest" ? handleAddToItinerary : undefined}
         nearbySites={nearbySites}
         todayItems={todayItems}
@@ -398,7 +429,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(36,26,18,0.14)",
     shadowColor: "#241A12", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
   },
-  chipActive: { backgroundColor: tokens.colors.accent, borderColor: tokens.colors.accent },
+  chipActive: { backgroundColor: tokens.colors.surf, borderColor: tokens.colors.surf },
   chipText: { fontSize: 13, fontWeight: "600", color: "rgba(36,26,18,0.7)" },
   chipTextActive: { color: "#FFFFFF" },
   mapControls: {
@@ -413,4 +444,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, marginTop: 10, gap: 6,
   },
   errorText: { fontSize: 11, fontWeight: "600", color: "rgba(255,200,200,1)", letterSpacing: 0.3 },
+  premiumBannerContainer: { paddingHorizontal: 16, paddingTop: 12 },
+  premiumBanner: {
+    flexDirection: "row", alignItems: "center", backgroundColor: tokens.colors.accent,
+    paddingHorizontal: 16, paddingVertical: 14, borderRadius: 18, gap: 12,
+    shadowColor: tokens.colors.accent, shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.35, shadowRadius: 14, elevation: 8,
+  },
+  premiumBannerIconWrap: {
+    width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.22)",
+    alignItems: "center", justifyContent: "center",
+  },
+  premiumBannerTextWrap: { flex: 1, gap: 2 },
+  premiumBannerTitle: { fontSize: 15, fontWeight: "800", color: "#FFFFFF", letterSpacing: 0.1 },
+  premiumBannerSubtitle: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.82)" },
 });

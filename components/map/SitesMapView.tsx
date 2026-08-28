@@ -33,6 +33,7 @@ export type SiteMapPoint = {
 
 export type SitesMapViewHandle = {
   recenter: (lat: number, lng: number) => void;
+  focusOn: (lat: number, lng: number) => void;
 };
 
 const SitesMapViewInner = forwardRef<
@@ -55,6 +56,12 @@ const SitesMapViewInner = forwardRef<
     recenter: (lat, lng) => {
       mapRef.current?.animateToRegion(
         { latitude: lat, longitude: lng, latitudeDelta: 0.03, longitudeDelta: 0.03 },
+        400,
+      );
+    },
+    focusOn: (lat, lng) => {
+      mapRef.current?.animateToRegion(
+        { latitude: lat, longitude: lng, latitudeDelta: 0.008, longitudeDelta: 0.008 },
         400,
       );
     },
@@ -142,7 +149,6 @@ const SitesMapViewInner = forwardRef<
       showsBuildings={false}
       showsPointsOfInterests={false}
       pointsOfInterestFilter={[]}
-      radius={48}
       renderCluster={(cluster: any) => {
         const { id, geometry, onPress, properties } = cluster;
         const { point_count } = properties;

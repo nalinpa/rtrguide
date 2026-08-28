@@ -9,6 +9,8 @@ import * as Sentry from "@sentry/react-native";
 
 import { AppProviders } from "@/lib/providers/AppProviders";
 import { OfflineBanner } from "@/lib/uiKit";
+import { hooksBag } from "@/lib/hooksBag";
+import { useAppOpenCount } from "@/lib/hooks/useAppOpenCount";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: !isRunningInExpoGo(),
@@ -26,12 +28,18 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayout() {
   const ref = useNavigationContainerRef();
+  const openCount = useAppOpenCount();
+  const { requestReview } = hooksBag.useReviewPrompt();
 
   useEffect(() => {
     if (ref) {
       navigationIntegration.registerNavigationContainer(ref);
     }
   }, [ref]);
+
+  useEffect(() => {
+    if (openCount === 2) requestReview();
+  }, [openCount, requestReview]);
 
   return (
     <GestureHandlerRootView style={styles.flexStyle}>

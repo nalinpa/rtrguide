@@ -13,8 +13,8 @@ const ALL_TABS: Array<{
   icon: keyof typeof Ionicons.glyphMap;
   activeIcon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { key: "sites", title: "Locations", icon: "list-outline", activeIcon: "list" },
-  { key: "itinerary", title: "Itinerary", icon: "calendar-outline", activeIcon: "calendar" },
+  { key: "sites", title: "Explore", icon: "list-outline", activeIcon: "list" },
+  { key: "itinerary", title: "Plans", icon: "calendar-outline", activeIcon: "calendar" },
   { key: "map", title: "Map", icon: "map-outline", activeIcon: "map" },
   { key: "account", title: "Profile", icon: "person-outline", activeIcon: "person" },
 ];

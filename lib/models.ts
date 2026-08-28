@@ -1,10 +1,12 @@
 export const SITE_CATEGORIES = [
   "Geothermal",
-  "Māori Culture",
+  "Walks",
+  "Attractions",
+  "Cultural",
+  "Hotpools",
   "Adventure",
-  "Walks & Nature",
-  "Lake & Water",
   "Food & Drink",
+  "Stay",
 ] as const;
 export type SiteCategory = (typeof SITE_CATEGORIES)[number];
 
@@ -26,8 +28,10 @@ export type Site = {
   checkpoints?: Checkpoint[];
   description: string;
   active: boolean;
-  category: SiteCategory;
+  category: SiteCategory[];
   region?: string;
+  price?: string;
+  website?: string;
   imageUrl?: string | null;
   imageThumbnailUrl?: string | null;
   featured?: number;

@@ -1,4 +1,5 @@
 jest.mock("@/lib/firebase", () => ({ auth: {} }));
+jest.mock("@/lib/api", () => ({ client: { auth: { linkApple: jest.fn() } } }));
 jest.mock("expo-apple-authentication", () => ({
   signInAsync: jest.fn(),
   AppleAuthenticationScope: { FULL_NAME: "FULL_NAME", EMAIL: "EMAIL" },
@@ -16,6 +17,7 @@ jest.mock("firebase/auth", () => ({
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
 import { OAuthProvider, signInWithCredential } from "firebase/auth";
+import { client } from "@/lib/api";
 import { getAppleSignInErrorMessage, signInWithApple } from "@/lib/auth/appleSignIn";
 
 const mockSignInAsync = AppleAuthentication.signInAsync as jest.Mock;
@@ -23,6 +25,7 @@ const mockGetRandomBytes = Crypto.getRandomBytesAsync as jest.Mock;
 const mockDigest = Crypto.digestStringAsync as jest.Mock;
 const mockOAuthProvider = OAuthProvider as unknown as jest.Mock;
 const mockSignInWithCredential = signInWithCredential as jest.Mock;
+const mockLinkApple = client.auth.linkApple as jest.Mock;
 
 describe("getAppleSignInErrorMessage", () => {
   it("returns a friendly message for the account-exists conflict", () => {
@@ -54,6 +57,7 @@ describe("signInWithApple", () => {
     }));
     mockSignInWithCredential.mockReset();
     mockCredentialFn.mockClear();
+    mockLinkApple.mockReset().mockResolvedValue(null);
   });
 
   it("exchanges the Apple identity token for a Firebase credential", async () => {
@@ -78,5 +82,31 @@ describe("signInWithApple", () => {
 
     await expect(signInWithApple()).rejects.toThrow("Apple did not return an identity token");
     expect(mockSignInWithCredential).not.toHaveBeenCalled();
+  });
+
+  it("stores the authorization code server-side after a successful sign-in", async () => {
+    mockSignInAsync.mockResolvedValue({ identityToken: "apple-id-token", authorizationCode: "auth-code-123" });
+    mockSignInWithCredential.mockResolvedValue(undefined);
+
+    await signInWithApple();
+
+    expect(mockLinkApple).toHaveBeenCalledWith("auth-code-123");
+  });
+
+  it("does not call linkApple when Apple returns no authorization code", async () => {
+    mockSignInAsync.mockResolvedValue({ identityToken: "apple-id-token", authorizationCode: null });
+    mockSignInWithCredential.mockResolvedValue(undefined);
+
+    await signInWithApple();
+
+    expect(mockLinkApple).not.toHaveBeenCalled();
+  });
+
+  it("does not fail sign-in when storing the authorization code fails", async () => {
+    mockSignInAsync.mockResolvedValue({ identityToken: "apple-id-token", authorizationCode: "auth-code-123" });
+    mockSignInWithCredential.mockResolvedValue(undefined);
+    mockLinkApple.mockRejectedValue(new Error("network down"));
+
+    await expect(signInWithApple()).resolves.toBeUndefined();
   });
 });

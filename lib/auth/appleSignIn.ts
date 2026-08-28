@@ -2,6 +2,7 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
 import { OAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { client } from "@/lib/api";
 
 export function getAppleSignInErrorMessage(error: unknown): string {
   const code = (error as { code?: string })?.code;
@@ -37,4 +38,16 @@ export async function signInWithApple(): Promise<void> {
   });
 
   await signInWithCredential(auth, firebaseCredential);
+
+  // Store the Apple refresh token server-side so account deletion can later
+  // revoke it (App Store guideline 5.1.1(v)). Non-fatal: sign-in has already
+  // succeeded on the Firebase side by this point, and a storage hiccup here
+  // shouldn't block login.
+  if (appleCredential.authorizationCode) {
+    try {
+      await client.auth.linkApple(appleCredential.authorizationCode);
+    } catch (err) {
+      console.error("failed to store Apple refresh token:", err);
+    }
+  }
 }

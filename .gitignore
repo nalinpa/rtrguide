@@ -3,6 +3,8 @@ node_modules/
 dist/
 *.log
 .env
+GoogleService-Info.plist
+google-services.json
 docs/
 .worktrees/
 .claude/worktrees/

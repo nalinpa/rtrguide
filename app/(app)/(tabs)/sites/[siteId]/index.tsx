@@ -82,6 +82,9 @@ export default function SiteDetailRoute() {
       Alert.alert("Invalid Link", "This website link is not valid.");
       return;
     }
+    url.searchParams.set("utm_source", "blacksands.app");
+    url.searchParams.set("utm_medium", "rotorua app");
+    url.searchParams.set("utm_campaign", "ios_link");
     Linking.openURL(url.toString()).catch(() => {
       Alert.alert("Couldn't Open Link", "No browser is available to open this website.");
     });
@@ -185,6 +188,12 @@ export default function SiteDetailRoute() {
           <Stack gap="md" style={styles.content}>
             <AppText variant="h1">{site.name}</AppText>
 
+            {site.price && (
+              <AppText variant="body" style={{ marginTop: -10 }}>
+                {site.price}
+              </AppText>
+            )}
+
             <SiteQuickActions
               onDirections={handleDirections}
               onOpenReview={() => setReviewOpen(true)}
@@ -207,20 +216,15 @@ export default function SiteDetailRoute() {
               {site.description}
             </AppText>
 
-            {(site.price || site.website) && (
-              <Row gap="md" align="center">
-                {site.price && <AppText variant="body">{site.price}</AppText>}
-                {site.website && (
-                  <Pressable onPress={() => handleOpenWebsite(site.website!)}>
-                    <Row gap="xs" align="center">
-                      <Globe size={16} color={tokens.colors.accent} />
-                      <AppText variant="body" style={{ color: tokens.colors.accent }}>
-                        Visit website
-                      </AppText>
-                    </Row>
-                  </Pressable>
-                )}
-              </Row>
+            {site.website && (
+              <Pressable onPress={() => handleOpenWebsite(site.website!)} style={styles.websiteChip}>
+                <Row gap="xs" align="center">
+                  <Globe size={20} color="#FFFFFF" />
+                  <AppText variant="body" style={styles.websiteChipText}>
+                    Visit Website
+                  </AppText>
+                </Row>
+              </Pressable>
             )}
 
             <components.ReviewsSummaryCard
@@ -371,6 +375,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  websiteChip: {
+    flexDirection: "row",
+    alignSelf: "center",
+    borderRadius: 100,
+    backgroundColor: tokens.colors.surf,
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    marginTop: 8,
+    shadowColor: tokens.colors.surf,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  websiteChipText: { color: "#FFFFFF", fontWeight: "700", fontSize: 18 },
   itineraryFloatingWrap: {
     position: "absolute",
     left: 0,

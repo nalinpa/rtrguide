@@ -1,0 +1,1610 @@
+[
+  {
+    "id": "014e8cdb95c1464fb2b9",
+    "name": "Waiotapu Thermal Wonderland",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.355830599453476,
+    "lng": 176.36759735333428,
+    "slug": "waiotapu-thermal-wonderland",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": true,
+    "website": "https://www.waiotapu.co.nz/",
+    "description": "One of the most colourful geothermal parks in the world, about 30 minutes south of Rotorua. Walking trails pass the Champagne Pool and the Artist's Palette, and the Lady Knox Geyser erupts on a set daily schedule. Paid entry, well formed paths throughout.\nLocal tip: The free Mud Pools and Hot 'n' Cold streams sit just up the same road, worth combining into one afternoon rather than treating this as a standalone stop.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/3c646f8e-33e4-4631-a68c-2be3b224747f.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/5cfd3130-1427-4c78-825b-ac499e6483d3.webp"
+  },
+  {
+    "id": "06a108ed79d14876b973",
+    "name": "Te Auheke Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.08195356819422,
+    "lng": 176.42159017012602,
+    "slug": "te-auheke-walk",
+    "active": true,
+    "featured": 12,
+    "recommendedDurationSlots": 5,
+    "vibe": "active",
+    "isPremium": true,
+    "website": "",
+    "description": "A short 1.7km forest loop near the Redwoods, known for the Cascade Falls glow worm dell. Mossy native bush by day, glow worms after dark. Free, no facilities on site.\nLocal tip: Bring a torch but switch it off once you reach the falls. Your eyes need a few minutes in the dark before the glow worms become visible.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/76eeb011-3be2-44fe-86fa-bc4aac6d455e.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/b2df9059-15af-45a6-9e3f-48b2cd24c8a0.webp"
+  },
+  {
+    "id": "09338fe049834e65ae45",
+    "name": "Wingspan National Bird of Prey Centre",
+    "category": [
+      "Attractions"
+    ],
+    "lat": -38.091634517095954,
+    "lng": 176.19580973866425,
+    "slug": "wingspan",
+    "active": true,
+    "featured": 8,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "https://www.wingspan.co.nz/",
+    "description": "A conservation centre for New Zealand's native falcon, the kārearea, with a breeding programme and live flying displays. Paid entry, located near the Redwoods area.\nLocal tip: Plan your visit around the flying display times rather than just wandering in. That's when the birds actually perform, not while they're sitting in their enclosures.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/772c5859-953f-4460-afd3-f13a64c5bd82.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/09507434-3820-4508-9090-2e3a834236e1.webp"
+  },
+  {
+    "id": "0947007f6e384dac88eb",
+    "name": "Whakarewarewa",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.161168918171,
+    "lng": 176.25644119780665,
+    "slug": "whakarewarewa",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "website": "https://whakarewarewa.com/",
+    "description": "A living geothermal village where a Te Arawa community still lives among active mud pools, steam vents and the Pohutu Geyser. Guided tours cover the history of the settlement, traditional cooking using geothermal steam, and the surrounding thermal terraces. Paid entry.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/1bf95b41-03f4-4804-b5f2-2619de2997aa.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/aefdc9ba-d42e-4579-9196-6282158100af.webp"
+  },
+  {
+    "id": "0dac4d372a2240eba15a",
+    "name": "Silver Fern Accommodation & Spa",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 5-star motel on Fenton Street with its own day spa and private spa pools available in-room, a genuine step up from standard motel amenities. Complimentary retro bikes are available for guests wanting to explore central Rotorua without a car.",
+    "lat": -38.152795934455256,
+    "lng": 176.25417683027558,
+    "slug": "silver-fern-accommodation",
+    "active": true,
+    "featured": 3,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "0f4c68092eba48719307",
+    "name": "The Pig & Whistle",
+    "category": [
+      "Food"
+    ],
+    "description": "A historic pub on Tutanekai Street, set inside a former police station. Live bands play Thursday to Saturday, and the bar carries a solid range of Moa beers alongside the usual pub fare.",
+    "lat": -38.13561654823598,
+    "lng": 176.25174690909967,
+    "slug": "pig-and-whistle",
+    "active": true,
+    "featured": 6,
+    "recommendedDurationSlots": 4,
+    "vibe": "fun",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "14338fc8aa46404d93b0",
+    "name": "Bella Vista",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 4-star motel on Lake Road, part of the recognisable Bella Vista chain found across New Zealand. Convenient rather than distinctive, it sits near a dairy and a fish and chip shop, useful for practical stays, though without much personality of its own compared to some of Rotorua's more individually run motels.",
+    "lat": -38.12911417859962,
+    "lng": 176.24144236223128,
+    "slug": "bella-vista",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "14a04a715b484565ba94",
+    "name": "Millennium Hotel",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 4.5-star hotel on the edge of Rotorua's CBD, bordering Government Gardens with Polynesian Spa just next door, making it one of the most convenient hotel picks if a soak is on the agenda. The central position also puts Eat Streat and the lakefront within easy walking distance, a well-rounded base for anyone wanting to stay central without needing a car for evenings out.",
+    "lat": -38.13837265445376,
+    "lng": 176.25618237899153,
+    "slug": "millenium-hotel",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "194f2962d3324f72aa8b",
+    "name": "River's Catch",
+    "category": [
+      "Food"
+    ],
+    "description": "An upmarket fish and chips takeaway tucked into the tree-lined streets of Sunnybrook, run by owner Isabel, formerly the executive chef at Pullman Rotorua. The menu puts a Filipino spin on the Kiwi classic, battered fish served on pandesal (a slightly sweet Filipino bread roll made locally), alongside adobo fish tacos, smash burgers, and kumara fries with chipotle mayo. Small setup with limited seating, mostly takeaway.",
+    "lat": -38.14900091347869,
+    "lng": 176.219077679502,
+    "slug": "rivers-catch",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "1aba1903d19d435a88d5",
+    "name": "Mt Ngongotaha Jubilee Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.13144767185274,
+    "lng": 176.18982498408468,
+    "slug": "mt-ngonataha-track",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 6,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "A steep out and back track to the 757m summit of Mt Ngongotaha, starting from Violet Bonnington Reserve. Native forest and birdlife along the way, but no view at the top. Free.\nLocal tip: The adjoining Nature Loop Track is easier and actually has a lookout with panoramic views over Rotorua partway up. The summit itself doesn't.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/347f73dc-4604-4f76-a938-520c80ec8bfc.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/908616f4-38f5-445a-9936-045c0a598619.webp"
+  },
+  {
+    "id": "1c4a129ee3324e22acb7",
+    "name": "Waikite Valley Thermal Pools Campground",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A campground built right around Te Manaroa Spring, one of the largest natural hot springs in the Southern Hemisphere. Campers get free, unlimited access to the onsite hot pool complex for the duration of their stay",
+    "lat": -38.327661756120165,
+    "lng": 176.30220355823508,
+    "slug": "waikite-valley-campground",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "1e6bb647fc75454d820e",
+    "name": "Te Ara Ahi Cycle Trail",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.1348908095477,
+    "lng": 176.255871548365,
+    "slug": "te-ara-ahi",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 6,
+    "vibe": "family,active",
+    "website": "",
+    "description": "A 51km cycle trail linking Rotorua's geothermal landmarks, running from Government Gardens out toward Waiotapu and Waikite Valley. Free to ride, rideable in shorter sections.\nLocal tip: You don't need to do the whole 51km. The first stretch out to Whakarewarewa Forest is an easy, scenic taster if you're short on time.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/14a6a492-4b3d-4c63-a5a0-57951ec99ca7.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/862537fe-bd67-4baf-9d5c-2223ded62845.webp"
+  },
+  {
+    "id": "216b568a492143ca9410",
+    "name": "Paradise Valley Springs",
+    "category": [
+      "Attractions"
+    ],
+    "description": "Paradise Valley Springs",
+    "slug": "paradise-valley-springs",
+    "active": true,
+    "featured": 4,
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/18878697-16db-40a5-96b7-2dce5a3f68c0.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/7bb409d5-87d6-4a90-83f8-660f54e3ee25.webp",
+    "recommendedDurationSlots": 4,
+    "vibe": "family",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "2213ebfc6e904b08ba9d",
+    "name": "Cafe Dynasti",
+    "category": [
+      "Food"
+    ],
+    "description": "A cafe on Ngongotaha Road, near the lakeside lodges on the western side of Lake Rotorua, serving the Ngongotaha area rather than the central CBD cluster.",
+    "lat": -38.08021604555934,
+    "lng": 176.2124049035707,
+    "slug": "dynasti-cafe",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "27c8ec876bf747c29f97",
+    "name": "Hamurana Springs Walk",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.03369453724791,
+    "lng": 176.25841469384773,
+    "slug": "hamurana-springs",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "https://www.hamurana.co.nz/",
+    "description": "A 1.7km loop past one of the clearest freshwater springs in the country, where the water stays a near-constant temperature year round and the bed is visible many metres down. The path winds through tall redwoods and along the spring-fed stream to Lake Rotorua. Now paid entry after previously being free.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/caccb0a7-4ecf-4d2d-b810-81a5a5d855df.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/8c7b5bf5-dc91-437b-ad2e-a3a8df95c4cc.webp"
+  },
+  {
+    "id": "280e7c5df1854a12a1bd",
+    "name": "Prideaux Park",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "Kawerau's main freedom camping spot, centrally located within walking distance of both the Maurie Kjar hot pools and the i-SITE. Certified self-contained vehicles only, no tents. Four powered sites are available, with a bond plus key fee payable through the i-SITE, free for the first three nights, then roughly $10-12 a night after that, up to a maximum stay of 7 nights.",
+    "lat": -38.08655393292392,
+    "lng": 176.6994863337767,
+    "slug": "prideaux-park",
+    "active": true,
+    "featured": 1,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "319937225c8d48339889",
+    "name": "The Buried Village of Te Wairoa",
+    "category": [
+      "Cultural"
+    ],
+    "lat": -38.21215675837102,
+    "lng": 176.3631185248213,
+    "slug": "buried-village",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "maori",
+    "isPremium": true,
+    "website": "https://www.buriedvillage.co.nz/",
+    "description": "Excavated ruins and a museum on the village destroyed by the 1886 Mt Tarawera eruption. Paid entry, includes a bush walk down to a waterfall.\nLocal tip: A lot of visitors miss the walk down to Te Wairoa Falls at the end. It's an extra 20 minutes but worth it.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/b88e4093-6fea-4eae-8131-82baf3c6ade5.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/fb5b696f-d2aa-4b36-a0b4-08ae653fc854.webp"
+  },
+  {
+    "id": "3b59c87f607c461397b8",
+    "name": "Mr Wolf",
+    "category": [
+      "Food"
+    ],
+    "description": "A cafe and eatery on Fenton Street, right beside the i-SITE, set in a historic building with a British racing green colour scheme and art deco touches. Serves house-roasted Okere Falls coffee and a seasonally changing brunch menu with strong vegan options, then shifts into a craft beer library, cocktails, wine and cider in the evening.",
+    "lat": -38.13569671660192,
+    "lng": 176.25344720862415,
+    "slug": "mr-wolf",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "459255e4ac9a4d6ea53f",
+    "name": "Seoul Restaurant",
+    "category": [
+      "Food"
+    ],
+    "description": "A small, family-run Korean restaurant on Pukuatua Street, consistently rated as Rotorua's best Korean dining experience. The menu runs through traditional meats, soups, and side dishes alongside a self-cook BBQ buffet, with unlimited refills on rice and sides.",
+    "lat": -38.13702159159575,
+    "lng": 176.2529700326072,
+    "slug": "seoul-restaurant",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "48a98fd3ca9c44caa872",
+    "name": "Off Road NZ",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.06472377641605,
+    "lng": 176.0490402988661,
+    "slug": "off-road-nz",
+    "active": true,
+    "featured": 5,
+    "recommendedDurationSlots": 4,
+    "vibe": "adventure",
+    "website": "https://offroadnz.co.nz/",
+    "description": "A 4WD adventure park with monster truck rides, mud pits, and a range of off-road vehicles from Argos to purpose-built trucks. Professional drivers handle most of the rides, though some experiences let you get behind the wheel yourself. Paid, sitting alongside the Skyline and Velocity Valley cluster.",
+    "price": "free",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/c05523f0-2fd1-4b53-9f43-d62fb904c82a.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/eab19f65-a504-454c-a081-ada19f7dcd22.webp"
+  },
+  {
+    "id": "48d183380ab5434e8a5a",
+    "name": "AWA Hotel",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 4-star hotel on Fairy Springs Road, positioned right next to Skyline Rotorua and Mitai Māori Village rather than in the central Eat Street area. A restaurant, bar, and coffee shop are all on site, along with a shared lounge and hot springs. It's also one of the more unusual accommodation setups in Rotorua, alongside standard hotel rooms, there's a separate budget capsule-room building nearby with shared bathrooms for solo travellers.",
+    "slug": "awa-hotel",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": "",
+    "lng": 176.22485681182616,
+    "lat": -38.11221211248584
+  },
+  {
+    "id": "4c06795965b945c081ad",
+    "name": "Lady Janes Ice Cream Parlour",
+    "category": [
+      "Food"
+    ],
+    "description": "A Rotorua institution on Tutanekai Street since the early 1980s, sitting at the lake end of Eat Street. Over 40 flavours on offer, with the Danish cone, a large waffle cone with up to three ice cream flavours, toppings, whipped cream and nuts or sprinkles, as the signature order. Ranked in TripAdvisor's top 10 ice cream parlours in New Zealand.",
+    "lat": -38.133030016332434,
+    "lng": 176.2517634938681,
+    "slug": "lady-janes-ice-cream",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 1,
+    "vibe": "family",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "5591e9ffb5794e64b5f6",
+    "name": "Bula Takeaways",
+    "category": [
+      "Food"
+    ],
+    "description": "A Fijian-Indian fusion takeaway in Selwyn Heights, blending traditional Pacific Island cooking with Kiwi takeaway classics. The menu runs from butter chicken pies and lamb shank curry to fried rice, roast meals, and a well-regarded fish and chips, all served with generous portions at reasonable prices. Family-run, with a strong local reputation for friendly service.",
+    "lat": -38.117164511490095,
+    "lng": 176.22269334869156,
+    "slug": "bula-takeaways",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 1,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "579ef94bf676449f9c3e",
+    "name": "Brett Road Campsite",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A straightforward, vehicle-accessible DOC campsite on the shore of Lake Rerewhakaaitu, suited to cars, campervans, and tents alike. No major standout feature beyond the lake itself, but it's an easy, no-fuss option without the boat-or-walk-in restrictions that limit several of the other lakeside sites.",
+    "lat": -38.283521374434436,
+    "lng": 176.49577976002445,
+    "slug": "brett-road-campsite",
+    "active": true,
+    "featured": 1,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "580781cca4e44f3aa7e1",
+    "name": "Waikite Valley Thermal Pools",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.32722409546055,
+    "lng": 176.30298816922698,
+    "slug": "waikite-valley-pools",
+    "active": true,
+    "featured": 3,
+    "vibe": "chill,family",
+    "isPremium": true,
+    "website": "https://www.hotpools.co.nz/",
+    "description": "A series of naturally hot pools at varying temperatures, fed by Te Manaroa Spring, one of the largest natural hot springs in the Southern Hemisphere. Paid entry, with an onsite campground.\nLocal tip: The spring itself is visible for free on a short walk from the car park, even if you don't pay to use the pools.",
+    "recommendedDurationSlots": 4,
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/522946dc-e96a-4388-bd01-b75f3b78fa8b.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/b92d1b9f-9fa7-4887-8218-d3b8e80e4ff6.webp"
+  },
+  {
+    "id": "589202139fe44e94ab32",
+    "name": "Eat Streat",
+    "category": [
+      "Food"
+    ],
+    "description": "A pedestrian-only dining precinct at the lake end of Tutanekai Street. Cuisine ranges from pub fare and steaks to Italian, Indian, Thai, and tapas, with live music often running through busier evenings and a family-friendly atmosphere earlier in the night. The timber verandahs on each restaurant frontage were deliberately designed to reflect the region's forestry and wood-processing heritage.",
+    "lat": -38.133440998348966,
+    "lng": 176.25151667539092,
+    "slug": "eat-streat",
+    "active": true,
+    "featured": 12,
+    "recommendedDurationSlots": 5,
+    "vibe": "",
+    "website": "",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/31463e59-eb48-45c8-b1eb-b49944c3ca91.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/bff9a34a-8b63-4260-abee-205653616957.webp"
+  },
+  {
+    "id": "5a219c313bcf4502b8c0",
+    "name": "Katoa Jet",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.12973448155393,
+    "lng": 176.25135055370072,
+    "slug": "katoa-jet",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 3,
+    "vibe": "adventure",
+    "website": "https://www.katoalakerotorua.co.nz/",
+    "description": "High-speed jet boat tours across Lake Rotorua, with add-on trips to Mokoia Island and the boat-access-only Manupirua Hot Springs on the lake's far shore. Also runs parasailing. Paid, departs from the lakefront.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/46a824ff-af9a-4509-9fa1-abb1f74ce29b.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/3ea881b1-c901-4061-b1f9-2b892bdbbe9e.webp"
+  },
+  {
+    "id": "5b4584fcf1334e0d84f4",
+    "name": "Pohutu Geyser Lookout Track (Pohaturoa Track)",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.160402150395555,
+    "lng": 176.26813500026674,
+    "slug": "pohaturoa-track",
+    "active": true,
+    "featured": 8,
+    "recommendedDurationSlots": 4,
+    "vibe": "amazing,active",
+    "isPremium": true,
+    "website": "",
+    "description": "A free 3.7km return walk that leads to a public viewpoint looking directly across at Pohutu Geyser and the wider Whakarewarewa thermal valley, without paying for entry to Te Puia itself. The track winds through bush and open ground on the opposite side of the valley, giving a genuine, if slightly more distant, view of the geyser in full eruption along with the surrounding steam and mineral terraces. It's a good option for anyone travelling on a tighter budget, or for locals who've already done the paid experience and just want to check the geyser is still putting on a show.\nLocal tip: Pohutu erupts most reliably in the morning, so this is worth timing rather than just wandering up whenever suits.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/d01962ff-bee8-4467-9ca1-be1cf3593e8a.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/5369f729-69a7-4c10-83e5-360886214a45.webp"
+  },
+  {
+    "id": "5ba5916b583e4fa6a2b2",
+    "name": "Te Pā Tū",
+    "category": [
+      "Cultural"
+    ],
+    "slug": "te-pa-tu",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "premium,maori",
+    "isPremium": true,
+    "website": "https://te-pa-tu.com/",
+    "description": "An award-winning evening Māori cultural experience, formerly known as Tamaki Māori Village, with haka, storytelling and a hangi dinner in a recreated village setting deep in native forest. Paid, usually includes bus transport from Rotorua.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/4646bdb7-d6dc-4d07-a810-1df743e17798.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/b19b9085-de1e-4d1c-99cc-fd11075e5d4c.webp"
+  },
+  {
+    "id": "5d7c5092ea59432fb72e",
+    "name": "Kuirau Park",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.130323711654526,
+    "lng": 176.24424398144865,
+    "slug": "kuirau-park",
+    "active": true,
+    "recommendedDurationSlots": 3,
+    "vibe": "",
+    "website": "",
+    "description": "A free, always open thermal park covering around 12 hectares right on the edge of Rotorua's CBD, built around a large steaming lake formed by geothermal activity. Walking paths circle the lake past bubbling mud pools, fenced-off boiling pools and vents releasing steam straight out of the ground, all just metres from the footpath. It's one of the few places in Rotorua where you can get this close to raw geothermal activity without paying for entry, and the park also has a playground, open lawns, and hosts a Saturday market.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/2ccf316a-b3e2-4054-9265-d4fc5b9b03b1.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/35d91062-ad35-471b-9313-a6fc92d5953a.webp"
+  },
+  {
+    "id": "67448da5a42b40dfa2ec",
+    "name": "Wai Ariki Hot Springs",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.132111047553884,
+    "lng": 176.25606611131184,
+    "slug": "wai-ariki",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill,premium",
+    "isPremium": true,
+    "website": "https://www.wai-ariki.co.nz/",
+    "description": "An adults-only luxury hot springs and day spa on the Rotorua lakefront near Sulphur Point, with tiered mineral pools cascading down toward the water. Treatments and wellness packages are available alongside general pool entry. Paid entry.\nLocal tip: Late afternoon sessions catch the sunset over the lake from the pools.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/a7c648c6-63d7-4aed-8672-e8cbcadfca26.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/d361a4f9-16f0-4cf9-948b-44b5ddaf102f.webp"
+  },
+  {
+    "id": "68a90aeadbfd45a2a4cc",
+    "name": "Lake Ōkareka Campsite",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A DOC campsite on Millar Road, about 15 minutes from Rotorua, suiting tents, cars, and motorhomes alike, a rarer combination given most of the region's lakeside sites restrict you to one or the other. The lake itself offers swimming, kayaking, and fishing right from the campsite, making it a genuinely versatile base rather than just a place to park up and sleep.",
+    "lat": -38.16200574712762,
+    "lng": 176.36053233286998,
+    "slug": "lake-okareka-campsite",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "692ebb8065444b5d8217",
+    "name": "Patrick's Pies Gold Star Bakery",
+    "category": [
+      "Food"
+    ],
+    "description": "An award-winning pie bakery on Old Taupo Road, founded by Patrick Lam and holder of more than 70 baking awards, including multiple NZ Bakels Supreme Pie Awards. Alongside the classics like mince and cheese, the bakery is known for pushing into unusual territory, roast duck, lamb, even rum, pineapple and coconut pies. Also does sandwiches, cakes, and hot food like chicken kebabs and hotdogs, with outdoor seating and a window to watch the bakers at work.",
+    "lat": -38.132107619134764,
+    "lng": 176.233454342683,
+    "slug": "patricks-pies",
+    "active": true,
+    "featured": 1,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "69b842a30b294328a28e",
+    "name": "Yamato Japanese Restaurant",
+    "category": [
+      "Food"
+    ],
+    "lat": -38.136730458694345,
+    "lng": 176.25313614858214,
+    "slug": "yamato-japanese-restaurant",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 3,
+    "vibe": "",
+    "website": "",
+    "price": "",
+    "description": "A Japanese restaurant on Pukuatua Street with dedicated sushi bar seating, offering a straightforward, solid option for Japanese cuisine in central Rotorua."
+  },
+  {
+    "id": "6cd1c7c855ce4e3a90b2",
+    "name": "Waimangu Volcanic Valley",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.28519063141169,
+    "lng": 176.38612056256395,
+    "slug": "waimangu-volcanic-valley",
+    "active": true,
+    "featured": 6,
+    "recommendedDurationSlots": 5,
+    "vibe": "",
+    "isPremium": true,
+    "website": "https://www.waimangu.co.nz/",
+    "description": "The world's youngest geothermal system, created by the 1886 Tarawera eruption. A gentle downhill walk of one to two hours passes Frying Pan Lake and the pastel coloured Inferno Crater Lake, with an optional boat cruise on Lake Rotomahana at the end. Paid entry.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/68203973-cf5e-4897-b958-63f2a308930c.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/48342c45-fbdd-4f73-98ae-6cb6552bb4b2.webp"
+  },
+  {
+    "id": "70ebc5c3a4124536a773",
+    "name": "Rotorua Canopy Tours",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.11100913819453,
+    "lng": 176.22399796150523,
+    "slug": "rotorua-canopy-tours",
+    "active": true,
+    "featured": 9,
+    "recommendedDurationSlots": 4,
+    "vibe": "adventure",
+    "website": "https://www.canopytours.co.nz/",
+    "description": "A zipline and canopy tour through native forest west of Ngongotaha, tied to an active predator free conservation programme. Paid, with check in and shuttle from a separate office on Fairy Springs Road.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/66efbe43-f44d-43d2-bd29-8fd77935ea02.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/cb8f870b-a2d9-4448-9253-41fa9af58caa.webp"
+  },
+  {
+    "id": "7292892b75694ebe8966",
+    "name": "El Mexicano Zapata Cantina",
+    "category": [
+      "Food"
+    ],
+    "description": "A Mexican restaurant on Tutanekai Street, right on Eat Street, established in 2017 by Eduardo Diaz and Cristina Allen. Known as some of the best Mexican food outside Mexico by regulars, with a menu built around parrillada and ceviche, plus a full range of cocktails, Mexican beers, and Jarritos. Free salsa lessons run on Tuesdays and there's live music on weekends, giving it a livelier atmosphere than most of Eat Street's other restaurants.",
+    "lat": -38.13453384475358,
+    "lng": 176.25173095491743,
+    "slug": "zapata-cantina",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "77e801056ee1453ebfb1",
+    "name": "Hot Water Beach",
+    "category": [
+      "Hotpools"
+    ],
+    "description": "A natural hot pool right on the shore of Lake Tarawera, where you can dig your own warm soak in the sand at the water's edge, with the cool lake right beside it if you want to switch between the two. It sits at the end of the Tarawera Trail, so it's the reward waiting at the far end of that walk, though it's also reachable directly by boat or water taxi if you don't want to do the full track. Free to use.\nLocal tip: There's a basic DOC campground right here too if you want to stay overnight rather than just visiting for the day, a genuinely rare combination of a hot pool and a campsite in one spot.",
+    "lat": -38.243537802335375,
+    "lng": 176.43344536937423,
+    "slug": "hot-water-beach",
+    "active": true,
+    "featured": 66,
+    "recommendedDurationSlots": 5,
+    "vibe": "chill,amazing",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "7a68ca04280249628c9c",
+    "name": "Poco Tapas & Wine",
+    "category": [
+      "Food"
+    ],
+    "description": "A tapas and wine bar with an entrance that's easy to walk straight past, tucked away rather than fronting directly onto the street. A quieter, more intimate option for shared plates and wine compared to the louder Eat Street venues.",
+    "lat": -38.13472625151581,
+    "lng": 176.25097383851391,
+    "slug": "poco-tapas",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "7f2bd31e06f449f1803a",
+    "name": "Waterfall Spout Bath",
+    "category": [
+      "Hotpools"
+    ],
+    "description": "A remote, undeveloped natural hot pool near Waiotapu, formed where a spout of geothermal water pours down into a swimming hole deep enough to sit in with water at chest height, surrounded by bush. Historically rated by visitors as one of the most beautiful and least crowded of the free thermal soaks in the area, reached via a short walk in from a roadside car park off The Avenue, about 500m along.",
+    "lat": -38.349427883035254,
+    "lng": 176.37391056830677,
+    "slug": "waterfall-spoout-bath",
+    "active": true,
+    "featured": 22,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill,amazing",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "80efc2e11c174143ac29",
+    "name": "Okere Falls Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.01433931825744,
+    "lng": 176.343774660603,
+    "slug": "okere-falls-track",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "A 3km return walk past three waterfalls on the Kaituna River, with views of rafters and kayakers running the rapids below. Free.\nLocal tip: There's a good swimming hole partway along if you're visiting on a hot day.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/2b862f76-5afc-4ec8-a157-cdcb03d764be.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/93c091c1-08bf-4f56-86ea-9b23649c3ade.webp"
+  },
+  {
+    "id": "817291594e7848fd8f74",
+    "name": "National Kiwi Hatchery",
+    "category": [
+      "Attractions"
+    ],
+    "lat": -38.085241653573256,
+    "lng": 176.19308946297224,
+    "slug": "national-kiwi-hatchery",
+    "active": true,
+    "featured": 5,
+    "recommendedDurationSlots": 4,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "https://www.nationalkiwihatchery.org.nz/",
+    "description": "A working kiwi breeding and incubation facility inside Rainbow Springs Nature Park, contributing chicks back to wild populations as part of a national conservation effort. Guided tours let you see eggs being candled and chicks being hand raised behind glass. "
+  },
+  {
+    "id": "819ec941c14d434e847b",
+    "name": "Aura Accommodation",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 3-star motel on Whakaue Street, just steps from Eat Streat, one of the most central locations on your list despite the lower star rating. Free bikes and scooters are available for guests, along with access to thermal pools, a solid value pick for anyone prioritising location and freebies over five-star polish.",
+    "lat": -38.133076431252604,
+    "lng": 176.25456318839804,
+    "slug": "aura-accommodation",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "83e1ee584eeb41cda3ef",
+    "name": "Government Gardens",
+    "category": [
+      "Cultural"
+    ],
+    "slug": "government-gardens",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 2,
+    "vibe": "free,outdoors",
+    "website": "",
+    "lng": 176.25861909007267,
+    "description": "Formal English style gardens surrounding the earthquake damaged Rotorua Museum, with a bowling green, rose beds and statuary, on the shore of Lake Rotorua. ",
+    "lat": -38.134813330109985,
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/583fcb60-59f6-42bc-97bd-3ea7d5e9982c.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/6147bc96-bb54-42ad-8924-1d012fb3a976.webp"
+  },
+  {
+    "id": "85f5e595329e4665a5bb",
+    "name": "Hells Gate",
+    "lat": -38.064804656351924,
+    "lng": 176.36098952874968,
+    "slug": "hells-gate",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 4,
+    "vibe": "chill",
+    "website": "https://www.hellsgate.co.nz/",
+    "isPremium": true,
+    "category": [
+      "Hotpools"
+    ],
+    "description": "A geothermal reserve and spa 15 minutes northeast of Rotorua, owned by local iwi Ngāti Rangiteaorere and built around the therapeutic use of mud and sulphur water that's been part of Māori healing practice here for centuries. The on-site Wai Ora Spa is the main draw for a lot of visitors: full-body mud baths, sulphur spa pools, and combination packages that put you through both, with most treatments running 60 to 90 minutes. Private pools and more secluded spa options are available for people who don't want to share with other visitors, alongside standard shared facilities. The mud and mineral water are drawn straight from the reserve itself, so it's a genuinely different experience from a standard day spa, more raw and earthy than polished. \n",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/8020431c-71ca-442c-955a-a128d8d7b20f.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/35d032ee-9558-403a-ac76-b95479ba39d0.webp"
+  },
+  {
+    "id": "862dbf7e2e854f93a7cc",
+    "name": "Cosy Cottage Thermal Holiday Park",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A holiday park in Koutu with its own geothermal pool and an onsite hangi pit, a distinctive pairing that ties accommodation to an actual traditional Māori cooking experience rather than just a place to sleep. The geothermal setting runs through the whole park rather than being a single bolted-on feature.",
+    "lat": -38.125354270338754,
+    "lng": 176.24253679392177,
+    "slug": "cosy-cottage",
+    "active": true,
+    "featured": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "88e9d65834464404a044",
+    "name": "Maurie Kjar Memorial Swimming Pool Complex",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.08776564868777,
+    "lng": 176.69986776771816,
+    "slug": "kawerau-hot-pools",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "Kawerau's free geothermally heated public pools, right in the town centre opposite the i-SITE. Includes a large pool split into a 25m and 5m section, a spa pool, kids' pools and a newer water park. No entry fee."
+  },
+  {
+    "id": "8d0a1d5c6d5346aa80a5",
+    "name": "Twin Lakes Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.07948400286678,
+    "lng": 176.42248841344235,
+    "slug": "twin-lakes-track",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 3,
+    "vibe": "active",
+    "isPremium": true,
+    "website": "",
+    "description": "A quiet 2km loop through native forest with glimpses of two small lakes, Rotongata and Rotoatu. Less visited than the bigger-name walks, with good birdwatching along the way."
+  },
+  {
+    "id": "8d25cd85aa384a1693e4",
+    "name": "Whakarewarewa Forest mountain biking",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.17481949283537,
+    "lng": 176.25213864448153,
+    "slug": "whakarewarewa-mtb-park",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 6,
+    "vibe": "adventure",
+    "isPremium": true,
+    "website": "",
+    "description": "One of New Zealand's best known mountain bike networks, with over 100km of trails through redwood and native forest for all skill levels. Free trail access, bike hire extra.\nLocal tip: Hire bikes at the forest entrance itself rather than in town. It saves an unpleasant ride on roads just to reach the trailhead.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/a626b485-5d99-4c09-b1d3-44e866f067c8.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/c5b2c3e3-0c37-4e12-b046-f64a521fede8.webp"
+  },
+  {
+    "id": "8db54cd7b0a644b18d30",
+    "name": "Rotorua Agrodome",
+    "category": [
+      "Attractions"
+    ],
+    "lat": -38.08661811067213,
+    "lng": 176.19278539778168,
+    "slug": "rotorua-agrodome",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "website": "https://www.agrodome.co.nz/",
+    "description": "A farm show built around sheep, featuring shearing demonstrations, multiple breeds on display, working dog trials and lamb feeding.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/32b96433-7bda-4ede-8552-64e920906fad.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/875ef768-3181-458f-afeb-13cb6ca8ebac.webp"
+  },
+  {
+    "id": "91d9e7c57bf449548ebc",
+    "name": "Citron Cafe",
+    "category": [
+      "Food"
+    ],
+    "description": "A modern, licensed cafe on Arawa Street, run by Chanchal and Varun, blending Indian culinary influences with local Kiwi tastes. Standout dishes include the warm winter porridge with sweet spice and homemade granola, alongside eggs benedict and kumara chips that regularly get singled out in reviews. Everything is made from scratch in small batches, with a seasonally changing menu.",
+    "lat": -38.13474481709456,
+    "lng": 176.25203143472072,
+    "slug": "citron-cafe",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "92c4fe9a89424e6b9d87",
+    "name": "Kuirau Park Foot Bath",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.1337431150309,
+    "lng": 176.24558887154194,
+    "slug": "kuirau-park-foot-bath",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "description": "A set of free, communal geothermal foot-soaking pools tucked into one corner of Kuirau Park, near the playground. The water is drawn from the same thermal system as the rest of the park, kept at a soakable temperature rather than the boiling point of the nearby pools, and it's a popular stop for locals as well as visitors passing through. No entry fee, no booking, just turn up and find a spot on the edge.\nLocal tip: Bring your own towel. It can get busy."
+  },
+  {
+    "id": "947fd665e1644456bcaa",
+    "name": "Mitai Māori Village",
+    "category": [
+      "Cultural"
+    ],
+    "lat": -38.10644297343543,
+    "lng": 176.22070398958545,
+    "slug": "mitai-maori-village",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "maori",
+    "isPremium": true,
+    "website": "https://www.mitai.co.nz/",
+    "description": "An evening Māori cultural experience with a haka performance, hangi dinner, and a glow worm stream walk included on site. \nLocal tip: Arrive early enough to do the glow worm walk before the main show starts. It's included but easy to miss if you cut your arrival close.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/186f80f0-d319-4441-8b5d-6bc15db193cd.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/a36ad386-76bd-443c-ac6c-e89daab3a9a7.webp"
+  },
+  {
+    "id": "96d0c070bf394c99a293",
+    "name": "Redwoods Treewalk",
+    "category": [
+      "Attractions"
+    ],
+    "description": "Redwoods Altitude",
+    "lat": -38.15674087219983,
+    "lng": 176.27302888501595,
+    "slug": "redwoods-treewalk",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "https://www.treewalk.co.nz/"
+  },
+  {
+    "id": "997ce917fa9a482eba89",
+    "name": "Rotorua Ziplines",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.01745410327815,
+    "lng": 176.34324170289005,
+    "slug": "rotorua-ziplines",
+    "active": true,
+    "featured": 8,
+    "recommendedDurationSlots": 4,
+    "vibe": "adventure",
+    "isPremium": true,
+    "website": "https://www.rotoruaziplines.nz/",
+    "description": "Four ziplines flying over the Kaituna River and Tutea Falls at Okere Falls, run jointly by Rotorua Rafting and Ngāti Pikiao. Paid, real address with onsite parking.\nLocal tip: Often sold as a combo with Kaituna rafting since it's run by the same operator at the same spot."
+  },
+  {
+    "id": "9a89b1fcf9814d0e8274",
+    "name": "Trout Pools Road",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A free freedom camping area near Okere Falls, with toilets on site. Certified self-contained vehicles only, no tents.\nLocal tip: Its location puts it close to the Okere Falls Track, Rotorua Ziplines, and the Kaituna rafting operators, a good base if that side of the region is your focus rather than central Rotorua.",
+    "lat": -38.008254751262925,
+    "lng": 176.34242199282824,
+    "slug": "trout-pool-road",
+    "active": true,
+    "featured": 1,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "9f3a197ce0c94faeb786",
+    "name": "Rotoiti Hot Pools",
+    "category": [
+      "Hotpools"
+    ],
+    "description": "Rotoiti Hot Pools",
+    "lat": -38.03872909766542,
+    "lng": 176.3822364807129,
+    "slug": "rotoiti-hot-pools",
+    "active": true,
+    "featured": 9,
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/0c5e14cd-ba84-48f1-8d0a-cb0bf2d06b08.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/160413f0-8539-4f58-b78b-52462413d993.webp",
+    "recommendedDurationSlots": 6,
+    "vibe": "chill,amazing",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "a95ac72ad27d46a7804a",
+    "name": "Te Puia",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.163724928173075,
+    "lng": 176.25004119562468,
+    "slug": "te-puia",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": false,
+    "website": "https://www.tepuia.com/",
+    "description": "A major geothermal reserve and home to the New Zealand Māori Arts and Crafts Institute, where you can watch carvers and weavers training in traditional techniques. The Pohutu Geyser erupts here multiple times a day, visible from within the grounds.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/196f45fa-dc90-45fe-a146-61139450e49b.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/0ceb3047-e360-4239-a57d-a5c49c949bf2.webp"
+  },
+  {
+    "id": "aa34a7573b7f481c8974",
+    "name": "Mini Golf",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.11134680240064,
+    "lng": 176.22354587203768,
+    "slug": "mini-golf",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 3,
+    "vibe": "family,chill",
+    "website": "",
+    "description": "A mini golf course, one of a handful of easy, family-friendly options for filling a spare hour or a rainy afternoon.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/c56b2631-3975-487d-a6a3-aa2c7f6d5ebb.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/7eab2065-6e50-461a-9f72-678fcc611c6f.webp"
+  },
+  {
+    "id": "ad67bb9572cb4197ae59",
+    "name": "Spring Festival Dumpling",
+    "category": [
+      "Food"
+    ],
+    "description": "An authentic Northern Chinese restaurant specialising in handmade dumplings with a wide range of fillings, alongside pork buns and traditional noodle dishes. Prices are consistently described as wallet-friendly, and the dumplings in particular draw comparisons to home cooking from reviewers with a Northern Chinese background.\n",
+    "lat": -38.13750849822504,
+    "lng": 176.25410198386942,
+    "slug": "spring-festival-dumpling",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "ae39b50a934c478896c2",
+    "name": "Trail Kitchen",
+    "category": [
+      "Food"
+    ],
+    "description": "A licensed café right at the Waipa Mountain Bike Park carpark, on the fringe of the Whakarewarewa Forest, connected to the Mountain Bike Rotorua shop next door. Family-owned, with a menu built around gourmet burgers (the Wagyu beef Trail Burger is the signature order), wood-fired pizzas, toasties, and a full breakfast and lunch menu, all paired with barista coffee made from their own house Jungle Coffee beans. The venue has both indoor seating and a large covered deck looking out over the forest, and it's genuinely set up for riders, you can roll straight off the trails to the front deck for a coffee and burger. Dog-friendly outdoors, with water bowls provided.",
+    "slug": "trail-kitchen",
+    "active": true,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "b041f037681b4c61ac92",
+    "name": "Secret Spot Hot Tubs",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.17593433341089,
+    "lng": 176.25307174698946,
+    "slug": "secret-spot",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 2,
+    "vibe": "chill",
+    "isPremium": true,
+    "website": "https://secretspot.nz/",
+    "description": "Private, wood-fired outdoor hot tub sessions set in native bush, booked for individual groups rather than shared with other visitors. A quieter, more secluded alternative to the commercial hot springs parks.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/98f85e46-876a-488c-8f65-b6204635b980.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/f94d05f5-d227-4124-88ed-d8289a3a7a5b.webp"
+  },
+  {
+    "id": "b43757aa6608498cb66b",
+    "name": "Eastwood",
+    "category": [
+      "Food"
+    ],
+    "description": "A café inside Scion's Innovation Centre, Te Whare Nui o Tuteata, on the edge of the Redwoods forest. The striking timber building reflects Scion's forestry research focus, with exposed beams and a light, airy design that draws as much comment from visitors as the food does. The menu runs to wood-fired pizzas, including a Caprese and a meat-heavy \"Notorious P.I.G.,\" alongside brunch dishes like a seasonal Green Bowl with halloumi and Turkish Eggs, plus coffee from Atomic Coffee Roasters.",
+    "slug": "eastwood-cafe",
+    "active": true,
+    "featured": 6,
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/c135d62c-6926-496d-9d33-33cc03d7d9c1.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/c86c4a8b-922f-46f7-8ba5-5ebce3923e9b.webp",
+    "recommendedDurationSlots": 2,
+    "vibe": "chill",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "b697af9ae49943fa87f5",
+    "name": "Zorb Rotorua",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.105142870405054,
+    "lng": 176.2202319817618,
+    "slug": "zorb",
+    "active": true,
+    "featured": 1,
+    "recommendedDurationSlots": 2,
+    "vibe": "adventure",
+    "website": "https://zorb.com/",
+    "description": "Roll downhill inside a giant inflatable ball, either dry or with water added for a wetter, faster ride. Rotorua is considered the birthplace of zorbing as an activity, and this is one of the original operators.",
+    "price": "45 ",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/4821d4eb-fa2d-491b-82ec-733866eb3534.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/bd92c40b-a5c0-43cb-872e-ec615e6b488d.webp"
+  },
+  {
+    "id": "bb42eb7859904ae0962c",
+    "name": "Hennessy's Irish Bar",
+    "category": [
+      "Food"
+    ],
+    "description": "An Irish pub on Tutanekai Street, serving classic Irish pub food alongside Guinness on tap. Live music runs on Thursdays, with a quiz night on Sundays for a quieter midweek option.",
+    "lat": -38.13636337644433,
+    "lng": 176.25169912656702,
+    "slug": "hennesseys-bar",
+    "active": true,
+    "featured": 2,
+    "vibe": "fun",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "bc71dddd5c4b42b18b11",
+    "name": "Hamurana Reserve",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A free freedom camping spot right on the shore of Lake Rotorua, on Hamurana Road. Certified self-contained vehicles only.",
+    "lat": -38.034437284235466,
+    "lng": 176.25593073985237,
+    "slug": "hamurana-reserve",
+    "active": true,
+    "featured": 3,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "bd58e93080bb4b95bb08",
+    "name": "Okere Falls Store",
+    "category": [
+      "Food"
+    ],
+    "description": "A cafe, store and craft beer garden combined, out at Okere Falls opposite Lake Rotoiti, right next door to Rotorua Ziplines. House-roasted coffee (the same beans used at Mr Wolf), award-winning toasties, and a genuinely eco-focused operation, biodegradable everything, a vegetable garden out back, and a stock of organic and artisan groceries alongside the cafe menu.\n",
+    "lat": -38.01802633023181,
+    "lng": 176.34325822860046,
+    "slug": "okere-falls-store",
+    "active": true,
+    "featured": 6,
+    "recommendedDurationSlots": 3,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "be0169e1013f4af287b0",
+    "name": "Skyline Rotorua",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.11043510547781,
+    "lng": 176.2223602403983,
+    "slug": "skyline-rotorua",
+    "active": true,
+    "featured": 8,
+    "recommendedDurationSlots": 5,
+    "vibe": "family,adventure",
+    "website": "https://rotorua.skyline.co.nz/",
+    "description": "A gondola up Mt Ngongotaha with a luge track, zipline, and Sky Swing at the top, plus mountain biking trails and a restaurant with panoramic views over the lake.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/64e900c1-7f2b-4dd1-b535-d1670945f81e.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/6b88e0aa-f772-4c35-a62b-4472eec60928.webp"
+  },
+  {
+    "id": "be669f39176946d8a438",
+    "name": "Lake Ōkāreka Walkway",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.17303141099374,
+    "lng": 176.35558195152362,
+    "slug": "lake-okareka-lake",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "",
+    "description": "A flat 5.2km return lakeside walk through wetlands at Lake Ōkāreka, popular with locals for an easy morning walk. The lake itself is also used for swimming and kayaking.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/b014d871-f6eb-41ce-bf5c-719b6fd9a41f.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/edd1d37d-f610-4f5a-a879-e7e74c0ced92.webp"
+  },
+  {
+    "id": "c12ea6fb79de46afbc59",
+    "featured": 2,
+    "active": true,
+    "recommendedDurationSlots": 4,
+    "slug": "polynesian-baths",
+    "vibe": "chill",
+    "website": "https://www.polynesianspa.co.nz/",
+    "lng": 176.25821085325572,
+    "name": "Polynesian Spa",
+    "lat": -38.137952523397985,
+    "category": [
+      "Hotpools"
+    ],
+    "description": "A long established mineral pool complex on the Rotorua lakefront, drawing on two different natural springs, one acidic and one alkaline, each said to have different therapeutic properties. Separate adult-only and family pool areas.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/db78b468-f232-47a9-9f2a-bce317dc6566.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/b5dcb23e-1f07-4f49-9933-a84a8abf64bf.webp"
+  },
+  {
+    "id": "c3c4dc378c704bbc92d9",
+    "name": "Waiotapu Mud Pools",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.34187855609382,
+    "lng": 176.3696419009975,
+    "slug": "waiotapu-mud-pools",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 1,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "Free to view bubbling grey mud pools just off the Waiotapu Loop Road, with a boardwalk viewing platform and a distinct sulphur smell in the air.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/50e6714c-435b-4696-bfd8-4a3307d44a01.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/978477e1-3603-4f8c-8ff2-1c1732006a44.webp"
+  },
+  {
+    "id": "c647545a4f6a4ad5a838",
+    "name": "Fat Dog Cafe",
+    "category": [
+      "Food"
+    ],
+    "description": "",
+    "lat": -38.134747348720126,
+    "lng": 176.25200329811548,
+    "slug": "fat-dog-cafe",
+    "active": true,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "cdac01147f2d433c9353",
+    "name": "Kaituna Cascades",
+    "category": [
+      "Adventure"
+    ],
+    "description": "opening the river up to commercial rafting in the first place. Based at 18 Okere Falls Road, the trip tackles the Kaituna's Grade 5 section, 14 rapids through native rainforest, including the 7-metre Tutea Falls, the highest commercially rafted waterfall in the world. Run today by Pete Lodge and Julian \"Blue\" Mathison, it's consistently rated the top-ranked rafting company in Rotorua on Tripadvisor, with more than three decades of experience on this exact stretch of river behind it.",
+    "lat": -38.015393372983986,
+    "lng": 176.34515273688794,
+    "slug": "kaituna-cascades",
+    "active": true,
+    "featured": 33,
+    "recommendedDurationSlots": 5,
+    "vibe": "adventure",
+    "isPremium": true,
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "ce5c2c9c86cc4b84ae70",
+    "name": "Ohinemutu",
+    "category": [
+      "Cultural"
+    ],
+    "lat": -38.127300553464096,
+    "lng": 176.24813656415745,
+    "slug": "Ohinemutu",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 2,
+    "vibe": "maori",
+    "website": "",
+    "description": "A historic thermal village on the shore of Lake Rotorua, still home to a living Māori community. St Faith's Anglican Church here is known for its etched glass window of Christ appearing to overlook the lake.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/2acd6ef0-ef04-4114-bb27-5becdaf7f8c0.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/f118835e-3420-4b57-8e53-abde6188d7f9.webp"
+  },
+  {
+    "id": "d0f00e793f314303bc19",
+    "name": "Tarawera Falls",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.156373784780904,
+    "lng": 176.5202511887935,
+    "slug": "tarawera-falls",
+    "active": true,
+    "featured": 66,
+    "recommendedDurationSlots": 5,
+    "vibe": "amazing,active",
+    "isPremium": true,
+    "website": "https://www.doc.govt.nz/parks-and-recreation/places-to-go/bay-of-plenty/places/lake-tarawera-scenic-reserve/things-to-do/tarawera-falls-track/",
+    "description": "A dramatic waterfall where the Tarawera River bursts out of the cliff face after flowing underground for part of its course. Access requires a forestry permit from the Kawerau i-SITE, available on weekends and public holidays.\nLocal tip: Buy the permit in Kawerau before you drive out. There's nowhere to get one at the falls themselves.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/72344c23-efc3-4d63-984d-f67fbed46f9c.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/bdb21c48-da72-4972-95da-8ebe1c05f230.webp"
+  },
+  {
+    "id": "d6ea3dd001194f44ac6e",
+    "name": "Mokaihaha Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.1268110467505,
+    "lng": 176.08054590828306,
+    "slug": "mokaihaha-track",
+    "active": true,
+    "featured": 6,
+    "recommendedDurationSlots": 5,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "A 2.1km loop through old growth forest within the Mokaihaha Ecological Area, with dense canopy cover for most of the walk. Can get muddy and slippery after rain"
+  },
+  {
+    "id": "d82ee40acb364116b23a",
+    "name": "Kerosene Creek",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.33428946708126,
+    "lng": 176.38628678571513,
+    "slug": "kerosene-creek",
+    "active": true,
+    "featured": 8,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill,free",
+    "isPremium": true,
+    "website": "",
+    "description": "A free natural hot pool that runs consistently very hot, with a small waterfall feeding into the main pool. No facilities on site, bring a towel and expect an unmarked roadside car park that fills up on weekends.\nLocal tip: Avoid submerging your head in any natural thermal water in this area, including here. There's a small but real health risk from certain freshwater organisms in untreated volcanic water.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/04255875-415f-4b2d-b273-acb77e250abe.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/ea162689-06d0-4b3e-99a7-2e89c33109d7.webp"
+  },
+  {
+    "id": "e1e845c430e44068abd9",
+    "name": "Princes Gate Hotel",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "A 4.5-star hotel built around old-world elegance, one of Rotorua's more character-filled stays rather than a standard modern hotel. High Tea is served on site, alongside an onsite cabaret and a private thermal pool, giving it a genuinely different flavour to the CBD hotel cluster, more heritage charm than convenience-driven amenities.",
+    "lat": -38.13470183146845,
+    "lng": 176.25499224366217,
+    "slug": "princes-gate",
+    "active": true,
+    "featured": 5,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "e286efcf2e254f2d9902",
+    "name": "Redwoods Circuit",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.157142756897194,
+    "lng": 176.27242592854338,
+    "slug": "redwoods-circuit",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 1,
+    "vibe": "family",
+    "website": "",
+    "description": "A 3.4km loop through the Memorial Grove redwoods and tree ferns, passing a small, distinctly blue spring partway around.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/4034bbfd-7871-4350-b96b-f160aaf3ae7b.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/0a065d13-e2e5-40a3-a01f-04ff3f6be2ae.webp"
+  },
+  {
+    "id": "e84c2e98184c4b2a8699",
+    "name": "Hot 'n' Cold",
+    "category": [
+      "Hotpools"
+    ],
+    "lat": -38.35592735178071,
+    "lng": 176.3643196501009,
+    "slug": "hot-n-cold",
+    "active": true,
+    "featured": 5,
+    "recommendedDurationSlots": 3,
+    "vibe": "chill,free",
+    "isPremium": true,
+    "website": "",
+    "description": "A free thermal soak where a hot stream and a cold stream meet near Waiotapu Bridge, letting you find your own comfortable temperature. No facilities, no car park.\nLocal tip: Locals often rate this over Kerosene Creek because you can move toward the hot or cold side to adjust the temperature yourself."
+  },
+  {
+    "id": "ea4590f44cac41f2b300",
+    "name": "Tarawera Trail",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.21343540829784,
+    "lng": 176.35763582718278,
+    "slug": "tarawera-trail",
+    "active": true,
+    "featured": 33,
+    "recommendedDurationSlots": 10,
+    "vibe": "amazing",
+    "isPremium": true,
+    "website": "https://www.totallytarawera.com/tarawera-trail/",
+    "description": "A 15 to 16km one-way track that follows the western and southern shores of Lake Tarawera, starting at the Te Wairoa car park just past Blue Lake on Tarawera Road. The path stays mostly in native bush close to the water, climbing over a few headlands that open up onto broad views across the lake, with the bulk of Mt Tarawera visible for much of the walk. Around the 7km mark there's a steep climb up to Rotomahana Lookout, looking down over both Lake Tarawera and Lake Rotomahana at once, before the track descends over the final stretch to Te Rātā Bay and Hot Water Beach. There, natural geothermal springs let you dig your own warm pool right at the lake's edge. Most people take 4 to 6 hours one way and return by pre-booked water taxi rather than walking back out. Free to walk, though the water taxi and campsite both carry separate fees.\nLocal tip: Book the water taxi well ahead, especially over summer. It only runs on demand and it's a long way back if you've assumed you can just turn up."
+  },
+  {
+    "id": "ea92492affad431bb082",
+    "name": "Velocity Valley",
+    "category": [
+      "Adventure"
+    ],
+    "lat": -38.087251441137454,
+    "lng": 176.19101747928744,
+    "slug": "velocity-valley",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 4,
+    "vibe": "adventure",
+    "isPremium": true,
+    "website": "https://velocityvalley.co.nz/",
+    "description": "A cluster of adventure rides including Freefall Xtreme indoor skydiving, the Swoop swing ride, Rotorua Bungy, and the Agrojet jet boat thrill ride on a purpose-built circuit. Pay per activity or as a combo.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/fb305808-79f9-415e-9770-3a096051818c.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/12bad089-eff7-4289-a30e-11fed3054148.webp"
+  },
+  {
+    "id": "eb16849492e54f92a268",
+    "name": "Hongi's Track",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.03261285857187,
+    "lng": 176.48636924104437,
+    "slug": "hongis-track",
+    "active": true,
+    "featured": 3,
+    "recommendedDurationSlots": 4,
+    "vibe": "",
+    "isPremium": true,
+    "website": "",
+    "description": "A historic Māori portage track between Lake Rotoiti and Lake Rotoehu, passing a sacred matai tree known as the Wishing Tree, where a well-known ancestress is said to have met her husband. \nLocal tip: There's swimming and picnic spots at Korokitewao Bay on the Rotoiti end if you want to make a longer stop of it.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/eb7344a8-6c46-4c13-94fe-ed11412e6747.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/50edb024-e1b9-41f5-b807-adcdf05b7975.webp"
+  },
+  {
+    "id": "edfdc2226e724e5e9899",
+    "name": "Stratosfare Restaurant & Bar",
+    "category": [
+      "Food"
+    ],
+    "description": "A buffet restaurant at the top of Mt Ngongotaha, reached via the Skyline Gondola, with panoramic views over Lake Rotorua and the city below. A scenic choice as much as a dining one, popular for groups and special occasions given the setting.",
+    "lat": -38.11435616568514,
+    "lng": 176.21335842879364,
+    "slug": "stratosfare-restaurant",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 3,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "f337034a9d694ea2869b",
+    "name": "Rainbow Mountain",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.31543572150503,
+    "lng": 176.3757029203939,
+    "slug": "rainbow-mountain",
+    "active": true,
+    "featured": 7,
+    "recommendedDurationSlots": 4,
+    "vibe": "active",
+    "isPremium": true,
+    "website": "",
+    "description": "Officially Maunga Kākaramea, meaning multi-coloured mountain, named for its mineral-stained slopes. A summit track climbs to a lookout, with a shorter option to a crater lake viewpoint for those with less time."
+  },
+  {
+    "id": "f4e13763eabd44288bf8",
+    "name": "Blue Lake Circuit",
+    "category": [
+      "Walks"
+    ],
+    "lat": -38.18826907976024,
+    "lng": 176.32691843020393,
+    "slug": "blue-lake-circuit",
+    "active": true,
+    "featured": 4,
+    "recommendedDurationSlots": 3,
+    "vibe": "family",
+    "isPremium": true,
+    "website": "",
+    "description": "An easy walking track around Lake Tikitapu, one of the most photographed lakes in the Rotorua district thanks to its striking, almost artificial-looking blue colour, caused by fine white pumice and rhyolite on the lake bed reflecting light back up through the clear water. The circuit is flat, well formed and shaded by native bush for most of its length, making it manageable for most fitness levels, with regular access points down to the lake for a swim on the way round. Part of the track also passes a glow worm dell, so the same walk that's a pleasant daytime stroll becomes a completely different experience after dark. Free, and it sits right next to Blue Lake Top 10 Holiday Park if people want to make a longer stop of it.\nLocal tip: Go around dusk if you want to catch both the last of the daylight swimming and the glow worms coming out, rather than committing to one or the other.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/f830a5e6-de4c-4b07-8c40-4b232a852160.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/524a8c35-727a-450a-a984-21f2c062bf6f.webp"
+  },
+  {
+    "id": "f7c99fc939cc40b1a4da",
+    "name": "Hinemoa Street Car Park",
+    "category": [
+      "Accommodation"
+    ],
+    "description": "freedom camping spot with 17 spaces right in Government Gardens, in the heart of central Rotorua. No facilities on site, and certified self-contained vehicles only.\nLocal tip: The central location is the main draw here, walking distance to the lakefront, Eat Streat, and Polynesian Spa, but that also means it's one of the more sought-after spots in town, so it's worth arriving reasonably early to secure a space.",
+    "lat": -38.13753803318333,
+    "lng": 176.25722394561637,
+    "slug": "hinemoa-street",
+    "active": true,
+    "featured": 9,
+    "vibe": "",
+    "website": "",
+    "price": ""
+  },
+  {
+    "id": "fb6094b4f8d54e3d9a4f",
+    "name": "Sulphur Point",
+    "category": [
+      "Geothermal"
+    ],
+    "lat": -38.13555594714471,
+    "lng": 176.2621376453554,
+    "slug": "sulphur-point",
+    "active": true,
+    "featured": 2,
+    "recommendedDurationSlots": 2,
+    "vibe": "",
+    "website": "",
+    "description": "A geothermal walking and biking area along the Rotorua lakefront, with steaming vents right beside the path and boardwalks over the hottest ground. Also part of a wildlife refuge for waterfowl.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/f71a38ac-aca1-4687-9543-66a36aa5cf60.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/7993fa9b-4238-42f1-b669-c94e168f2ade.webp"
+  },
+  {
+    "id": "fd944c29cbbb427b9c1f",
+    "name": "Volcanic Air",
+    "category": [
+      "Adventure"
+    ],
+    "slug": "volcanic-air",
+    "active": true,
+    "featured": 5,
+    "recommendedDurationSlots": 5,
+    "vibe": "premium",
+    "website": "https://www.volcanicair.co.nz/",
+    "description": "Scenic floatplane and helicopter flights over Mt Tarawera and out toward White Island, with some helicopter options including a landing on Tarawera's crater rim. Departs from the lakefront.",
+    "price": "",
+    "imageUrl": "https://api.blacksands.app/images/rotoruaguide/f7d1fd72-9c8b-4866-ae2d-7c711888b93a.webp",
+    "imageThumbnailUrl": "https://api.blacksands.app/images/rotoruaguide/dbf0e293-f613-40b6-aabc-163bc0760025.webp"
+  }
+]

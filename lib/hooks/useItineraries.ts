@@ -33,8 +33,8 @@ export function useItineraries() {
 
   const saveMutation = useMutation({
     mutationFn: (data: Partial<Itinerary>) => itineraryService.saveItinerary(data),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey });
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({ queryKey });
       if (!variables.id && preSaveCountRef.current === 0) {
         requestReview();
       }

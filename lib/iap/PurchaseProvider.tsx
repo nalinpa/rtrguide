@@ -49,12 +49,10 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
 
   function pollForGrant(productId: string, pollUid: string | null, attempt = 0) {
     if (attempt >= POLL_MAX_ATTEMPTS) {
-      console.log("[iap-debug] pending poll timed out", { productId, attempt });
       setPendingProductId((current) => (current === productId ? null : current));
       return;
     }
     pollTimeoutRef.current = setTimeout(() => {
-      console.log("[iap-debug] pending poll refetch", { productId, attempt });
       const key = [...ENTITLEMENTS_QUERY_KEY_PREFIX, pollUid];
       queryClient.refetchQueries({ queryKey: key }).finally(() => {
         const data = queryClient.getQueryData<{ entitlements: { productId: string }[] }>(key);
@@ -72,17 +70,13 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   async function completePurchase(purchase: Purchase, finishTransaction: (args: { purchase: Purchase; isConsumable: boolean }) => Promise<void>) {
     const txId = purchase.transactionId ?? purchase.id;
     if (inFlightTransactionIdsRef.current.has(txId)) {
-      console.log("[iap-debug] completePurchase: duplicate delivery for txId, skipping", { txId });
       return;
     }
     inFlightTransactionIdsRef.current.add(txId);
-    console.log("[iap-debug] completePurchase called", { txId, productId: purchase.productId });
     try {
       const result = await client.entitlements!.register(txId);
-      console.log("[iap-debug] completePurchase: register result", { txId, result });
       queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
       await finishTransaction({ purchase, isConsumable: false });
-      console.log("[iap-debug] completePurchase: finishTransaction done", { txId });
       setPurchasingProductId(null);
       setError(null);
       if (result.pending) {
@@ -93,7 +87,6 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         requestReview();
       }
     } catch (e) {
-      console.log("[iap-debug] completePurchase failed", { txId, error: e });
       if (e instanceof ApiError && e.status >= 400 && e.status < 500) {
         // Not retryable (e.g. uid_mismatch) — finish so StoreKit stops redelivering it, surface the error.
         await finishTransaction({ purchase, isConsumable: false });
@@ -109,31 +102,19 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const { connected, products, requestPurchase, finishTransaction, fetchProducts } = useIAP({
+  const { connected, requestPurchase, finishTransaction, fetchProducts } = useIAP({
     onPurchaseSuccess: (purchase) => {
-      console.log("[iap-debug] onPurchaseSuccess", JSON.stringify(purchase));
       void completePurchase(purchase, finishTransaction);
     },
     onPurchaseError: (err) => {
-      console.log("[iap-debug] onPurchaseError", JSON.stringify(err));
       setPurchasingProductId(null);
       if (err.code === ErrorCode.UserCancelled) return;
       if (purchasingProductId) setError({ productId: purchasingProductId, message: err.message ?? "Purchase failed." });
     },
-    onError: (err) => {
-      console.log("[iap-debug] onError (fetchProducts/etc)", err);
-    },
   });
 
   useEffect(() => {
-    console.log("[iap-debug] products array now:", JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    if (connected)
-      fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" })
-        .then(() => console.log("[iap-debug] fetchProducts call resolved"))
-        .catch((e) => console.log("[iap-debug] fetchProducts error:", e));
+    if (connected) fetchProducts({ skus: [FULL_GUIDE_PRODUCT_ID], type: "in-app" }).catch(() => {});
   }, [connected, fetchProducts]);
 
   const value = useMemo<PurchaseContextValue>(
@@ -143,17 +124,14 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
       pendingProductId,
       error,
       requestBuy: (productId: string) => {
-        console.log("[iap-debug] requestBuy called", { productId, uid, connected });
         if (!uid) return;
         setError(null);
         setPurchasingProductId(productId);
         deriveAppAccountToken(uid)
-          .then((appAccountToken) => {
-            console.log("[iap-debug] calling requestPurchase", { productId, appAccountToken });
-            return requestPurchase({ request: { apple: { sku: productId, appAccountToken } }, type: "in-app" });
-          })
-          .catch((e) => {
-            console.log("[iap-debug] requestBuy chain error:", e);
+          .then((appAccountToken) =>
+            requestPurchase({ request: { apple: { sku: productId, appAccountToken } }, type: "in-app" }),
+          )
+          .catch(() => {
             // Synchronous rejection (not connected, Android — this request only sets `apple`, etc.):
             // never reaches onPurchaseError, so clear state here or the button stays disabled forever.
             setPurchasingProductId(null);
@@ -161,21 +139,15 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
           });
       },
       restore: async () => {
-        console.log("[iap-debug] restore called");
         const purchases = await getAvailablePurchases();
-        console.log("[iap-debug] getAvailablePurchases returned", JSON.stringify(purchases));
         let restored = 0;
         for (const purchase of purchases) {
           const txId = purchase.transactionId ?? purchase.id;
-          console.log("[iap-debug] restore: registering", { txId, productId: purchase.productId });
           const result = await client.entitlements!.register(txId);
-          console.log("[iap-debug] restore: register result", { txId, result });
           await finishTransaction({ purchase, isConsumable: false });
-          console.log("[iap-debug] restore: finishTransaction done", { txId });
           if (result.granted) restored += 1;
         }
         queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
-        console.log("[iap-debug] restore complete", { restored, total: purchases.length });
         return { restored };
       },
     }),

@@ -4,11 +4,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  Image,
   ScrollView,
   Pressable,
   Linking,
 } from "react-native";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Search, X, Bookmark, Image as ImageIcon } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";

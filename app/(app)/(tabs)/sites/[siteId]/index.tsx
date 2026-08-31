@@ -1,14 +1,15 @@
 import { useCallback, useRef, useState } from "react";
 import { Animated, View, StyleSheet, Alert, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack as ExpoStack, router, useLocalSearchParams } from "expo-router";
+import { Stack as ExpoStack, router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import * as Linking from "expo-linking";
 import { ArrowLeft, Globe } from "lucide-react-native";
 
 import { LoadingState, ErrorCard, Stack, Row, AppText, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
-import { hooksBag } from "@/lib/hooksBag";
+import { hooksBag, QUERY_KEY_PREFIX } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
@@ -18,6 +19,7 @@ import { useItineraries } from "@/lib/hooks/useItineraries";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
+import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
 import { SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
@@ -37,6 +39,15 @@ export default function SiteDetailRoute() {
 
   const { location: site, loading: entityLoading, err: entityErr } = hooksBag.useLocation(id);
 
+  // useLocation caches for 14 days with no refetch-on-focus (see @blacksands/hooks),
+  // so force a revalidation whenever this screen regains focus.
+  const queryClient = useQueryClient();
+  useFocusEffect(
+    useCallback(() => {
+      queryClient.invalidateQueries({ queryKey: [...QUERY_KEY_PREFIX, "location", id] });
+    }, [queryClient, id]),
+  );
+
   const {
     avgRating,
     ratingCount,
@@ -54,6 +65,7 @@ export default function SiteDetailRoute() {
   const [isCreatingItinerary, setIsCreatingItinerary] = useState(false);
   const [isAddingToTrip, setIsAddingToTrip] = useState(false);
   const [pendingItineraryId, setPendingItineraryId] = useState<string | null>(null);
+  const [showPremiumAdd, setShowPremiumAdd] = useState(false);
 
   const [reviewOpen, setReviewOpen] = useState(false);
   const { drafts, setDraft, clearDraft } = hooksBag.useDraftsStore();
@@ -255,7 +267,7 @@ export default function SiteDetailRoute() {
           style={itineraryStyles.button}
           onPress={() => {
             if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-              Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
+              setShowPremiumAdd(true);
               return;
             }
             if (itineraries.length === 0) {
@@ -329,6 +341,17 @@ export default function SiteDetailRoute() {
         onClose={() => {
           setIsAddingToTrip(false);
           setPendingItineraryId(null);
+        }}
+      />
+
+      <PremiumFeatureModal
+        visible={showPremiumAdd}
+        onClose={() => setShowPremiumAdd(false)}
+        title="Building itineraries is a Premium feature"
+        message="Unlock the full guide to add places and plan your Rotorua trip."
+        onBuy={() => {
+          setShowPremiumAdd(false);
+          requestBuy(FULL_GUIDE_PRODUCT_ID);
         }}
       />
     </View>

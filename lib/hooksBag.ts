@@ -6,9 +6,11 @@ import NetInfo from "@react-native-community/netinfo";
 import { client } from "@/lib/api";
 import type { Site } from "@/lib/models";
 
+export const QUERY_KEY_PREFIX = ["rotoruaguide"];
+
 export const hooksBag = createHooks<Site>(client, {
   appId: "rotoruaguide",
-  queryKeyPrefix: ["rotoruaguide"],
+  queryKeyPrefix: QUERY_KEY_PREFIX,
   storage: AsyncStorage,
   locationSource: {
     requestPermission: async () => {

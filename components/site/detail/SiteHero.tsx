@@ -1,5 +1,6 @@
 // components/site/detail/SiteHero.tsx
-import { View, StyleSheet, Image } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { ImageOff } from "lucide-react-native";
 

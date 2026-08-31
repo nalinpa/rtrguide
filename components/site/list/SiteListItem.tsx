@@ -1,5 +1,6 @@
 // components/site/list/SiteListItem.tsx
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import { Image as ImageIcon, Lock } from "lucide-react-native";
 import { MotiView } from "moti";
 import { formatDistanceMeters } from "@blacksands/hooks";

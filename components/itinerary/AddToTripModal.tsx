@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from "react-native";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { X, Minus, Plus, Image as ImageIcon } from "lucide-react-native";
 

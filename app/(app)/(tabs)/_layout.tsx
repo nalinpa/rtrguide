@@ -16,7 +16,7 @@ const ALL_TABS: Array<{
   { key: "sites", title: "Explore", icon: "list-outline", activeIcon: "list" },
   { key: "itinerary", title: "Plans", icon: "calendar-outline", activeIcon: "calendar" },
   { key: "map", title: "Map", icon: "map-outline", activeIcon: "map" },
-  { key: "account", title: "Profile", icon: "person-outline", activeIcon: "person" },
+  { key: "account", title: "Home", icon: "home-outline", activeIcon: "home" },
 ];
 
 const normalizeRouteName = (name: string) => name.replace(/\/index$/, "");

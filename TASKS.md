@@ -4,15 +4,16 @@ Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 
 ## Content
 
-- [ ] Add "Stay" sites (category already exists in `lib/models.ts` — this is data entry, not code)
-- [ ] Add "Food & Drink" sites (category already exists — data entry)
+- [x] Add "Stay" sites (category already exists in `lib/models.ts` — this is data entry, not code)
+- [x] Add "Food & Drink" sites (category already exists — data entry)
 - [ x ] Set up a photo storage bucket (no Firebase Storage / bucket integration currently in the app — `imageUrl`/`imageThumbnailUrl` on `Site` exist but nothing populates or uploads to a bucket today)
 - [ ] Source and upload photos for sites, wire into the bucket above
+- [ ] Rewrite site content (descriptions/copy) now that every site has an entry — pass for tone/quality consistency across categories
 
 ## Features
 
 - [x] Add `price` (free text, e.g. "$15" / "Free" / "$$") and `website` fields to `Site` in [lib/models.ts](lib/models.ts) and display on the site detail screen ([app/(app)/(tabs)/sites/[siteId]/index.tsx](app/(app)/(tabs)/sites/%5BsiteId%5D/index.tsx)) — both are frontend-only additions, the `@blacksands/client` API passes through arbitrary Firestore fields so no backend change needed, just content entry
-- [ ] Website link needs UTM params appended before opening (`Linking.openURL`, same pattern as the existing directions link) — **need utm_source/utm_medium/utm_campaign values from user, not yet specified**
+- [x] Website link UTM params — `utm_source=blacksands.app&utm_medium=rotorua app&utm_campaign=ios_link` appended in `handleOpenWebsite` before `Linking.openURL`
 - [ ] First-open app tour — not started; `useAppOpenCount` (see Review prompts) already exposes `openCount === 1` as the trigger point, just needs the tour UI itself
 
 ## Review prompts
@@ -21,14 +22,14 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 - [x] First successful purchase — [lib/iap/PurchaseProvider.tsx](lib/iap/PurchaseProvider.tsx) `completePurchase`, success path (~line 88-90)
 - [x] First review submitted — site detail screen, `saveReviewToDb` success (`res.ok` branch, ~line 246)
-- [ ] Share card created/shared — share-frame flow (`hasShareBonus` / share bonus completion)
+- [~] ~~Share card created/shared~~ — **cancelled**
 - [x] 2nd app open — [lib/hooks/useAppOpenCount.ts](lib/hooks/useAppOpenCount.ts) tracks launch count generically (AsyncStorage-persisted), wired into [app/_layout.tsx](app/_layout.tsx); fires `requestReview()` when count hits 2. Kept general-purpose (count, not a boolean) so it can also drive a first-open app tour later (`openCount === 1`) — **tour itself not built yet, only the counter**
 
 ## Store compliance (will block App Store / Play review)
 
-- [ ] Add an in-app account-deletion flow that also **revokes the Apple token** — `userService.deleteAccount` only calls Firebase `deleteUser`, doesn't revoke Sign in with Apple ([[project_apple_revoke_on_delete_missing]] — needs a backend call, JS SDK can't revoke client-side)
-- [ ] Add a Privacy Policy link/screen — none found anywhere in the app; both stores require this, especially with location + Sign in with Apple/Google
-- [ ] Consider a Terms of Service / EULA screen if IAP subscriptions are sold
+- [x] Add an in-app account-deletion flow that also **revokes the Apple token** — client side done: `appleSignIn.ts` now persists the Apple refresh token server-side on sign-in (ca880e1), `userService.deleteAccount` calls the server-side `client.auth.deleteAccount()` instead of client-side `deleteUser` "so Apple revocation always runs" (946fa0d), and it signs out locally after (`auth.signOut()`) since the server-side delete doesn't clear local SDK session state (a721645). Actual revoke-on-Apple's-servers happens in the `enginev1/api` backend — out of scope to verify here ([[feedback_no_cross_repo_edits]]); worth a quick confirm with whoever owns that repo that the revoke call is implemented before relying on this for App Store review.
+- [x] Privacy Policy page live at **https://blacksands.app/rotorua-guide#privacy** (`public/rotorua-guide.html` in the `blacksands` repo, deployed) — paste this URL into App Store Connect's Privacy Policy field. No hero screenshot yet (`app-detail-hero__visual` block omitted) — add one later, no restructuring needed. Nothing in the *rotorua-guide* app itself links to this page yet — consider adding a link from the account/settings screen too.
+- [x] Terms of Service added at **https://blacksands.app/rotorua-guide#terms** (custom, not just Apple's default EULA — covers the one-time IAP, content accuracy, location-based check-ins, user content, termination, NZ governing law)
 - [ ] Confirm IAP products (`expo-iap`) are actually created and approved in App Store Connect / Play Console — `usePurchase(productId)` takes the id from the caller, no product IDs hardcoded here to audit against
 
 ## iOS
@@ -40,14 +41,12 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 ## Repo hygiene
 
-- [ ] Large uncommitted diff on `main` (16 files: app.config.ts, tab layout, map/site screens, login, icons, models.ts, package.json/lock) — review and commit before anything else lands on top
-- [ ] Several new test directories are untracked (`lib/api/__tests__`, `lib/auth/__tests__`, `lib/hooks/__tests__`, `lib/iap/__tests__`, `lib/providers/__tests__`, `lib/services/__tests__`) — get these committed, they're not doing anything sitting untracked
-- [ ] `lib/auth/googleSignIn.ts` is untracked — confirm it's actually wired in and not a leftover WIP file
+- [x] Large uncommitted diff on `main` — reviewed and split into 5 commits (deps, Google Sign-In, sites/map feature work, test coverage, gitignore/tracker)
 
 ## Known open issues (carried from memory)
 
-- [ ] Apple revoke-on-delete (see Store compliance above) — [[project_apple_revoke_on_delete_missing]]
 - [ ] `@blacksands/client` package publish is broken in its own CI (403 on `write_package`) — if site content changes require a new `@blacksands/client`/`@blacksands/components`/`@blacksands/hooks`/`@blacksands/ui` version, publishing currently needs a manual step ([[project_blacksands_client_publish_broken]])
+- [ ] `useLocation(id)` caches for 14 days (`staleTime`/`gcTime`), no refetch on focus/reconnect, and that cache is persisted to AsyncStorage across app restarts ([@blacksands/hooks index.js:406-409](node_modules/@blacksands/hooks/dist/index.js#L406)) — editing a site's Firestore doc (e.g. adding `price`) won't show up in the app for any user who already opened that site, for up to 14 days, without a reinstall/storage clear. Fine for normal content updates, but worth knowing when testing content changes live.
 
 ## Versioning
 

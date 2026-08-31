@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -13,6 +13,7 @@ import { hooksBag } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useSession } from "@/lib/providers/SessionProvider";
+import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { SITE_CATEGORIES, type Site, type SiteCategory } from "@/lib/models";
@@ -23,6 +24,7 @@ import { MapOverlayCard } from "@/components/map/MapOverlay";
 import type { NearbySite, ActiveItineraryItem } from "@/components/map/MapOverlay";
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
+import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
 
 const ROTORUA_BOUNDS = { minLat: -38.3, maxLat: -37.95, minLng: 176.05, maxLng: 176.45 };
 
@@ -42,6 +44,7 @@ export default function MapScreen() {
   const uid = session.status === "authed" ? session.uid : null;
 
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
+  const { requestBuy } = usePurchaseContext();
   const isSiteLocked = useCallback(
     (site: Site) => !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID),
     [entitledProductIds],
@@ -64,6 +67,7 @@ export default function MapScreen() {
   const [isCreatingItinerary, setIsCreatingItinerary] = useState(false);
   const [showTripChoice, setShowTripChoice] = useState(false);
   const [pendingItineraryId, setPendingItineraryId] = useState<string | null>(null);
+  const [showPremiumAdd, setShowPremiumAdd] = useState(false);
 
   const visibleSites = useMemo(
     () => locations.filter((l) => l.active !== false && !isSiteLocked(l)),
@@ -77,7 +81,7 @@ export default function MapScreen() {
 
   const handleAddToItinerary = useCallback(() => {
     if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-      Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
+      setShowPremiumAdd(true);
       return;
     }
     if (itineraries.length === 0) {
@@ -405,6 +409,17 @@ export default function MapScreen() {
         onClose={() => {
           setIsAddingToTrip(false);
           setPendingItineraryId(null);
+        }}
+      />
+
+      <PremiumFeatureModal
+        visible={showPremiumAdd}
+        onClose={() => setShowPremiumAdd(false)}
+        title="Building itineraries is a Premium feature"
+        message="Unlock the full guide to add places and plan your Rotorua trip."
+        onBuy={() => {
+          setShowPremiumAdd(false);
+          requestBuy(FULL_GUIDE_PRODUCT_ID);
         }}
       />
     </View>

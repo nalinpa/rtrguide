@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { ApiError } from "@blacksands/client";
-import { X, Minus, Plus, ChevronDown, CalendarDays } from "lucide-react-native";
+import { X, Minus, Plus, ChevronDown, CalendarDays, Lock } from "lucide-react-native";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
 
-import { CardShell, AppButton, AppText } from "@/lib/uiKit";
+import { CardShell, AppButton, AppText, Row } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 
 type CreateItineraryModalProps = {
   visible: boolean;
+  locked?: boolean;
   onClose: () => void;
   onCreated: (id: string) => void;
 };
@@ -37,7 +38,7 @@ function isoDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function CreateItineraryModal({ visible, onClose, onCreated }: CreateItineraryModalProps) {
+export function CreateItineraryModal({ visible, locked = false, onClose, onCreated }: CreateItineraryModalProps) {
   const { itineraries, saveItinerary, isSaving } = useItineraries();
 
   const [title, setTitle] = useState("");
@@ -50,11 +51,11 @@ export function CreateItineraryModal({ visible, onClose, onCreated }: CreateItin
     if (visible) {
       setTitle("");
       setStartDate(tomorrow());
-      setNumDays(3);
+      setNumDays(locked ? 1 : 3);
       setShowCalendar(false);
       setErrorMsg(null);
     }
-  }, [visible]);
+  }, [visible, locked]);
 
   const handleCreate = async () => {
     setErrorMsg(null);
@@ -110,19 +111,31 @@ export function CreateItineraryModal({ visible, onClose, onCreated }: CreateItin
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} bounces={false} keyboardShouldPersistTaps="handled">
+              {locked && (
+                <View style={styles.lockBanner}>
+                  <Lock size={14} color={tokens.colors.textMuted} />
+                  <AppText style={styles.lockBannerText}>Premium — unlock to customize your trip</AppText>
+                </View>
+              )}
+
               <AppText style={styles.label}>Trip Name</AppText>
               <TextInput
-                style={styles.input}
+                style={[styles.input, locked && styles.inputLocked]}
                 placeholder="Optional — defaults to Rotorua Trip"
                 placeholderTextColor={tokens.colors.textMuted}
                 value={title}
                 onChangeText={setTitle}
                 autoCapitalize="words"
                 returnKeyType="done"
+                editable={!locked}
               />
 
               <AppText style={styles.label}>Start Date</AppText>
-              <TouchableOpacity style={styles.dateInput} onPress={() => setShowCalendar((o) => !o)} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.dateInput}
+                onPress={() => setShowCalendar((o) => !o)}
+                activeOpacity={0.7}
+              >
                 <CalendarDays size={16} color={tokens.colors.text2} />
                 <AppText style={styles.dateInputText}>{formatDate(startDate)}</AppText>
                 <ChevronDown
@@ -156,18 +169,29 @@ export function CreateItineraryModal({ visible, onClose, onCreated }: CreateItin
                 </View>
               )}
 
-              <AppText style={styles.label}>Number of Days</AppText>
-              <View style={styles.stepperRow}>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setNumDays((n) => Math.max(1, n - 1))}>
-                  <Minus color={tokens.colors.accent} size={20} />
+              <Row gap="xs" align="center">
+                <AppText style={styles.label}>Number of Days</AppText>
+                {locked && <Lock size={12} color={tokens.colors.textMuted} />}
+              </Row>
+              <View style={[styles.stepperRow, locked && styles.inputLocked]}>
+                <TouchableOpacity
+                  style={styles.stepBtn}
+                  onPress={() => setNumDays((n) => Math.max(1, n - 1))}
+                  disabled={locked}
+                >
+                  <Minus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
                 </TouchableOpacity>
                 <View style={styles.stepCenter}>
-                  <AppText style={styles.daysText}>
+                  <AppText style={[styles.daysText, locked && styles.daysTextLocked]}>
                     {numDays} {numDays === 1 ? "day" : "days"}
                   </AppText>
                 </View>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setNumDays((n) => Math.min(14, n + 1))}>
-                  <Plus color={tokens.colors.accent} size={20} />
+                <TouchableOpacity
+                  style={styles.stepBtn}
+                  onPress={() => setNumDays((n) => Math.min(14, n + 1))}
+                  disabled={locked}
+                >
+                  <Plus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
                 </TouchableOpacity>
               </View>
 
@@ -190,7 +214,19 @@ const styles = StyleSheet.create({
   card: { borderRadius: tokens.radius.lg },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: tokens.space.sm },
   title: { fontSize: 20, fontWeight: "800", color: tokens.colors.text },
+  lockBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: tokens.colors.bgElevated,
+    borderRadius: tokens.radius.md,
+    paddingHorizontal: tokens.space.md,
+    paddingVertical: tokens.space.sm,
+    marginBottom: tokens.space.xs,
+  },
+  lockBannerText: { fontSize: 12, fontWeight: "600", color: tokens.colors.textMuted },
   label: { fontSize: 12, fontWeight: "700", letterSpacing: 0.5, textTransform: "uppercase", color: tokens.colors.text2, marginTop: tokens.space.md },
+  inputLocked: { opacity: 0.5 },
   input: {
     borderWidth: 1,
     borderColor: tokens.colors.border,
@@ -234,5 +270,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   daysText: { fontSize: 20, fontWeight: "800", color: tokens.colors.accent },
+  daysTextLocked: { color: tokens.colors.textMuted },
   errorText: { fontSize: 12, color: tokens.colors.danger, marginTop: tokens.space.sm },
 });

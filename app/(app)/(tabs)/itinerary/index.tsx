@@ -9,8 +9,6 @@ import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
-import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
-import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
@@ -26,7 +24,7 @@ export default function ItineraryListPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy, pendingProductId } = usePurchaseContext();
+  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
 
@@ -68,30 +66,6 @@ export default function ItineraryListPage() {
     );
   }
 
-  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
-  if (!isEntitled) {
-    return (
-      <Screen>
-        <Stack gap="md" style={styles.paddedSection}>
-          <AppText variant="h1">Plans</AppText>
-          {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
-            <PurchasePendingBanner />
-          ) : (
-            <components.RequirePurchaseCard
-              productId={FULL_GUIDE_PRODUCT_ID}
-              entitledProductIds={entitledProductIds}
-              title="Unlock Trip Planning"
-              message="Build multi-day itineraries with the full guide unlock."
-              onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
-            >
-              {null}
-            </components.RequirePurchaseCard>
-          )}
-        </Stack>
-      </Screen>
-    );
-  }
-
   if (error && itineraries.length === 0) {
     return (
       <Screen>
@@ -111,6 +85,7 @@ export default function ItineraryListPage() {
         />
         <CreateItineraryModal
           visible={isCreating}
+          locked={!isEntitled}
           onClose={() => setIsCreating(false)}
           onCreated={(id) => {
             setIsCreating(false);
@@ -152,7 +127,7 @@ export default function ItineraryListPage() {
           </TouchableOpacity>
         ))}
 
-        {itineraries.length < PLANNER.MAX_ITINERARIES && (
+        {isEntitled && itineraries.length < PLANNER.MAX_ITINERARIES && (
           <TouchableOpacity style={styles.tripCardCreate} onPress={() => setIsCreating(true)} activeOpacity={0.7}>
             <Plus size={18} color={tokens.colors.accent} />
             <AppText style={styles.tripCardCreateText}>Create new trip</AppText>
@@ -162,6 +137,7 @@ export default function ItineraryListPage() {
 
       <CreateItineraryModal
         visible={isCreating}
+        locked={!isEntitled}
         onClose={() => setIsCreating(false)}
         onCreated={(id) => {
           setIsCreating(false);

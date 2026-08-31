@@ -7,12 +7,12 @@ import { Plus, MoreHorizontal, X } from "lucide-react-native";
 
 import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKit";
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
+import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
-import { PurchasePendingBanner } from "@/components/purchase/PurchasePendingBanner";
 import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
@@ -52,7 +52,8 @@ export default function ItineraryDetailPage() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy, pendingProductId } = usePurchaseContext();
+  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+  const { requestBuy } = usePurchaseContext();
   const sourceTrip = itineraries.find((i) => i.id === itineraryId) ?? null;
 
   const [localTrip, setLocalTrip] = useState<Itinerary | null>(sourceTrip);
@@ -61,6 +62,7 @@ export default function ItineraryDetailPage() {
   const [localItems, setLocalItems] = useState<ItineraryItem[]>([]);
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showPremiumMove, setShowPremiumMove] = useState(false);
 
   const freeGaps = useMemo(() => {
     const occupied = new Set<number>();
@@ -100,6 +102,11 @@ export default function ItineraryDetailPage() {
   useEffect(() => {
     if (!hasUnsavedChanges.current) setLocalTrip(sourceTrip);
   }, [sourceTrip]);
+  useEffect(() => {
+    if (!loading && !entitlementsLoading && !error && !localTrip) {
+      router.replace("/(app)/(tabs)/itinerary");
+    }
+  }, [loading, entitlementsLoading, error, localTrip]);
   useEffect(() => {
     saveItineraryRef.current = saveItinerary;
   }, [saveItinerary]);
@@ -189,6 +196,7 @@ export default function ItineraryDetailPage() {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
+          hasUnsavedChanges.current = false;
           await deleteItinerary(localTrip.id);
           router.replace("/(app)/(tabs)/itinerary");
         },
@@ -254,6 +262,11 @@ export default function ItineraryDetailPage() {
     const otherItems = localItems.filter((item) => item.id !== itemId);
     const movedItem = localItems.find((item) => item.id === itemId);
     if (!movedItem) return requestedSlotIndex;
+
+    if (!isEntitled) {
+      setShowPremiumMove(true);
+      return movedItem.slotIndex;
+    }
 
     const itemSize = movedItem.durationSlots || 2;
     const targetSlot = Math.max(0, Math.min(requestedSlotIndex, MAX_GRID_SLOTS - itemSize));
@@ -358,29 +371,7 @@ export default function ItineraryDetailPage() {
   }
 
   if (!localTrip) {
-    router.replace("/(app)/(tabs)/itinerary");
     return null;
-  }
-
-  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
-  if (!isEntitled) {
-    return (
-      <Screen>
-        {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
-          <PurchasePendingBanner />
-        ) : (
-          <components.RequirePurchaseCard
-            productId={FULL_GUIDE_PRODUCT_ID}
-            entitledProductIds={entitledProductIds}
-            title="Unlock Trip Planning"
-            message="Build multi-day itineraries with the full guide unlock."
-            onBuy={() => requestBuy(FULL_GUIDE_PRODUCT_ID)}
-          >
-            {null}
-          </components.RequirePurchaseCard>
-        )}
-      </Screen>
-    );
   }
 
   return (
@@ -431,10 +422,12 @@ export default function ItineraryDetailPage() {
               </TouchableOpacity>
             );
           })}
-          <TouchableOpacity onPress={handleAddDay} style={styles.addDayBtn}>
-            <Plus color={tokens.colors.accent} size={16} />
-            <AppText style={styles.addDayText}>Add Day</AppText>
-          </TouchableOpacity>
+          {isEntitled && (
+            <TouchableOpacity onPress={handleAddDay} style={styles.addDayBtn}>
+              <Plus color={tokens.colors.accent} size={16} />
+              <AppText style={styles.addDayText}>Add Day</AppText>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
 
@@ -525,6 +518,15 @@ export default function ItineraryDetailPage() {
         onSave={handleSaveEdit}
         onRemove={handleRemoveItem}
         onMoveDay={handleMoveDay}
+      />
+
+      <PremiumFeatureModal
+        visible={showPremiumMove}
+        onClose={() => setShowPremiumMove(false)}
+        onBuy={() => {
+          setShowPremiumMove(false);
+          requestBuy(FULL_GUIDE_PRODUCT_ID);
+        }}
       />
     </SafeAreaView>
   );

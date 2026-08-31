@@ -10,3 +10,5 @@ docs/
 .claude/worktrees/
 ios/
 android/
+scripts/images/
+scripts/*firebase-adminsdk*.json

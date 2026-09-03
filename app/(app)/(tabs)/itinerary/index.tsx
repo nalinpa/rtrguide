@@ -12,6 +12,7 @@ import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 function formatTripDates(startDate: string, endDate: string): string {
   const fmt = (iso: string) =>
@@ -21,6 +22,7 @@ function formatTripDates(startDate: string, endDate: string): string {
 }
 
 export default function ItineraryListPage() {
+  const plansTarget = useTourTarget("plans");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
@@ -39,20 +41,22 @@ export default function ItineraryListPage() {
       <Screen>
         <Stack gap="lg" style={styles.paddedSection}>
           <AppText variant="h1">Plans</AppText>
-          <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
-            <Stack gap="md" align="center">
-              <Row gap="sm" align="center">
-                <LogIn size={28} color={tokens.colors.accent} />
-                <AppText variant="h1">Sign In to Plan a Trip</AppText>
-              </Row>
-              <AppText variant="body" status="hint" style={styles.centerText}>
-                Create an account to build and save a Rotorua itinerary.
-              </AppText>
-              <AppButton variant="primary" size="lg" fullWidth onPress={() => router.push("/(auth)/login")}>
-                Sign In
-              </AppButton>
-            </Stack>
-          </CardShell>
+          <View ref={plansTarget.ref} onLayout={plansTarget.onLayout}>
+            <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
+              <Stack gap="md" align="center">
+                <Row gap="sm" align="center">
+                  <LogIn size={28} color={tokens.colors.accent} />
+                  <AppText variant="h1">Sign In to Plan a Trip</AppText>
+                </Row>
+                <AppText variant="body" status="hint" style={styles.centerText}>
+                  Create an account to build and save a Rotorua itinerary.
+                </AppText>
+                <AppButton variant="primary" size="lg" fullWidth onPress={() => router.push("/(auth)/login")}>
+                  Sign In
+                </AppButton>
+              </Stack>
+            </CardShell>
+          </View>
         </Stack>
       </Screen>
     );
@@ -77,12 +81,14 @@ export default function ItineraryListPage() {
   if (itineraries.length === 0) {
     return (
       <>
-        <components.EmptyItineraryState
-          onCreateNew={() => setIsCreating(true)}
-          onBrowse={() => router.push("/(app)/(tabs)/sites")}
-          description="Create a trip and start adding Rotorua's sites, walks, and hidden gems to build your perfect itinerary."
-          browseLabel="Browse Rotorua Sites"
-        />
+        <View ref={plansTarget.ref} onLayout={plansTarget.onLayout}>
+          <components.EmptyItineraryState
+            onCreateNew={() => setIsCreating(true)}
+            onBrowse={() => router.push("/(app)/(tabs)/sites")}
+            description="Create a trip and start adding Rotorua's sites, walks, and hidden gems to build your perfect itinerary."
+            browseLabel="Browse Rotorua Sites"
+          />
+        </View>
         <CreateItineraryModal
           visible={isCreating}
           locked={!isEntitled}

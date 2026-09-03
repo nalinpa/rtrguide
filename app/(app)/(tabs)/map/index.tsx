@@ -25,6 +25,7 @@ import type { NearbySite, ActiveItineraryItem } from "@/components/map/MapOverla
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 const ROTORUA_BOUNDS = { minLat: -38.3, maxLat: -37.95, minLng: 176.05, maxLng: 176.45 };
 
@@ -40,6 +41,7 @@ function isInRotorua(lat: number | null | undefined, lng: number | null | undefi
 }
 
 export default function MapScreen() {
+  const mapTarget = useTourTarget("map");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
 
@@ -331,7 +333,7 @@ export default function MapScreen() {
         )}
       </SafeAreaView>
 
-      <View style={styles.mapControls}>
+      <View style={styles.mapControls} ref={mapTarget.ref} onLayout={mapTarget.onLayout}>
         <TouchableOpacity
           style={styles.controlBtn}
           onPress={() => {

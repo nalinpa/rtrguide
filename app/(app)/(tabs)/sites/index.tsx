@@ -13,8 +13,10 @@ import { useSession } from "@/lib/providers/SessionProvider";
 import { SITE_CATEGORIES, SITE_CATEGORY_LABELS, type SiteCategory, type Site } from "@/lib/models";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { SitesListView } from "@/components/site/list/SitesListView";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 export default function SiteListPage() {
+  const exploreTarget = useTourTarget("explore");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const isGuest = session.status === "guest";
@@ -142,7 +144,7 @@ export default function SiteListPage() {
         </View>
       ) : null}
 
-      <View style={styles.paddedSection}>
+      <View style={styles.paddedSection} ref={exploreTarget.ref} onLayout={exploreTarget.onLayout}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

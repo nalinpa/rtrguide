@@ -16,8 +16,10 @@ import { ItinerariesCard } from "@/components/account/ItinerariesCard";
 import { SavedSitesCard } from "@/components/account/SavedSitesCard";
 import { RestorePurchasesCard } from "@/components/account/RestorePurchasesCard";
 import { DangerZoneCard } from "@/components/account/DangerZoneCard";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 export default function AccountScreen() {
+  const homeTarget = useTourTarget("home");
   const { session } = useSession();
   const insets = useSafeAreaInsets();
   const { itineraries } = useItineraries();
@@ -46,7 +48,7 @@ export default function AccountScreen() {
             </Text>
           </View>
 
-          <View style={styles.promoCard}>
+          <View style={styles.promoCard} ref={homeTarget.ref} onLayout={homeTarget.onLayout}>
             <Text style={styles.promoEyebrow}>DISCOVER ROTORUA</Text>
             <Text style={styles.promoHeadline}>{"Your guide to the\nLand of Geysers"}</Text>
             <Text style={styles.promoBody}>

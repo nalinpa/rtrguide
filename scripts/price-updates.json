@@ -1,0 +1,467 @@
+[
+  {
+    "id": "48d183380ab5434e8a5a",
+    "name": "AWA Hotel",
+    "price": "Mid-range"
+  },
+  {
+    "id": "819ec941c14d434e847b",
+    "name": "Aura Accommodation",
+    "price": "Mid-range"
+  },
+  {
+    "id": "14338fc8aa46404d93b0",
+    "name": "Bella Vista",
+    "price": "Mid-range"
+  },
+  {
+    "id": "f4e13763eabd44288bf8",
+    "name": "Blue Lake Circuit",
+    "price": "Free"
+  },
+  {
+    "id": "579ef94bf676449f9c3e",
+    "name": "Brett Road Campsite",
+    "price": "Budget"
+  },
+  {
+    "id": "5591e9ffb5794e64b5f6",
+    "name": "Bula Takeaways",
+    "price": "Budget"
+  },
+  {
+    "id": "2213ebfc6e904b08ba9d",
+    "name": "Cafe Dynasti",
+    "price": "Budget"
+  },
+  {
+    "id": "91d9e7c57bf449548ebc",
+    "name": "Citron Cafe",
+    "price": "Mid-range"
+  },
+  {
+    "id": "862dbf7e2e854f93a7cc",
+    "name": "Cosy Cottage Thermal Holiday Park",
+    "price": "Budget"
+  },
+  {
+    "id": "b43757aa6608498cb66b",
+    "name": "Eastwood",
+    "price": "Mid-range"
+  },
+  {
+    "id": "589202139fe44e94ab32",
+    "name": "Eat Streat",
+    "price": "Mid-range"
+  },
+  {
+    "id": "7292892b75694ebe8966",
+    "name": "El Mexicano Zapata Cantina",
+    "price": "Mid-range"
+  },
+  {
+    "id": "c647545a4f6a4ad5a838",
+    "name": "Fat Dog Cafe",
+    "price": "Mid-range"
+  },
+  {
+    "id": "83e1ee584eeb41cda3ef",
+    "name": "Government Gardens",
+    "price": "Free"
+  },
+  {
+    "id": "c85bcc36b2374e6eb094",
+    "name": "Haka House",
+    "price": "Budget"
+  },
+  {
+    "id": "bc71dddd5c4b42b18b11",
+    "name": "Hamurana Reserve",
+    "price": "Free"
+  },
+  {
+    "id": "27c8ec876bf747c29f97",
+    "name": "Hamurana Springs Walk",
+    "price": "Mid-range"
+  },
+  {
+    "id": "85f5e595329e4665a5bb",
+    "name": "Hells Gate",
+    "price": "High-end"
+  },
+  {
+    "id": "bb42eb7859904ae0962c",
+    "name": "Hennessy's Irish Bar",
+    "price": "Mid-range"
+  },
+  {
+    "id": "f7c99fc939cc40b1a4da",
+    "name": "Hinemoa Street Car Park",
+    "price": "Free"
+  },
+  {
+    "id": "eb16849492e54f92a268",
+    "name": "Hongi's Track",
+    "price": "Free"
+  },
+  {
+    "id": "e84c2e98184c4b2a8699",
+    "name": "Hot 'n' Cold",
+    "price": "Free"
+  },
+  {
+    "id": "77e801056ee1453ebfb1",
+    "name": "Hot Water Beach",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "cdac01147f2d433c9353",
+    "name": "Kaituna Cascades",
+    "price": "High-end"
+  },
+  {
+    "id": "5a219c313bcf4502b8c0",
+    "name": "Katoa Jet",
+    "price": "High-end"
+  },
+  {
+    "id": "d82ee40acb364116b23a",
+    "name": "Kerosene Creek",
+    "price": "Free"
+  },
+  {
+    "id": "5d7c5092ea59432fb72e",
+    "name": "Kuirau Park",
+    "price": "Free"
+  },
+  {
+    "id": "92c4fe9a89424e6b9d87",
+    "name": "Kuirau Park Foot Bath",
+    "price": "Free"
+  },
+  {
+    "id": "664862806cfa4a8481a9",
+    "name": "Kuirau Park Market",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "4c06795965b945c081ad",
+    "name": "Lady Janes Ice Cream Parlour",
+    "price": "Budget"
+  },
+  {
+    "id": "68a90aeadbfd45a2a4cc",
+    "name": "Lake Ōkareka Campsite",
+    "price": "Budget"
+  },
+  {
+    "id": "be669f39176946d8a438",
+    "name": "Lake Ōkāreka Walkway",
+    "price": "Free"
+  },
+  {
+    "id": "88e9d65834464404a044",
+    "name": "Maurie Kjar Memorial Swimming Pool Complex",
+    "price": "Free"
+  },
+  {
+    "id": "14a04a715b484565ba94",
+    "name": "Millennium Hotel",
+    "price": "Blowout"
+  },
+  {
+    "id": "aa34a7573b7f481c8974",
+    "name": "Mini Golf",
+    "price": "Budget"
+  },
+  {
+    "id": "947fd665e1644456bcaa",
+    "name": "Mitai Māori Village",
+    "price": "High-end"
+  },
+  {
+    "id": "d6ea3dd001194f44ac6e",
+    "name": "Mokaihaha Track",
+    "price": "Free"
+  },
+  {
+    "id": "3b59c87f607c461397b8",
+    "name": "Mr Wolf",
+    "price": "Mid-range"
+  },
+  {
+    "id": "1aba1903d19d435a88d5",
+    "name": "Mt Ngongotaha Jubilee Track",
+    "price": "Free"
+  },
+  {
+    "id": "817291594e7848fd8f74",
+    "name": "National Kiwi Hatchery",
+    "price": "Mid-range"
+  },
+  {
+    "id": "48a98fd3ca9c44caa872",
+    "name": "Off Road NZ",
+    "price": "High-end"
+  },
+  {
+    "id": "ce5c2c9c86cc4b84ae70",
+    "name": "Ohinemutu",
+    "price": "Free"
+  },
+  {
+    "id": "bd58e93080bb4b95bb08",
+    "name": "Okere Falls Store",
+    "price": "Mid-range"
+  },
+  {
+    "id": "80efc2e11c174143ac29",
+    "name": "Okere Falls Track",
+    "price": "Free"
+  },
+  {
+    "id": "216b568a492143ca9410",
+    "name": "Paradise Valley Springs",
+    "price": "Mid-range"
+  },
+  {
+    "id": "692ebb8065444b5d8217",
+    "name": "Patrick's Pies Gold Star Bakery",
+    "price": "Budget"
+  },
+  {
+    "id": "7a68ca04280249628c9c",
+    "name": "Poco Tapas & Wine",
+    "price": "Mid-range"
+  },
+  {
+    "id": "5b4584fcf1334e0d84f4",
+    "name": "Pohutu Geyser Lookout Track (Pohaturoa Track)",
+    "price": "Free"
+  },
+  {
+    "id": "c12ea6fb79de46afbc59",
+    "name": "Polynesian Spa",
+    "price": "High-end"
+  },
+  {
+    "id": "280e7c5df1854a12a1bd",
+    "name": "Prideaux Park",
+    "price": "Free"
+  },
+  {
+    "id": "e1e845c430e44068abd9",
+    "name": "Princes Gate Hotel",
+    "price": "High-end"
+  },
+  {
+    "id": "f337034a9d694ea2869b",
+    "name": "Rainbow Mountain",
+    "price": "Free"
+  },
+  {
+    "id": "ae01295069184dff833f",
+    "name": "Rock Solid Backpackers",
+    "price": "Budget"
+  },
+  {
+    "id": "edfdc2226e724e5e9899",
+    "name": "Stratosfare Restaurant & Bar",
+    "price": "Blowout"
+  },
+  {
+    "id": "e7b466362fd4445f87e6",
+    "name": "Rotorua Night Market",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "fd944c29cbbb427b9c1f",
+    "name": "Volcanic Air",
+    "price": "Blowout"
+  },
+  {
+    "id": "997ce917fa9a482eba89",
+    "name": "Rotorua Ziplines",
+    "price": "High-end"
+  },
+  {
+    "id": "b041f037681b4c61ac92",
+    "name": "Secret Spot Hot Tubs",
+    "price": "Mid-range"
+  },
+  {
+    "id": "459255e4ac9a4d6ea53f",
+    "name": "Seoul Restaurant",
+    "price": "Mid-range"
+  },
+  {
+    "id": "0dac4d372a2240eba15a",
+    "name": "Silver Fern Accommodation & Spa",
+    "price": "High-end"
+  },
+  {
+    "id": "be0169e1013f4af287b0",
+    "name": "Skyline Rotorua",
+    "price": "High-end"
+  },
+  {
+    "id": "ad67bb9572cb4197ae59",
+    "name": "Spring Festival Dumpling",
+    "price": "Budget"
+  },
+  {
+    "id": "fb6094b4f8d54e3d9a4f",
+    "name": "Sulphur Point",
+    "price": "Free"
+  },
+  {
+    "id": "d0f00e793f314303bc19",
+    "name": "Tarawera Falls",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "ea4590f44cac41f2b300",
+    "name": "Tarawera Trail",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "1e6bb647fc75454d820e",
+    "name": "Te Ara Ahi Cycle Trail",
+    "price": "Free"
+  },
+  {
+    "id": "06a108ed79d14876b973",
+    "name": "Te Auheke Track",
+    "price": "Free"
+  },
+  {
+    "id": "a95ac72ad27d46a7804a",
+    "name": "Te Puia",
+    "price": "High-end"
+  },
+  {
+    "id": "5ba5916b583e4fa6a2b2",
+    "name": "Te Pā Tū",
+    "price": "Blowout"
+  },
+  {
+    "id": "319937225c8d48339889",
+    "name": "The Buried Village of Te Wairoa",
+    "price": "Mid-range"
+  },
+  {
+    "id": "e286efcf2e254f2d9902",
+    "name": "Redwoods Circuit",
+    "price": "Free"
+  },
+  {
+    "id": "96d0c070bf394c99a293",
+    "name": "Redwoods Treewalk",
+    "price": "Mid-range"
+  },
+  {
+    "id": "194f2962d3324f72aa8b",
+    "name": "River's Catch",
+    "price": "Mid-range"
+  },
+  {
+    "id": "9f3a197ce0c94faeb786",
+    "name": "Rotoiti Hot Pools",
+    "price": "High-end"
+  },
+  {
+    "id": "8db54cd7b0a644b18d30",
+    "name": "Rotorua Agrodome",
+    "price": "Mid-range"
+  },
+  {
+    "id": "70ebc5c3a4124536a773",
+    "name": "Rotorua Canopy Tours",
+    "price": "High-end"
+  },
+  {
+    "id": "0f4c68092eba48719307",
+    "name": "The Pig & Whistle",
+    "price": "Mid-range"
+  },
+  {
+    "id": "ae39b50a934c478896c2",
+    "name": "Trail Kitchen",
+    "price": "Mid-range"
+  },
+  {
+    "id": "9a89b1fcf9814d0e8274",
+    "name": "Trout Pools Road",
+    "price": "Free"
+  },
+  {
+    "id": "8d0a1d5c6d5346aa80a5",
+    "name": "Twin Lakes Track",
+    "price": "Free"
+  },
+  {
+    "id": "ea92492affad431bb082",
+    "name": "Velocity Valley",
+    "price": "High-end"
+  },
+  {
+    "id": "67448da5a42b40dfa2ec",
+    "name": "Wai Ariki Hot Springs",
+    "price": "Blowout"
+  },
+  {
+    "id": "580781cca4e44f3aa7e1",
+    "name": "Waikite Valley Thermal Pools",
+    "price": "Mid-range"
+  },
+  {
+    "id": "1c4a129ee3324e22acb7",
+    "name": "Waikite Valley Thermal Pools Campground",
+    "price": "Budget"
+  },
+  {
+    "id": "6cd1c7c855ce4e3a90b2",
+    "name": "Waimangu Volcanic Valley",
+    "price": "Mid-range"
+  },
+  {
+    "id": "c3c4dc378c704bbc92d9",
+    "name": "Waiotapu Mud Pools",
+    "price": "Free"
+  },
+  {
+    "id": "014e8cdb95c1464fb2b9",
+    "name": "Waiotapu Thermal Wonderland",
+    "price": "Mid-range"
+  },
+  {
+    "id": "7f2bd31e06f449f1803a",
+    "name": "Waterfall Spout Bath",
+    "price": "Free"
+  },
+  {
+    "id": "0947007f6e384dac88eb",
+    "name": "Whakarewarewa",
+    "price": "High-end"
+  },
+  {
+    "id": "8d25cd85aa384a1693e4",
+    "name": "Whakarewarewa Forest mountain biking",
+    "price": "Free, paid extras"
+  },
+  {
+    "id": "09338fe049834e65ae45",
+    "name": "Wingspan National Bird of Prey Centre",
+    "price": "Mid-range"
+  },
+  {
+    "id": "69b842a30b294328a28e",
+    "name": "Yamato Japanese Restaurant",
+    "price": "Mid-range"
+  },
+  {
+    "id": "b697af9ae49943fa87f5",
+    "name": "Zorb Rotorua",
+    "price": "High-end"
+  }
+]

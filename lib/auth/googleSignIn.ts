@@ -2,14 +2,9 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import Constants from "expo-constants";
 import { auth } from "@/lib/firebase";
+import { getAuthErrorMessage } from "@/lib/auth/authErrors";
 
-export function getGoogleSignInErrorMessage(error: unknown): string {
-  const code = (error as { code?: string })?.code;
-  if (code === "auth/account-exists-with-different-credential") {
-    return "An account already exists with this email — sign in with your password instead.";
-  }
-  return error instanceof Error ? error.message : "Something went wrong";
-}
+export const getGoogleSignInErrorMessage = getAuthErrorMessage;
 
 export async function signInWithGoogle(): Promise<void> {
   const webClientId = Constants.expoConfig?.extra?.google?.webClientId as string;

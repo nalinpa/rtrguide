@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { getAuthErrorMessage } from "@/lib/auth/authErrors";
 
 type Mode = "login" | "signup" | "reset";
 
@@ -48,7 +49,7 @@ export function useAuthForm(initialMode: Mode) {
         setNotice("Check your email for a reset link.");
       }
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Something went wrong");
+      setErr(getAuthErrorMessage(e));
     } finally {
       setBusy(false);
     }

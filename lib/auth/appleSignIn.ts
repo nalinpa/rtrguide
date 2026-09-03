@@ -4,14 +4,9 @@ import { OAuthProvider, signInWithCredential } from "firebase/auth";
 import * as Sentry from "@sentry/react-native";
 import { auth } from "@/lib/firebase";
 import { client } from "@/lib/api";
+import { getAuthErrorMessage } from "@/lib/auth/authErrors";
 
-export function getAppleSignInErrorMessage(error: unknown): string {
-  const code = (error as { code?: string })?.code;
-  if (code === "auth/account-exists-with-different-credential") {
-    return "An account already exists with this email — sign in with your password instead.";
-  }
-  return error instanceof Error ? error.message : "Something went wrong";
-}
+export const getAppleSignInErrorMessage = getAuthErrorMessage;
 
 export async function signInWithApple(): Promise<void> {
   const nonceBytes = await Crypto.getRandomBytesAsync(16);

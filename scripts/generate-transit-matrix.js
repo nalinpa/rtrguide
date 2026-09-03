@@ -1,13 +1,22 @@
 /**
  * Generates assets/data/rotorua-transit.json
  * Uses Google Maps Distance Matrix API (driving mode) for real road times
- * between all active sites. Driving, not transit, because Rotorua's own
- * guide content says most sites are a car trip — public transport is one
- * hourly bus route that doesn't cover the parks/walks/lookouts.
+ * between all active, itinerary-eligible sites. Driving, not transit,
+ * because Rotorua's own guide content says most sites are a car trip —
+ * public transport is one hourly bus route that doesn't cover the
+ * parks/walks/lookouts.
  *
- * Cost: ~$0.005 per origin/destination pair. For ~93 sites (~8500 pairs)
- * that's roughly $40, covered by Google's $200/month free credit if nothing
- * else on the project is using it.
+ * Two cost cuts vs. a naive full matrix, both free of accuracy loss:
+ *   - Accommodation sites are excluded — the app already blocks "Add to
+ *     Itinerary" for them everywhere (map overlay, site detail), so they
+ *     can never appear in a getRequiredTransitSlots() lookup.
+ *   - Each pair is fetched once (A->B) and mirrored for B->A, instead of
+ *     fetching both directions — driving time is close enough either way
+ *     at this app's 30-min-slot bucketing.
+ *
+ * Cost: ~$0.005 per origin/destination pair. ~77 eligible sites -> ~2900
+ * unordered pairs -> roughly $15, covered by Google's $200/month free
+ * credit if nothing else on the project is using it.
  *
  * Setup:
  *   1. Firebase service account key → scripts/*firebase-adminsdk*.json
@@ -101,24 +110,31 @@ async function main() {
 
   console.log("Fetching sites from Firestore...");
   const snap = await db.collection("sites").where("active", "==", true).get();
-  const sites = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((s) => s.lat && s.lng);
+  const allSites = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((s) => s.lat && s.lng);
+  // Accommodation is never an itinerary item (see file header) - no point paying to route it.
+  const sites = allSites.filter((s) => !s.category?.includes("Accommodation"));
 
-  console.log(`Found ${sites.length} active sites.`);
-  console.log(`Pairs to fetch: ${sites.length * (sites.length - 1)}`);
+  const totalPairs = (sites.length * (sites.length - 1)) / 2;
+  console.log(`Found ${allSites.length} active sites, ${sites.length} itinerary-eligible.`);
+  console.log(`Pairs to fetch (unordered, mirrored both ways): ${totalPairs}`);
 
   const matrix = {};
   for (const s of sites) matrix[s.id] = {};
 
-  // API limits: 25 origins, 25 destinations, 100 elements per request
-  // Strategy: 1 origin at a time, destinations batched in groups of 25
+  // API limits: 25 origins, 25 destinations, 100 elements per request.
+  // Each origin only queries sites after it in the list (j > i) - the
+  // result is mirrored into both matrix[from][to] and matrix[to][from].
   const DEST_BATCH = 25;
-  const totalRequests = sites.length * Math.ceil(sites.length / DEST_BATCH);
   let reqNum = 0;
+  const totalRequests = sites.reduce((sum, _, i) => sum + Math.ceil((sites.length - i - 1) / DEST_BATCH), 0);
 
   for (let i = 0; i < sites.length; i++) {
     const from = sites[i];
-    for (let j = 0; j < sites.length; j += DEST_BATCH) {
-      const destBatch = sites.slice(j, j + DEST_BATCH);
+    const destinations = sites.slice(i + 1);
+
+    for (let j = 0; j < destinations.length; j += DEST_BATCH) {
+      const destBatch = destinations.slice(j, j + DEST_BATCH);
+      if (destBatch.length === 0) continue;
       reqNum++;
       process.stdout.write(`Request ${reqNum}/${totalRequests} (site ${i + 1}/${sites.length})...`);
 
@@ -138,14 +154,13 @@ async function main() {
       const row = response.rows[0];
       for (let c = 0; c < destBatch.length; c++) {
         const to = destBatch[c];
-        if (from.id === to.id) continue;
         const el = row.elements[c];
-        if (el.status === "OK") {
-          matrix[from.id][to.id] = durationToSlots(el.duration.value);
-        } else {
-          const km = haversineKm(from.lat, from.lng, to.lat, to.lng);
-          matrix[from.id][to.id] = kmToSlots(km);
-        }
+        const slots =
+          el.status === "OK"
+            ? durationToSlots(el.duration.value)
+            : kmToSlots(haversineKm(from.lat, from.lng, to.lat, to.lng));
+        matrix[from.id][to.id] = slots;
+        matrix[to.id][from.id] = slots;
       }
 
       console.log(" done");
@@ -155,7 +170,7 @@ async function main() {
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(matrix, null, 2));
   console.log(`\nWritten to ${OUTPUT_PATH}`);
-  console.log(`  ${sites.length} sites -> ${sites.length * (sites.length - 1)} pairs`);
+  console.log(`  ${sites.length} sites -> ${totalPairs} pairs fetched, ${sites.length * (sites.length - 1)} directed entries written`);
   process.exit(0);
 }
 

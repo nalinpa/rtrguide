@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, InteractionManager } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, InteractionManager, TextInput } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { X, Minus, Plus, ExternalLink, Image as ImageIcon, Trash2, ArrowRight } from "lucide-react-native";
@@ -9,6 +9,8 @@ import { tokens } from "@/lib/ui/tokens";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { hooksBag } from "@/lib/hooksBag";
 import type { ItineraryItem } from "@/lib/models";
+
+const MAX_NOTE_LEN = 280;
 
 function ItemImage({ imageUrl, siteId }: { imageUrl?: string; siteId: string }) {
   const { location: site } = hooksBag.useLocation(imageUrl ? null : siteId);
@@ -30,7 +32,7 @@ type EditItemModalProps = {
   currentDayId: string;
   availableDays: DayOption[];
   onClose: () => void;
-  onSave: (itemId: string, newDurationSlots: number) => void;
+  onSave: (itemId: string, newDurationSlots: number, note: string) => void;
   onRemove: (itemId: string) => void;
   onMoveDay: (itemId: string, newDayId: string) => void;
 };
@@ -45,11 +47,13 @@ export function EditItemModal({
   onMoveDay,
 }: EditItemModalProps) {
   const [draftDuration, setDraftDuration] = useState(2);
+  const [draftNote, setDraftNote] = useState("");
   const [isMovingDay, setIsMovingDay] = useState(false);
 
   useEffect(() => {
     if (item) {
       setDraftDuration(item.durationSlots || 2);
+      setDraftNote(item.note ?? "");
       setIsMovingDay(false);
     }
   }, [item]);
@@ -59,7 +63,7 @@ export function EditItemModal({
   };
 
   const handleSave = () => {
-    if (item) onSave(item.id, draftDuration);
+    if (item) onSave(item.id, draftDuration, draftNote.trim());
   };
 
   const handleRemove = () => {
@@ -125,6 +129,20 @@ export function EditItemModal({
                   <Plus color={tokens.colors.accent} size={24} />
                 </TouchableOpacity>
               </View>
+            </View>
+
+            <View style={styles.controlSection}>
+              <Text style={styles.modalLabel}>Note</Text>
+              <TextInput
+                style={styles.noteInput}
+                placeholder="Add a note for this stop (optional)"
+                placeholderTextColor={tokens.colors.textMuted}
+                value={draftNote}
+                onChangeText={(t) => setDraftNote(t.slice(0, MAX_NOTE_LEN))}
+                multiline
+                numberOfLines={3}
+                maxLength={MAX_NOTE_LEN}
+              />
             </View>
 
             {otherDays.length > 0 && (
@@ -206,6 +224,18 @@ const styles = StyleSheet.create({
   },
   durationBtn: { width: 48, height: 48, alignItems: "center", justifyContent: "center", backgroundColor: tokens.colors.bgElevated, borderRadius: tokens.radius.md },
   durationValue: { fontSize: 20, fontWeight: "800", color: tokens.colors.accent },
+  noteInput: {
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    borderRadius: tokens.radius.md,
+    paddingHorizontal: tokens.space.md,
+    paddingVertical: tokens.space.sm,
+    fontSize: 14,
+    color: tokens.colors.text,
+    backgroundColor: tokens.colors.bgCard,
+    minHeight: 72,
+    textAlignVertical: "top",
+  },
   moveSection: { paddingBottom: tokens.space.lg },
   moveScroll: { paddingHorizontal: tokens.space.lg, gap: 8 },
   moveBtn: {

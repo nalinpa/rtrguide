@@ -45,6 +45,14 @@ export const hooksBag = createHooks<Site>(client, {
   },
 });
 
+// Only active sites should ever be listed; inactive ones stay reachable by
+// direct id (useLocation) for things like existing itinerary entries.
+const useLocationsRaw = hooksBag.useLocations;
+hooksBag.useLocations = () => {
+  const result = useLocationsRaw();
+  return { ...result, locations: result.locations.filter((l) => l.active) };
+};
+
 export const {
   useMyCompletions,
   useCheckIn,

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { Trash2, AlertTriangle } from "lucide-react-native";
+import * as Sentry from "@sentry/react-native";
 
 import { useSession } from "@/lib/providers/SessionProvider";
 import { auth } from "@/lib/firebase";
@@ -24,7 +25,8 @@ export function DangerZoneCard() {
       await userService.deleteAccount();
       await disableGuest();
       router.replace("/(auth)/login");
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       setError("Error deleting data. Please try again.");
       setShowConfirm(false);
     } finally {

@@ -51,6 +51,7 @@ const SitesMapViewInner = forwardRef<
 ) {
   const mapRef = useRef<MapView>(null);
   const currentRegionRef = useRef<Region | null>(null);
+  const focusedSiteIdRef = useRef<string | null>(null);
 
   useImperativeHandle(ref, () => ({
     recenter: (lat, lng) => {
@@ -69,6 +70,11 @@ const SitesMapViewInner = forwardRef<
 
   useEffect(() => {
     if (!selectedSiteId || !mapRef.current) return;
+    // Only auto-focus on an actual new selection — re-running this because `sites`
+    // refetched (e.g. cache refresh on focus) must not fight the user's manual zoom.
+    if (focusedSiteIdRef.current === selectedSiteId) return;
+    focusedSiteIdRef.current = selectedSiteId;
+
     const siteData = sites.find((loc) => loc.id === selectedSiteId);
     if (!siteData) return;
 

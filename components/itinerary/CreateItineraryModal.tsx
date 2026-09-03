@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { ApiError } from "@blacksands/client";
-import { X, Minus, Plus, ChevronDown, CalendarDays, Lock } from "lucide-react-native";
+import { X, Minus, Plus, ChevronDown, Check, CalendarDays, Lock } from "lucide-react-native";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
+import { randomUUID } from "expo-crypto";
 
 import { CardShell, AppButton, AppText, Row } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useItineraries } from "@/lib/hooks/useItineraries";
+import { ITINERARY_TEMPLATES } from "@/lib/itineraryTemplates";
+import { slotIndexToTimeLabel, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 
 type CreateItineraryModalProps = {
   visible: boolean;
   locked?: boolean;
   onClose: () => void;
   onCreated: (id: string) => void;
+  showTemplateOption?: boolean;
 };
 
 function tomorrow(): Date {
@@ -38,20 +42,32 @@ function isoDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export function CreateItineraryModal({ visible, locked = false, onClose, onCreated }: CreateItineraryModalProps) {
+export function CreateItineraryModal({
+  visible,
+  locked = false,
+  onClose,
+  onCreated,
+  showTemplateOption = false,
+}: CreateItineraryModalProps) {
   const { itineraries, saveItinerary, isSaving } = useItineraries();
 
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState(tomorrow());
   const [numDays, setNumDays] = useState(3);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [templateOpen, setTemplateOpen] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const templatesEnabled = showTemplateOption && !locked;
 
   useEffect(() => {
     if (visible) {
       setTitle("");
       setStartDate(tomorrow());
       setNumDays(locked ? 1 : 3);
+      setSelectedTemplate(null);
+      setTemplateOpen(false);
       setShowCalendar(false);
       setErrorMsg(null);
     }
@@ -61,8 +77,10 @@ export function CreateItineraryModal({ visible, locked = false, onClose, onCreat
     setErrorMsg(null);
 
     const resolvedTitle = title.trim() || "Rotorua Trip";
+    const template = templatesEnabled ? ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate) : undefined;
+    const dayCount = template ? template.days.length : numDays;
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + numDays - 1);
+    endDate.setDate(endDate.getDate() + dayCount - 1);
 
     const newStart = isoDate(startDate);
     const newEnd = isoDate(endDate);
@@ -74,10 +92,19 @@ export function CreateItineraryModal({ visible, locked = false, onClose, onCreat
       return;
     }
 
-    const days = Array.from({ length: numDays }, (_, i) => {
+    const days = Array.from({ length: dayCount }, (_, i) => {
       const d = new Date(startDate);
       d.setDate(d.getDate() + i);
-      return { id: `day_${i + 1}`, date: isoDate(d), items: [] };
+      const items = (template?.days[i]?.items ?? []).map((item) => ({
+        id: `item_${randomUUID()}`,
+        siteId: item.siteId,
+        siteName: item.siteName,
+        slotIndex: item.slotIndex,
+        durationSlots: item.durationSlots,
+        timeLabel: slotIndexToTimeLabel(item.slotIndex),
+        durationLabel: slotsToDurationLabel(item.durationSlots),
+      }));
+      return { id: `day_${i + 1}`, date: isoDate(d), items };
     });
 
     try {
@@ -169,31 +196,85 @@ export function CreateItineraryModal({ visible, locked = false, onClose, onCreat
                 </View>
               )}
 
-              <Row gap="xs" align="center">
-                <AppText style={styles.label}>Number of Days</AppText>
-                {locked && <Lock size={12} color={tokens.colors.textMuted} />}
-              </Row>
-              <View style={[styles.stepperRow, locked && styles.inputLocked]}>
-                <TouchableOpacity
-                  style={styles.stepBtn}
-                  onPress={() => setNumDays((n) => Math.max(1, n - 1))}
-                  disabled={locked}
-                >
-                  <Minus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
-                </TouchableOpacity>
-                <View style={styles.stepCenter}>
-                  <AppText style={[styles.daysText, locked && styles.daysTextLocked]}>
-                    {numDays} {numDays === 1 ? "day" : "days"}
-                  </AppText>
-                </View>
-                <TouchableOpacity
-                  style={styles.stepBtn}
-                  onPress={() => setNumDays((n) => Math.min(14, n + 1))}
-                  disabled={locked}
-                >
-                  <Plus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
-                </TouchableOpacity>
-              </View>
+              {templatesEnabled && (
+                <>
+                  <AppText style={styles.label}>Suggested Itinerary</AppText>
+                  <TouchableOpacity
+                    style={styles.dropdownTrigger}
+                    onPress={() => setTemplateOpen((o) => !o)}
+                    activeOpacity={0.7}
+                  >
+                    <AppText style={styles.dropdownValue}>
+                      {selectedTemplate === null
+                        ? "None"
+                        : (ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate)?.label ?? "None")}
+                    </AppText>
+                    <ChevronDown
+                      size={16}
+                      color={tokens.colors.text2}
+                      style={{ transform: [{ rotate: templateOpen ? "180deg" : "0deg" }] }}
+                    />
+                  </TouchableOpacity>
+                  {templateOpen && (
+                    <ScrollView style={styles.dropdownMenu} bounces={false} nestedScrollEnabled>
+                      {(
+                        [{ key: null, label: "None", description: "Start with a blank trip" }, ...ITINERARY_TEMPLATES]
+                      ).map((opt) => {
+                        const active = selectedTemplate === opt.key;
+                        return (
+                          <TouchableOpacity
+                            key={String(opt.key)}
+                            style={styles.dropdownOption}
+                            onPress={() => {
+                              setSelectedTemplate(opt.key);
+                              setTemplateOpen(false);
+                            }}
+                            activeOpacity={0.7}
+                          >
+                            <View style={styles.dropdownOptionText}>
+                              <AppText style={[styles.dropdownOptionLabel, active && styles.dropdownOptionLabelActive]}>
+                                {opt.label}
+                              </AppText>
+                              <AppText style={styles.dropdownOptionSub}>{opt.description}</AppText>
+                            </View>
+                            {active && <Check size={16} color={tokens.colors.accent} strokeWidth={2.5} />}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  )}
+                </>
+              )}
+
+              {selectedTemplate === null && (
+                <>
+                  <Row gap="xs" align="center">
+                    <AppText style={styles.label}>Number of Days</AppText>
+                    {locked && <Lock size={12} color={tokens.colors.textMuted} />}
+                  </Row>
+                  <View style={[styles.stepperRow, locked && styles.inputLocked]}>
+                    <TouchableOpacity
+                      style={styles.stepBtn}
+                      onPress={() => setNumDays((n) => Math.max(1, n - 1))}
+                      disabled={locked}
+                    >
+                      <Minus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
+                    </TouchableOpacity>
+                    <View style={styles.stepCenter}>
+                      <AppText style={[styles.daysText, locked && styles.daysTextLocked]}>
+                        {numDays} {numDays === 1 ? "day" : "days"}
+                      </AppText>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.stepBtn}
+                      onPress={() => setNumDays((n) => Math.min(14, n + 1))}
+                      disabled={locked}
+                    >
+                      <Plus color={locked ? tokens.colors.textMuted : tokens.colors.accent} size={20} />
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
 
               {errorMsg && <AppText style={styles.errorText}>{errorMsg}</AppText>}
 
@@ -271,5 +352,38 @@ const styles = StyleSheet.create({
   },
   daysText: { fontSize: 20, fontWeight: "800", color: tokens.colors.accent },
   daysTextLocked: { color: tokens.colors.textMuted },
+  dropdownTrigger: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    borderRadius: tokens.radius.md,
+    paddingHorizontal: tokens.space.md,
+    paddingVertical: 14,
+    backgroundColor: tokens.colors.bgCard,
+  },
+  dropdownValue: { fontSize: 15, color: tokens.colors.text },
+  dropdownMenu: {
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    borderRadius: tokens.radius.md,
+    overflow: "hidden",
+    marginTop: 4,
+    maxHeight: 220,
+  },
+  dropdownOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: tokens.space.md,
+    paddingVertical: 12,
+    backgroundColor: tokens.colors.bgCard,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: tokens.colors.border,
+  },
+  dropdownOptionText: { flex: 1 },
+  dropdownOptionLabel: { fontSize: 15, fontWeight: "500", color: tokens.colors.text },
+  dropdownOptionLabelActive: { color: tokens.colors.accent, fontWeight: "700" },
+  dropdownOptionSub: { fontSize: 12, color: tokens.colors.text2, marginTop: 2 },
   errorText: { fontSize: 12, color: tokens.colors.danger, marginTop: tokens.space.sm },
 });

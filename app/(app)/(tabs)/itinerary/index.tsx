@@ -91,6 +91,7 @@ export default function ItineraryListPage() {
             setIsCreating(false);
             router.replace(`/(app)/(tabs)/itinerary/${id}`);
           }}
+          showTemplateOption
         />
       </>
     );
@@ -143,6 +144,7 @@ export default function ItineraryListPage() {
           setIsCreating(false);
           if (id) router.replace(`/(app)/(tabs)/itinerary/${id}`);
         }}
+        showTemplateOption
       />
     </SafeAreaView>
   );

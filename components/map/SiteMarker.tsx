@@ -17,8 +17,8 @@ export const CATEGORY_CONFIG: Record<SiteCategory | "other", { Icon: IconCompone
   Cultural: { Icon: Landmark, color: "#8C3D10" },
   Hotpools: { Icon: Waves, color: "#0369A1" },
   Adventure: { Icon: Compass, color: "#0D9488" },
-  "Food & Drink": { Icon: Utensils, color: "#DC2626" },
-  Stay: { Icon: Bed, color: "#4338CA" },
+  Food: { Icon: Utensils, color: "#DC2626" },
+  Accommodation: { Icon: Bed, color: "#4338CA" },
   other: { Icon: MapPin, color: "#475569" },
 };
 

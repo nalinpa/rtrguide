@@ -291,10 +291,10 @@ export default function ItineraryDetailPage() {
     return actualFinalSlot;
   };
 
-  const handleSaveEdit = (itemId: string, newDurationSlots: number) => {
+  const handleSaveEdit = (itemId: string, newDurationSlots: number, note: string) => {
     const label = slotsToDurationLabel(newDurationSlots);
     let updatedItems = localItems.map((item) =>
-      item.id === itemId ? { ...item, durationSlots: newDurationSlots, durationLabel: label } : item,
+      item.id === itemId ? { ...item, durationSlots: newDurationSlots, durationLabel: label, note: note || undefined } : item,
     );
     updatedItems.sort((a, b) => (a.slotIndex || 0) - (b.slotIndex || 0));
     updatedItems = runPhysicsEngine(updatedItems);

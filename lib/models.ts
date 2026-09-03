@@ -47,6 +47,7 @@ export type ItineraryItem = {
   durationLabel: string;
   durationSlots: number;
   imageUrl?: string;
+  note?: string;
 };
 
 export type ItineraryDay = {

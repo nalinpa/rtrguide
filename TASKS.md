@@ -7,14 +7,18 @@ Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 - [x] Add "Stay" sites (category already exists in `lib/models.ts` — this is data entry, not code)
 - [x] Add "Food & Drink" sites (category already exists — data entry)
 - [ x ] Set up a photo storage bucket (no Firebase Storage / bucket integration currently in the app — `imageUrl`/`imageThumbnailUrl` on `Site` exist but nothing populates or uploads to a bucket today)
-- [ ] Source and upload photos for sites, wire into the bucket above
-- [ ] Rewrite site content (descriptions/copy) now that every site has an entry — pass for tone/quality consistency across categories
+- [x] Source and upload photos for sites, wire into the bucket above
+- [x] Rewrite site content (descriptions/copy) now that every site has an entry — all 89/89 descriptions rewritten and pushed to Firestore via `scripts/update-site-descriptions.js` (Fat Dog Cafe filled in and re-pushed). 2nd pass done 2026-09-01.
+- [ ] Review all site data in Firestore (descriptions, price, website, category, photos) for accuracy and completeness before launch
 
 ## Features
 
-- [x] Add `price` (free text, e.g. "$15" / "Free" / "$$") and `website` fields to `Site` in [lib/models.ts](lib/models.ts) and display on the site detail screen ([app/(app)/(tabs)/sites/[siteId]/index.tsx](app/(app)/(tabs)/sites/%5BsiteId%5D/index.tsx)) — both are frontend-only additions, the `@blacksands/client` API passes through arbitrary Firestore fields so no backend change needed, just content entry
+- [x] Add `price` (free text, e.g. "$15" / "Free" / "$$") and `website` fields to `Site` in [lib/models.ts](lib/models.ts) and display on the site detail screen ([app/(app)/(tabs)/sites/[siteId]/index.tsx](app/(app)/(tabs)/sites/%5BsiteId%5D/index.tsx)) — schema + display done, content entry is separate (see below)
+- [x] Enter `price` data for sites — 93/93 written via `scripts/update-prices.js` using label tiers (`Free`/`Budget`/`Mid-range`/`High-end`/`Blowout`, matches how `site.price` just renders as raw text on the detail screen).
 - [x] Website link UTM params — `utm_source=blacksands.app&utm_medium=rotorua app&utm_campaign=ios_link` appended in `handleOpenWebsite` before `Linking.openURL`
 - [ ] First-open app tour — not started; `useAppOpenCount` (see Review prompts) already exposes `openCount === 1` as the trigger point, just needs the tour UI itself
+- [x] Guide styling/placement — dropped the separate `GuideCard` account-tab row in favour of the existing hero promo card ("Discover Rotorua / Your guide to...") on the account screen; its CTA now opens `/(app)/guide` instead of Browse All Sites ([account.tsx:56-63](app/(app)/(tabs)/account.tsx#L56-L63)), inheriting the promo card's styling. Guide index/detail screens also got a per-category icon + accent color pass ([guideContent.ts](lib/guideContent.ts), [guide/index.tsx](app/(app)/guide/index.tsx), [guide/[slug].tsx](app/(app)/guide/%5Bslug%5D.tsx)) — no photos (none exist yet), icon+color chips/hero bands only
+- [ ] Generate real transit matrix — [transitMatrix.ts:3](lib/utils/transitMatrix.ts#L3) `getRequiredTransitSlots` returns a flat default (30 min) for every site pair, no precomputed matrix; itinerary physics ([itineraryPhysics.ts](lib/utils/itineraryPhysics.ts)) relies on it for scheduling
 
 ## Review prompts
 

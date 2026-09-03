@@ -262,26 +262,28 @@ export default function SiteDetailRoute() {
         </Pressable>
       </SafeAreaView>
 
-      <SafeAreaView style={styles.itineraryFloatingWrap} pointerEvents="box-none">
-        <Pressable
-          style={itineraryStyles.button}
-          onPress={() => {
-            if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-              setShowPremiumAdd(true);
-              return;
-            }
-            if (itineraries.length === 0) {
-              setIsCreatingItinerary(true);
-            } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
-              setShowTripChoice(true);
-            } else {
-              setIsAddingToTrip(true);
-            }
-          }}
-        >
-          <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>
-        </Pressable>
-      </SafeAreaView>
+      {!site.category.includes("Accommodation") && (
+        <SafeAreaView style={styles.itineraryFloatingWrap} pointerEvents="box-none">
+          <Pressable
+            style={itineraryStyles.button}
+            onPress={() => {
+              if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+                setShowPremiumAdd(true);
+                return;
+              }
+              if (itineraries.length === 0) {
+                setIsCreatingItinerary(true);
+              } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
+                setShowTripChoice(true);
+              } else {
+                setIsAddingToTrip(true);
+              }
+            }}
+          >
+            <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>
+          </Pressable>
+        </SafeAreaView>
+      )}
 
       <components.ReviewModal
         visible={reviewOpen}

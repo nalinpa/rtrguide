@@ -16,7 +16,7 @@ import { useSession } from "@/lib/providers/SessionProvider";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { PLANNER } from "@/lib/constants/gameplay";
-import { SITE_CATEGORIES, type Site, type SiteCategory } from "@/lib/models";
+import { SITE_CATEGORIES, SITE_CATEGORY_LABELS, type Site, type SiteCategory } from "@/lib/models";
 import { distanceMeters } from "@/lib/utils/geoDistance";
 import { SitesMapView, initialRegionFrom } from "@/components/map/SitesMapView";
 import type { SitesMapViewHandle } from "@/components/map/SitesMapView";
@@ -302,7 +302,7 @@ export default function MapScreen() {
 
         {showFilters && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-            {([{ label: "All", value: null }, ...SITE_CATEGORIES.map((c) => ({ label: c, value: c }))] as {
+            {([{ label: "All", value: null }, ...SITE_CATEGORIES.map((c) => ({ label: SITE_CATEGORY_LABELS[c], value: c }))] as {
               label: string;
               value: SiteCategory | null;
             }[]).map((cat) => {
@@ -367,7 +367,11 @@ export default function MapScreen() {
           Haptics.impactAsync();
           mapViewRef.current?.focusOn(selectedSite.lat, selectedSite.lng);
         }}
-        onAddToItinerary={session.status !== "guest" ? handleAddToItinerary : undefined}
+        onAddToItinerary={
+          session.status !== "guest" && !selectedSite?.category.includes("Accommodation")
+            ? handleAddToItinerary
+            : undefined
+        }
         nearbySites={nearbySites}
         todayItems={todayItems}
         locStatus={locStatus}

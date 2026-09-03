@@ -5,10 +5,22 @@ export const SITE_CATEGORIES = [
   "Cultural",
   "Hotpools",
   "Adventure",
-  "Food & Drink",
-  "Stay",
+  "Food",
+  "Accommodation",
 ] as const;
 export type SiteCategory = (typeof SITE_CATEGORIES)[number];
+
+// Category ids match Firestore data; these are the user-facing tab labels.
+export const SITE_CATEGORY_LABELS: Record<SiteCategory, string> = {
+  Geothermal: "Geothermal",
+  Walks: "Walks",
+  Attractions: "Attractions",
+  Cultural: "Cultural",
+  Hotpools: "Hotpools",
+  Adventure: "Adventure",
+  Food: "Food & Drink",
+  Accommodation: "Stay",
+};
 
 export type Checkpoint = {
   id?: string;

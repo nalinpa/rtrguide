@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Linking,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Search, X, Bookmark, Image as ImageIcon } from "lucide-react-native";
@@ -18,7 +10,7 @@ import { tokens } from "@/lib/ui/tokens";
 import { hooksBag } from "@/lib/hooksBag";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { useSession } from "@/lib/providers/SessionProvider";
-import { SITE_CATEGORIES, type SiteCategory, type Site } from "@/lib/models";
+import { SITE_CATEGORIES, SITE_CATEGORY_LABELS, type SiteCategory, type Site } from "@/lib/models";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { SitesListView } from "@/components/site/list/SitesListView";
 
@@ -34,13 +26,11 @@ export default function SiteListPage() {
 
   const { locations, loading: entitiesLoading, err: entitiesErr } = hooksBag.useLocations();
 
-  const { loc: liveLoc, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
+  const { loc: liveLoc } = hooksBag.useUserLocation({ autoRequest: true });
   const [lockedLoc, setLockedLoc] = useState(() => hooksBag.useLocationStore.getState().location);
   useEffect(() => {
     if (!lockedLoc && liveLoc) setLockedLoc(liveLoc);
   }, [liveLoc, lockedLoc]);
-
-  const handleRefreshGPS = () => Linking.openSettings();
 
   const [category, setCategory] = useState<SiteCategory | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -139,17 +129,6 @@ export default function SiteListPage() {
         </View>
       )}
 
-      {locStatus === "denied" && (
-        <View style={styles.paddedSection}>
-          <ErrorCard
-            status="warning"
-            title="Location Disabled"
-            message="Enable location to see distances to nearby sites."
-            action={{ label: "Open Settings", onPress: handleRefreshGPS }}
-          />
-        </View>
-      )}
-
       {isGuest ? (
         <View style={styles.paddedSection}>
           <CardShell status="surf" onPress={() => router.push("/(auth)/login")}>
@@ -178,7 +157,7 @@ export default function SiteListPage() {
           {SITE_CATEGORIES.map((cat) => (
             <TouchableOpacity key={cat} style={styles.categoryTab} onPress={() => setCategory(cat)}>
               <AppText style={[styles.categoryTabText, category === cat && styles.categoryTabTextActive]}>
-                {cat}
+                {SITE_CATEGORY_LABELS[cat]}
               </AppText>
               {category === cat && <View style={styles.categoryTabIndicator} />}
             </TouchableOpacity>
@@ -223,7 +202,7 @@ export default function SiteListPage() {
 
           <View style={styles.paddedSection}>
             <AppText variant="label" status="hint" style={styles.sectionLabel}>
-              {category ?? "Places to Visit"}
+              {category ? SITE_CATEGORY_LABELS[category] : "Places to Visit"}
             </AppText>
           </View>
         </>

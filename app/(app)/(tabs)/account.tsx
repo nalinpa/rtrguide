@@ -54,10 +54,10 @@ export default function AccountScreen() {
             </Text>
             <TouchableOpacity
               style={styles.promoBtn}
-              onPress={() => router.push("/(app)/(tabs)/sites")}
+              onPress={() => router.push("/(app)/guide")}
               activeOpacity={0.8}
             >
-              <Text style={styles.promoBtnText}>Browse All Sites</Text>
+              <Text style={styles.promoBtnText}>Open Guide</Text>
               <ArrowRight size={13} color={tokens.colors.surf} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>

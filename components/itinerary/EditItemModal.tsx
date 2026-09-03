@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert, InteractionManager, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  InteractionManager,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { X, Minus, Plus, ExternalLink, Image as ImageIcon, Trash2, ArrowRight } from "lucide-react-native";
@@ -77,6 +89,7 @@ export function EditItemModal({
   const handleMove = (newDayId: string) => {
     if (!item || isMovingDay) return;
     setIsMovingDay(true);
+    handleSave();
     onMoveDay(item.id, newDayId);
   };
 
@@ -94,93 +107,96 @@ export function EditItemModal({
 
   return (
     <Modal visible={!!item} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalWrapper}>
-          <CardShell status="basic" style={styles.modalContent}>
-            <View style={styles.imageContainer}>
-              <ItemImage imageUrl={item.imageUrl} siteId={item.siteId} />
-              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                <X color="#FFFFFF" size={20} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.infoSection}>
-              <View style={styles.titleRow}>
-                <Text style={styles.modalTitle} numberOfLines={2}>
-                  {item.siteName}
-                </Text>
-                <TouchableOpacity style={styles.detailLink} onPress={handleViewDetails}>
-                  <Text style={styles.detailText}>Details</Text>
-                  <ExternalLink color={tokens.colors.accent} size={14} />
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.keyboardView}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalWrapper}>
+            <CardShell status="basic" style={styles.modalContent}>
+              <View style={styles.imageContainer}>
+                <ItemImage imageUrl={item.imageUrl} siteId={item.siteId} />
+                <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                  <X color="#FFFFFF" size={20} />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            <View style={styles.controlSection}>
-              <Text style={styles.modalLabel}>Planned Duration</Text>
-              <View style={styles.durationControl}>
-                <TouchableOpacity style={styles.durationBtn} onPress={() => adjustDuration(-1)}>
-                  <Minus color={tokens.colors.accent} size={24} />
-                </TouchableOpacity>
-                <Text style={styles.durationValue}>
-                  {draftDuration / 2} {draftDuration === 2 ? "Hour" : "Hours"}
-                </Text>
-                <TouchableOpacity style={styles.durationBtn} onPress={() => adjustDuration(1)}>
-                  <Plus color={tokens.colors.accent} size={24} />
+              <View style={styles.infoSection}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.modalTitle} numberOfLines={2}>
+                    {item.siteName}
+                  </Text>
+                  <TouchableOpacity style={styles.detailLink} onPress={handleViewDetails}>
+                    <Text style={styles.detailText}>Details</Text>
+                    <ExternalLink color={tokens.colors.accent} size={14} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.controlSection}>
+                <Text style={styles.modalLabel}>Planned Duration</Text>
+                <View style={styles.durationControl}>
+                  <TouchableOpacity style={styles.durationBtn} onPress={() => adjustDuration(-1)}>
+                    <Minus color={tokens.colors.accent} size={24} />
+                  </TouchableOpacity>
+                  <Text style={styles.durationValue}>
+                    {draftDuration / 2} {draftDuration === 2 ? "Hour" : "Hours"}
+                  </Text>
+                  <TouchableOpacity style={styles.durationBtn} onPress={() => adjustDuration(1)}>
+                    <Plus color={tokens.colors.accent} size={24} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.controlSection}>
+                <Text style={styles.modalLabel}>Note</Text>
+                <TextInput
+                  style={styles.noteInput}
+                  placeholder="Add a note for this stop (optional)"
+                  placeholderTextColor={tokens.colors.textMuted}
+                  value={draftNote}
+                  onChangeText={(t) => setDraftNote(t.slice(0, MAX_NOTE_LEN))}
+                  multiline
+                  numberOfLines={3}
+                  maxLength={MAX_NOTE_LEN}
+                />
+              </View>
+
+              {otherDays.length > 0 && (
+                <View style={styles.moveSection}>
+                  <Text style={styles.modalLabel}>Move to another day?</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moveScroll}>
+                    {otherDays.map((day) => (
+                      <TouchableOpacity
+                        key={day.id}
+                        style={[styles.moveBtn, isMovingDay && styles.moveBtnDisabled]}
+                        onPress={() => handleMove(day.id)}
+                        disabled={isMovingDay}
+                      >
+                        <ArrowRight color={tokens.colors.text2} size={16} />
+                        <Text style={styles.moveBtnText}>{day.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              <View style={styles.actionContainer}>
+                <AppButton variant="primary" onPress={handleSave}>
+                  Save Changes
+                </AppButton>
+                <TouchableOpacity style={styles.removeBtn} onPress={handleRemove}>
+                  <Trash2 color={tokens.colors.danger} size={18} />
+                  <Text style={styles.removeText}>Remove from Trip</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View style={styles.controlSection}>
-              <Text style={styles.modalLabel}>Note</Text>
-              <TextInput
-                style={styles.noteInput}
-                placeholder="Add a note for this stop (optional)"
-                placeholderTextColor={tokens.colors.textMuted}
-                value={draftNote}
-                onChangeText={(t) => setDraftNote(t.slice(0, MAX_NOTE_LEN))}
-                multiline
-                numberOfLines={3}
-                maxLength={MAX_NOTE_LEN}
-              />
-            </View>
-
-            {otherDays.length > 0 && (
-              <View style={styles.moveSection}>
-                <Text style={styles.modalLabel}>Move to another day?</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moveScroll}>
-                  {otherDays.map((day) => (
-                    <TouchableOpacity
-                      key={day.id}
-                      style={[styles.moveBtn, isMovingDay && styles.moveBtnDisabled]}
-                      onPress={() => handleMove(day.id)}
-                      disabled={isMovingDay}
-                    >
-                      <ArrowRight color={tokens.colors.text2} size={16} />
-                      <Text style={styles.moveBtnText}>{day.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            <View style={styles.actionContainer}>
-              <AppButton variant="primary" onPress={handleSave}>
-                Save Changes
-              </AppButton>
-              <TouchableOpacity style={styles.removeBtn} onPress={handleRemove}>
-                <Trash2 color={tokens.colors.danger} size={18} />
-                <Text style={styles.removeText}>Remove from Trip</Text>
-              </TouchableOpacity>
-            </View>
-          </CardShell>
+            </CardShell>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardView: { flex: 1 },
   modalOverlay: { flex: 1, backgroundColor: "rgba(36,26,18,0.75)", justifyContent: "flex-end" },
   modalWrapper: { margin: tokens.space.md, marginBottom: 40 },
   modalContent: { padding: 0, borderRadius: tokens.radius.lg, overflow: "hidden" },

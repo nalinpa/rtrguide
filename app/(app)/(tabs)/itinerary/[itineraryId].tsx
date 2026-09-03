@@ -318,10 +318,14 @@ export default function ItineraryDetailPage() {
     const currentActiveDayId = activeDayIdRef.current;
     if (!currentTrip || !currentActiveDayId) return;
 
-    const itemToMove = localItems.find((i) => i.id === itemId);
+    // Read from the ref, not the `localItems` state: EditItemModal's handleMove calls
+    // handleSaveEdit (which updates this ref synchronously) immediately before onMoveDay,
+    // in the same event-handler tick. React batches the setLocalItems from that save, so
+    // `localItems` here would still be the pre-save value; the ref is not batched.
+    const itemToMove = latestItemsRef.current.find((i) => i.id === itemId);
     if (!itemToMove) return;
 
-    let updatedLocalItems = localItems.filter((i) => i.id !== itemId);
+    let updatedLocalItems = latestItemsRef.current.filter((i) => i.id !== itemId);
     updatedLocalItems = runPhysicsEngine(updatedLocalItems);
     setLocalItems(updatedLocalItems);
     latestItemsRef.current = updatedLocalItems;

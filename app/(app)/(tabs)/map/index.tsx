@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Keyboard } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { Search, SlidersHorizontal, Crosshair, Layers, AlertCircle, Lock, ChevronRight } from "lucide-react-native";
+import { Search, SlidersHorizontal, Crosshair, Layers, AlertCircle, Lock, ChevronRight, X } from "lucide-react-native";
 import type { MapType } from "react-native-maps";
 
 import { LoadingState, ErrorCard, components } from "@/lib/uiKit";
@@ -222,6 +222,7 @@ export default function MapScreen() {
       setSelectedSiteId(id);
       setCategoryFilter(null);
       setSearchQuery("");
+      Keyboard.dismiss();
       bottomSheetRef.current?.snapToIndex(1);
     },
     [setSelectedSiteId],
@@ -269,9 +270,21 @@ export default function MapScreen() {
                 if (text) setCategoryFilter(null);
               }}
               returnKeyType="search"
+              onSubmitEditing={() => Keyboard.dismiss()}
               autoCapitalize="none"
               autoCorrect={false}
             />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchQuery("");
+                  Keyboard.dismiss();
+                }}
+                hitSlop={8}
+              >
+                <X color="rgba(36,26,18,0.45)" size={18} strokeWidth={1.75} />
+              </TouchableOpacity>
+            )}
             <View style={styles.divider} />
             <TouchableOpacity
               onPress={() => {

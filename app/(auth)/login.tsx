@@ -31,7 +31,9 @@ export default function LoginScreen() {
   const busy = f.busy || session.status === "loading";
 
   const handleGuestEntry = async () => {
-    if (session.status !== "loggedOut") return;
+    // loggedOut: first-time guest entry. guest: already a guest, came here to
+    // sign in, changed their mind — just take them back in.
+    if (session.status !== "loggedOut" && session.status !== "guest") return;
     await enableGuest();
     router.replace("/(app)/(tabs)/map");
   };

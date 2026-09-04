@@ -23,6 +23,8 @@ import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal"
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
 import { SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
+import { CATEGORY_CONFIG } from "@/components/map/SiteMarker";
+import { SITE_CATEGORY_LABELS } from "@/lib/models";
 
 export default function SiteDetailRoute() {
   const { siteId } = useLocalSearchParams<{ siteId: string }>();
@@ -130,6 +132,8 @@ export default function SiteDetailRoute() {
   }
 
   const isLocked = !!site.isPremium && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+  const primaryCategory = site.category[0];
+  const { Icon: CategoryIcon, color: categoryColor } = CATEGORY_CONFIG[primaryCategory] ?? CATEGORY_CONFIG.other;
 
   if (isLocked) {
     return (
@@ -197,14 +201,19 @@ export default function SiteDetailRoute() {
         <View style={styles.sheet}>
           <View style={styles.dragHandle} />
 
-          <Stack gap="md" style={styles.content}>
-            <AppText variant="h1">{site.name}</AppText>
-
-            {site.price && (
-              <AppText variant="body" style={{ marginTop: -10 }}>
-                {site.price}
-              </AppText>
-            )}
+          <Stack gap="lg" style={styles.content}>
+            <View>
+              <AppText variant="h1">{site.name}</AppText>
+              <Row gap="sm" align="center" style={styles.metaRow}>
+                <View style={[styles.categoryPill, { backgroundColor: `${categoryColor}1F` }]}>
+                  <CategoryIcon size={13} color={categoryColor} strokeWidth={2.25} />
+                  <AppText style={[styles.categoryPillText, { color: categoryColor }]}>
+                    {SITE_CATEGORY_LABELS[primaryCategory] ?? primaryCategory}
+                  </AppText>
+                </View>
+                {site.price && <AppText style={styles.priceText}>{site.price}</AppText>}
+              </Row>
+            </View>
 
             <SiteQuickActions
               onDirections={handleDirections}
@@ -227,20 +236,20 @@ export default function SiteDetailRoute() {
               }}
             />
 
-            <AppText variant="body" status="hint">
-              {site.description}
-            </AppText>
+            <View style={styles.divider} />
+
+            <AppText style={styles.description}>{site.description}</AppText>
 
             {site.website && (
               <Pressable onPress={() => handleOpenWebsite(site.website!)} style={styles.websiteChip}>
                 <Row gap="xs" align="center">
-                  <Globe size={20} color="#FFFFFF" />
-                  <AppText variant="body" style={styles.websiteChipText}>
-                    Visit Website
-                  </AppText>
+                  <Globe size={18} color={tokens.colors.text} />
+                  <AppText style={styles.websiteChipText}>Visit Website</AppText>
                 </Row>
               </Pressable>
             )}
+
+            <View style={styles.divider} />
 
             <components.ReviewsSummaryCard
               ratingCount={ratingCount}
@@ -391,6 +400,19 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   content: { paddingHorizontal: tokens.space.md, paddingTop: tokens.space.sm },
+  metaRow: { marginTop: 8 },
+  categoryPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderRadius: 99,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  categoryPillText: { fontSize: 12, fontWeight: "700", letterSpacing: 0.2 },
+  priceText: { fontSize: 14, fontWeight: "600", color: tokens.colors.text2 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: tokens.colors.border },
+  description: { fontSize: 15, lineHeight: 23, color: tokens.colors.text },
   backButtonWrap: { position: "absolute", top: 0, left: 0, right: 0 },
   backButton: {
     margin: 16,
@@ -405,19 +427,16 @@ const styles = StyleSheet.create({
   },
   websiteChip: {
     flexDirection: "row",
-    alignSelf: "center",
+    alignSelf: "flex-start",
+    alignItems: "center",
     borderRadius: 100,
-    backgroundColor: tokens.colors.surf,
-    paddingVertical: 16,
-    paddingHorizontal: 28,
-    marginTop: 8,
-    shadowColor: tokens.colors.surf,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    backgroundColor: tokens.colors.bgCard,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
   },
-  websiteChipText: { color: "#FFFFFF", fontWeight: "700", fontSize: 18 },
+  websiteChipText: { color: tokens.colors.text, fontWeight: "600", fontSize: 15 },
   itineraryFloatingWrap: {
     position: "absolute",
     left: 0,

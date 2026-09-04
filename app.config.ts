@@ -62,7 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         url: "https://sentry.io/",
         project: "rotoruaguide",
-        organization: "REPLACE_ME_SENTRY_ORG",
+        organization: "patel-td",
       },
     ],
     "expo-iap",

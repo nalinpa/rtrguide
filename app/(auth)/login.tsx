@@ -33,6 +33,7 @@ export default function LoginScreen() {
   const handleGuestEntry = async () => {
     if (session.status !== "loggedOut") return;
     await enableGuest();
+    router.replace("/(app)/(tabs)/map");
   };
 
   const [authErr, setAuthErr] = React.useState<string | null>(null);

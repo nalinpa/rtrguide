@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useState,
   useImperativeHandle,
   forwardRef,
 } from "react";
@@ -35,6 +36,41 @@ export type SitesMapViewHandle = {
   recenter: (lat: number, lng: number) => void;
   focusOn: (lat: number, lng: number) => void;
 };
+
+// react-native-maps rasterizes a non-tracked marker's children into a bitmap
+// once, at mount. If that happens before the SVG icon has finished its first
+// paint, the marker freezes on a blank/default look until re-selected. Keep
+// tracksViewChanges on for a brief settle window after mount so every marker
+// gets at least one real paint before freezing.
+const MARKER_SETTLE_MS = 700;
+
+function SiteMapMarker({
+  loc,
+  selected,
+  onPress,
+}: {
+  loc: SiteMapPoint;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(true), MARKER_SETTLE_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <Marker
+      coordinate={{ latitude: loc.lat, longitude: loc.lng }}
+      onPress={onPress}
+      tracksViewChanges={selected || !settled}
+      anchor={{ x: 0.5, y: 0.5 }}
+      zIndex={selected ? 2 : 1}
+    >
+      <SiteMarker selected={selected} completed={loc.completed} category={loc.category} />
+    </Marker>
+  );
+}
 
 const SitesMapViewInner = forwardRef<
   SitesMapViewHandle,
@@ -121,16 +157,12 @@ const SitesMapViewInner = forwardRef<
     return sites.map((loc) => {
       const selected = selectedSiteId === loc.id;
       return (
-        <Marker
+        <SiteMapMarker
           key={loc.id}
-          coordinate={{ latitude: loc.lat, longitude: loc.lng }}
+          loc={loc}
+          selected={selected}
           onPress={() => onPressSite(loc.id)}
-          tracksViewChanges={selected}
-          anchor={{ x: 0.5, y: 0.5 }}
-          zIndex={selected ? 2 : 1}
-        >
-          <SiteMarker selected={selected} completed={loc.completed} category={loc.category} />
-        </Marker>
+        />
       );
     });
   }, [sites, selectedSiteId, onPressSite]);

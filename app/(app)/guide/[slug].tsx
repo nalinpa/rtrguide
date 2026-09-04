@@ -16,13 +16,6 @@ export default function GuideCategoryPage() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={[styles.hero, { backgroundColor: color }]}>
-        <AppIconButton
-          icon={ChevronLeft}
-          onPress={() => router.back()}
-          accessibilityLabel="Back"
-          variant="control"
-          style={styles.backBtn}
-        />
         {Icon && (
           <View style={styles.heroIconWrap}>
             <Icon size={28} color="#FFFFFF" strokeWidth={2} />
@@ -31,6 +24,13 @@ export default function GuideCategoryPage() {
         <AppText variant="h1" style={styles.title} numberOfLines={2}>
           {category?.title ?? "Guide"}
         </AppText>
+        <AppIconButton
+          icon={ChevronLeft}
+          onPress={() => router.back()}
+          accessibilityLabel="Back"
+          variant="control"
+          style={styles.backBtn}
+        />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

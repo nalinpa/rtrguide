@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Flame, Landmark, Compass, Trees, Waves, Camera, Utensils, Bed, MapPin, Check } from "lucide-react-native";
+import { Flame, Landmark, Mountain, Trees, Waves, Camera, Utensils, Bed, MapPin, Check } from "lucide-react-native";
 import { tokens } from "@/lib/ui/tokens";
 import type { SiteCategory } from "@/lib/models";
 
@@ -16,7 +16,7 @@ export const CATEGORY_CONFIG: Record<SiteCategory | "other", { Icon: IconCompone
   Attractions: { Icon: Camera, color: "#7C3AED" },
   Cultural: { Icon: Landmark, color: "#8C3D10" },
   Hotpools: { Icon: Waves, color: "#0369A1" },
-  Adventure: { Icon: Compass, color: "#0D9488" },
+  Adventure: { Icon: Mountain, color: "#0D9488" },
   Food: { Icon: Utensils, color: "#DC2626" },
   Accommodation: { Icon: Bed, color: "#4338CA" },
   other: { Icon: MapPin, color: "#475569" },

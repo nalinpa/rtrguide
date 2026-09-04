@@ -44,7 +44,7 @@ export const CaptureCanvas = forwardRef<View, CaptureCanvasProps>(
 
         {/* Footer strip */}
         <View style={styles.footer}>
-          <Text style={styles.brandLabel}>RTR Guide</Text>
+          <Text style={styles.brandLabel}>Rotorua Guide</Text>
           <View style={styles.dateBadge}>
             <Text style={styles.dateText}>{payload.dateLabel}</Text>
           </View>
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     height: 520,
     justifyContent: "flex-start",
     paddingHorizontal: 64,
-    paddingTop: 96,
+    paddingTop: 140,
   },
   cityLabel: {
     color: "rgba(255,255,255,0.55)",
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 8,
     textTransform: "uppercase",
-    marginBottom: 12,
+    marginBottom: 24,
   },
   siteName: {
     color: "#FFFFFF",

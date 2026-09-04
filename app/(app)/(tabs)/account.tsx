@@ -51,16 +51,13 @@ export default function AccountScreen() {
           <View style={styles.promoCard} ref={homeTarget.ref} onLayout={homeTarget.onLayout}>
             <Text style={styles.promoEyebrow}>DISCOVER ROTORUA</Text>
             <Text style={styles.promoHeadline}>{"Your guide to the\nLand of Geysers"}</Text>
-            <Text style={styles.promoBody}>
-              Geothermal wonders, Māori culture, and adventure — all in one place.
-            </Text>
             <TouchableOpacity
               style={styles.promoBtn}
               onPress={() => router.push("/(app)/guide")}
-              activeOpacity={0.8}
+              activeOpacity={0.85}
             >
               <Text style={styles.promoBtnText}>Open Guide</Text>
-              <ArrowRight size={13} color={tokens.colors.surf} strokeWidth={2.5} />
+              <ArrowRight size={16} color={tokens.colors.surf} strokeWidth={2.75} />
             </TouchableOpacity>
           </View>
         </View>
@@ -128,19 +125,22 @@ const styles = StyleSheet.create({
   },
   promoEyebrow: { fontSize: 10, fontWeight: "800", color: "rgba(255,255,255,0.7)", letterSpacing: 3 },
   promoHeadline: { fontSize: 28, fontWeight: "800", color: "#FFFFFF", letterSpacing: -0.6, lineHeight: 34 },
-  promoBody: { fontSize: 14, fontWeight: "400", color: "rgba(255,255,255,0.8)", lineHeight: 21, marginBottom: 4 },
   promoBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    justifyContent: "center",
+    gap: 8,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 18,
-    paddingVertical: 11,
+    paddingVertical: 16,
     borderRadius: 99,
-    alignSelf: "flex-start",
-    marginTop: 4,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  promoBtnText: { fontSize: 13, fontWeight: "700", color: tokens.colors.surf, letterSpacing: 0.1 },
+  promoBtnText: { fontSize: 16, fontWeight: "800", color: tokens.colors.surf, letterSpacing: 0.1 },
 
   sheet: { backgroundColor: tokens.colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -28, minHeight: 400 },
   dragHandle: { width: 32, height: 4, borderRadius: 2, backgroundColor: tokens.colors.border, alignSelf: "center", marginTop: 14, marginBottom: 4 },

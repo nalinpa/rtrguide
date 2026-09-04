@@ -20,6 +20,8 @@ export type ItineraryTemplate = {
   label: string;
   description: string;
   days: ItineraryTemplateDay[];
+  // Selectable without the full guide unlock. Defaults to premium-only.
+  free?: boolean;
 };
 
 export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
@@ -106,6 +108,7 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
   {
     key: "rotorua-town-basics",
     label: "Rotorua Town Basics",
+    free: true,
     description: "A free, walkable day around the CBD — thermal parks, a historic lakeside village, and Eat Streat.",
     days: [
       {
@@ -127,6 +130,7 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
   {
     key: "free-budget-family",
     label: "Free & Budget Family Weekend",
+    free: true,
     description: "Two days of free thermal parks, lake walks, and cheap eats — nature-based family fun, no big spend.",
     days: [
       {

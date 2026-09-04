@@ -22,9 +22,7 @@ export default function LoginScreen() {
   const { session, enableGuest } = useSession();
 
   useEffect(() => {
-    if (session.status === "guest") {
-      router.replace("/(app)/(tabs)/map");
-    }
+    // Guest is not redirected here — see app/(auth)/_layout.tsx for why.
     if (session.status === "authed") {
       router.replace("/(app)/(tabs)/sites");
     }

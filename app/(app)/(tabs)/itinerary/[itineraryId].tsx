@@ -188,20 +188,11 @@ export default function ItineraryDetailPage() {
     }
   }, [jumpToDay, jumpToSlot, localTrip, activeDayId, flushSave]);
 
-  const handleDeleteItinerary = () => {
+  const handleDeleteItinerary = async () => {
     if (!localTrip) return;
-    Alert.alert("Delete Trip", `Delete "${localTrip.title || "this trip"}"? This cannot be undone.`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          hasUnsavedChanges.current = false;
-          await deleteItinerary(localTrip.id);
-          router.replace("/(app)/(tabs)/itinerary");
-        },
-      },
-    ]);
+    hasUnsavedChanges.current = false;
+    await deleteItinerary(localTrip.id);
+    router.replace("/(app)/(tabs)/itinerary");
   };
 
   const handleDeleteDay = (dayId: string) => {

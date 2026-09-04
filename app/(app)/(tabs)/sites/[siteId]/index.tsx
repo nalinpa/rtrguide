@@ -216,8 +216,11 @@ export default function SiteDetailRoute() {
               }
               isSaved={isSaved}
               onToggleSave={() => {
-                if (!isSaved && !entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-                  Alert.alert("Premium Feature", "Saving sites requires the full guide unlock.");
+                if (!isSaved && !uid) {
+                  Alert.alert("Sign In Required", "Sign in to save sites for later.", [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Sign In", onPress: () => router.push("/(auth)/login") },
+                  ]);
                   return;
                 }
                 toggleSavedSite({ siteId: id, isSaving: !isSaved });

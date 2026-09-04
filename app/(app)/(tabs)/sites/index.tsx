@@ -53,8 +53,10 @@ export default function SiteListPage() {
 
   const rows = hooksBag.useSortedRows(filteredLocations, lockedLoc);
 
+  const isSearching = searchQuery.trim().length > 0;
+
   const featuredSite = useMemo(() => {
-    if (!rows.length) return null;
+    if (isSearching || !rows.length) return null;
     const eligible = rows.filter((r) => !isSiteLocked(r.location));
     if (!eligible.length) return null;
     const withFeatured = eligible.filter((r) => (r.location.featured ?? 0) > 0);
@@ -62,7 +64,7 @@ export default function SiteListPage() {
     return withFeatured.reduce((best, r) =>
       (r.location.featured ?? 0) > (best.location.featured ?? 0) ? r : best,
     );
-  }, [rows, isSiteLocked]);
+  }, [rows, isSiteLocked, isSearching]);
 
   const listRows = useMemo(
     () => (featuredSite ? rows.filter((r) => r.location.id !== featuredSite.location.id) : rows),
@@ -175,7 +177,7 @@ export default function SiteListPage() {
         </View>
       )}
 
-      {rows.length > 0 && (
+      {!isSearching && rows.length > 0 && (
         <>
           {featuredSite && (
             <Pressable

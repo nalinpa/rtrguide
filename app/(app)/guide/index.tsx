@@ -11,7 +11,12 @@ export default function GuideIndexPage() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <AppIconButton icon={ChevronLeft} onPress={() => router.back()} accessibilityLabel="Back" />
+        <AppIconButton
+          icon={ChevronLeft}
+          onPress={() => router.back()}
+          accessibilityLabel="Back"
+          style={styles.backBtn}
+        />
         <AppText variant="h1" style={styles.title}>
           Guide
         </AppText>
@@ -51,6 +56,16 @@ const styles = StyleSheet.create({
     paddingBottom: tokens.space.md,
   },
   title: { fontSize: 28 },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: tokens.colors.bgCard,
+    borderWidth: 1,
+    borderColor: tokens.colors.borderSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   list: { paddingHorizontal: tokens.space.md },
   row: {
     flexDirection: "row",

@@ -1,6 +1,6 @@
 // components/account/ItinerariesCard.tsx
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { ChevronRight, Plus } from "lucide-react-native";
 
@@ -76,10 +76,6 @@ export function ItinerariesCard() {
           style={styles.createBtn}
           onPress={() => {
             if (entitlementsLoading) return;
-            if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-              Alert.alert("Premium Feature", "Building itineraries requires the full guide unlock.");
-              return;
-            }
             setIsCreating(true);
           }}
           activeOpacity={0.6}
@@ -91,8 +87,10 @@ export function ItinerariesCard() {
 
       <CreateItineraryModal
         visible={isCreating}
+        locked={!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)}
         onClose={() => setIsCreating(false)}
         onCreated={() => setIsCreating(false)}
+        showTemplateOption
       />
     </View>
   );

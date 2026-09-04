@@ -20,9 +20,9 @@ export default function AuthLayout() {
     return <Redirect href="/(app)/(tabs)/sites" />;
   }
 
-  if (session.status === "guest") {
-    return <Redirect href="/(app)/(tabs)/map" />;
-  }
-
+  // Deliberately no redirect for "guest" — a guest landing here is signing in
+  // on purpose (every "Sign In" CTA in the app just pushes this route without
+  // clearing guest state first). Bouncing them to the map made every one of
+  // those buttons silently do nothing.
   return <Slot />;
 }

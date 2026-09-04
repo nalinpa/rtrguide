@@ -59,7 +59,7 @@ export function CreateItineraryModal({
   const [showCalendar, setShowCalendar] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const templatesEnabled = showTemplateOption && !locked;
+  const templatesEnabled = showTemplateOption;
 
   useEffect(() => {
     if (visible) {
@@ -77,7 +77,9 @@ export function CreateItineraryModal({
     setErrorMsg(null);
 
     const resolvedTitle = title.trim() || "Rotorua Trip";
-    const template = templatesEnabled ? ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate) : undefined;
+    const template = templatesEnabled
+      ? ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate && (!locked || t.free))
+      : undefined;
     const dayCount = template ? template.days.length : numDays;
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + dayCount - 1);
@@ -147,14 +149,13 @@ export function CreateItineraryModal({
 
               <AppText style={styles.label}>Trip Name</AppText>
               <TextInput
-                style={[styles.input, locked && styles.inputLocked]}
+                style={styles.input}
                 placeholder="Optional — defaults to Rotorua Trip"
                 placeholderTextColor={tokens.colors.textMuted}
                 value={title}
                 onChangeText={setTitle}
                 autoCapitalize="words"
                 returnKeyType="done"
-                editable={!locked}
               />
 
               <AppText style={styles.label}>Start Date</AppText>
@@ -218,26 +219,46 @@ export function CreateItineraryModal({
                   {templateOpen && (
                     <ScrollView style={styles.dropdownMenu} bounces={false} nestedScrollEnabled>
                       {(
-                        [{ key: null, label: "None", description: "Start with a blank trip" }, ...ITINERARY_TEMPLATES]
+                        [
+                          { key: null, label: "None", description: "Start with a blank trip", free: true },
+                          ...ITINERARY_TEMPLATES,
+                        ]
                       ).map((opt) => {
                         const active = selectedTemplate === opt.key;
+                        const isLockedOut = locked && !opt.free;
                         return (
                           <TouchableOpacity
                             key={String(opt.key)}
                             style={styles.dropdownOption}
                             onPress={() => {
+                              if (isLockedOut) return;
                               setSelectedTemplate(opt.key);
                               setTemplateOpen(false);
                             }}
-                            activeOpacity={0.7}
+                            activeOpacity={isLockedOut ? 1 : 0.7}
                           >
                             <View style={styles.dropdownOptionText}>
-                              <AppText style={[styles.dropdownOptionLabel, active && styles.dropdownOptionLabelActive]}>
+                              <AppText
+                                style={[
+                                  styles.dropdownOptionLabel,
+                                  active && styles.dropdownOptionLabelActive,
+                                  isLockedOut && styles.dropdownOptionLabelLocked,
+                                ]}
+                              >
                                 {opt.label}
                               </AppText>
-                              <AppText style={styles.dropdownOptionSub}>{opt.description}</AppText>
+                              <AppText style={[styles.dropdownOptionSub, isLockedOut && styles.dropdownOptionLabelLocked]}>
+                                {opt.description}
+                              </AppText>
                             </View>
-                            {active && <Check size={16} color={tokens.colors.accent} strokeWidth={2.5} />}
+                            {isLockedOut ? (
+                              <View style={styles.premiumBadge}>
+                                <Lock size={11} color={tokens.colors.textMuted} />
+                                <AppText style={styles.premiumBadgeText}>Premium</AppText>
+                              </View>
+                            ) : (
+                              active && <Check size={16} color={tokens.colors.accent} strokeWidth={2.5} />
+                            )}
                           </TouchableOpacity>
                         );
                       })}
@@ -385,5 +406,16 @@ const styles = StyleSheet.create({
   dropdownOptionLabel: { fontSize: 15, fontWeight: "500", color: tokens.colors.text },
   dropdownOptionLabelActive: { color: tokens.colors.accent, fontWeight: "700" },
   dropdownOptionSub: { fontSize: 12, color: tokens.colors.text2, marginTop: 2 },
+  dropdownOptionLabelLocked: { color: tokens.colors.textMuted },
+  premiumBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: tokens.colors.bgElevated,
+    borderRadius: 99,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  premiumBadgeText: { fontSize: 10, fontWeight: "700", color: tokens.colors.textMuted, letterSpacing: 0.3 },
   errorText: { fontSize: 12, color: tokens.colors.danger, marginTop: tokens.space.sm },
 });

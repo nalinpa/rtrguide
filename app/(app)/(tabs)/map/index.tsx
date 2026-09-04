@@ -58,6 +58,14 @@ export default function MapScreen() {
   const { itineraries } = useItineraries();
 
   const [searchQuery, setSearchQuery] = useState("");
+  // Debounced: mapSites rebuilds every marker on the map, which is expensive
+  // enough (combined with active pinch-zoom/region-change gestures on
+  // react-native-maps) to crash the app if it reruns on every keystroke.
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchQuery(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
   const [categoryFilter, setCategoryFilter] = useState<SiteCategory | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [mapType, setMapType] = useState<MapType>("standard");
@@ -96,7 +104,7 @@ export default function MapScreen() {
   }, [itineraries.length, entitledProductIds]);
 
   const mapSites = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = debouncedSearchQuery.trim().toLowerCase();
     return visibleSites
       .filter((s) => (!q || s.name.toLowerCase().includes(q)) && (!categoryFilter || s.category.includes(categoryFilter)))
       .map((s) => ({
@@ -106,13 +114,13 @@ export default function MapScreen() {
         lng: s.lng,
         category: s.category[0],
       }));
-  }, [visibleSites, searchQuery, categoryFilter]);
+  }, [visibleSites, debouncedSearchQuery, categoryFilter]);
 
   useEffect(() => {
-    if (searchQuery.trim() && mapSites.length === 1) {
+    if (debouncedSearchQuery.trim() && mapSites.length === 1) {
       setSelectedSiteId(mapSites[0].id);
     }
-  }, [searchQuery, mapSites, setSelectedSiteId]);
+  }, [debouncedSearchQuery, mapSites, setSelectedSiteId]);
 
   const hasAutoSelected = useRef(false);
   useEffect(() => {

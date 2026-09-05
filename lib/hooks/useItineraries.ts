@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
+import * as Sentry from "@sentry/react-native";
 
 import { hooksBag } from "@/lib/hooksBag";
 import { itineraryService } from "@/lib/services/itineraryService";
@@ -22,6 +23,7 @@ export function useItineraries() {
         return await itineraryService.getMyItineraries();
       } catch (e) {
         console.error("[useItineraries] load failed:", e instanceof ApiError ? `status=${e.status} message=${e.message}` : e);
+        Sentry.captureException(e);
         throw e;
       }
     },

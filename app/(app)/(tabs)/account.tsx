@@ -18,6 +18,7 @@ import { RestorePurchasesCard } from "@/components/account/RestorePurchasesCard"
 import { DangerZoneCard } from "@/components/account/DangerZoneCard";
 import { useTourTarget } from "@/lib/tour/useTourTarget";
 import { useTour } from "@/lib/tour/TourContext";
+import * as Sentry from "@sentry/react-native";
 
 export default function AccountScreen() {
   const homeTarget = useTourTarget("home");
@@ -68,6 +69,18 @@ export default function AccountScreen() {
               <Text style={styles.devTourBtnText}>🔧 Replay tour (dev only)</Text>
             </TouchableOpacity>
           )}
+
+          {/* TEMP: manual Sentry DSN check for a real EAS build — delete this
+              button once an event shows up in the patel-td Sentry org (see
+              TASKS.md "Sentry DSN actually reaches builds"). Not __DEV__-gated
+              on purpose: __DEV__ is false in the preview/production bundle
+              this needs to be tested against. */}
+          <TouchableOpacity
+            onPress={() => Sentry.captureException(new Error("Rotorua Guide: manual Sentry test button"))}
+            style={styles.sentryTestBtn}
+          >
+            <Text style={styles.sentryTestBtnText}>🐞 Send test error to Sentry (TEMP)</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.sheet}>
@@ -151,6 +164,8 @@ const styles = StyleSheet.create({
   promoBtnText: { fontSize: 16, fontWeight: "800", color: tokens.colors.surf, letterSpacing: 0.1 },
   devTourBtn: { alignSelf: "center", marginTop: 12, paddingVertical: 6, paddingHorizontal: 12 },
   devTourBtnText: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.6)" },
+  sentryTestBtn: { alignSelf: "center", marginTop: 4, paddingVertical: 6, paddingHorizontal: 12 },
+  sentryTestBtnText: { fontSize: 12, fontWeight: "700", color: "#FF6B6B" },
 
   sheet: { backgroundColor: tokens.colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -28, minHeight: 400 },
   dragHandle: { width: 32, height: 4, borderRadius: 2, backgroundColor: tokens.colors.border, alignSelf: "center", marginTop: 14, marginBottom: 4 },

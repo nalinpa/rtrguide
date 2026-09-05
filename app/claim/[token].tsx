@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as Sentry from "@sentry/react-native";
 import { Screen, AppText, AppButton, components } from "@/lib/uiKit";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
@@ -43,6 +44,7 @@ export default function ClaimScreen() {
       })
       .catch((e) => {
         console.error("[claim] load info failed:", e);
+        Sentry.captureException(e);
         setInfoErr(e instanceof Error ? e.message : "Couldn't load this link.");
       });
   }, [token]);
@@ -55,6 +57,7 @@ export default function ClaimScreen() {
       setClaimed(true);
     } catch (e) {
       console.error("[claim] claim failed:", e);
+      Sentry.captureException(e);
       setClaimErr(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
       setClaiming(false);

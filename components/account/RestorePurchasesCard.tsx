@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { RotateCcw } from "lucide-react-native";
+import * as Sentry from "@sentry/react-native";
 
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
 import { tokens } from "@/lib/ui/tokens";
@@ -18,6 +19,7 @@ export function RestorePurchasesCard() {
       setMessage(result.restored > 0 ? `Restored ${result.restored} purchase${result.restored === 1 ? "" : "s"}.` : "Nothing to restore.");
     } catch (e) {
       console.log("[iap-debug] restore failed", e);
+      Sentry.captureException(e);
       setMessage("Couldn't restore purchases. Please try again.");
     } finally {
       setRestoring(false);

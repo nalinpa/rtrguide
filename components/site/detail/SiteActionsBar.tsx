@@ -18,17 +18,19 @@ function QuickAction({
   onPress,
   disabled,
   active,
+  filled,
 }: {
   icon: typeof MapPin;
   label: string;
   onPress: () => void;
   disabled?: boolean;
   active?: boolean;
+  filled?: boolean;
 }) {
-  const color = active ? tokens.colors.accent : tokens.colors.surf;
+  const color = active ? tokens.colors.accent : tokens.colors.text2;
   return (
     <Pressable style={styles.quickAction} onPress={onPress} disabled={disabled} hitSlop={6}>
-      <Icon size={22} color={color} />
+      <Icon size={22} color={color} fill={filled ? color : "none"} />
       <AppText variant="label" style={[styles.quickActionLabel, { color }]}>
         {label}
       </AppText>
@@ -64,7 +66,7 @@ export function SiteQuickActions({
         disabled={shareBonus}
         active={shareBonus}
       />
-      <QuickAction icon={Heart} label={isSaved ? "Saved" : "Save"} onPress={onToggleSave} active={isSaved} />
+      <QuickAction icon={Heart} label={isSaved ? "Saved" : "Save"} onPress={onToggleSave} active={isSaved} filled={isSaved} />
     </Row>
   );
 }
@@ -97,14 +99,14 @@ export function SiteActionsBar({ hasReview, myReviewRating, myReviewText, onOpen
 const styles = StyleSheet.create({
   quickRow: {
     borderRadius: tokens.radius.lg,
-    borderWidth: 1.5,
-    borderColor: tokens.colors.surf,
-    backgroundColor: tokens.colors.surfDim,
+    borderWidth: 1,
+    borderColor: tokens.colors.borderSubtle,
+    backgroundColor: tokens.colors.bgCard,
     paddingVertical: tokens.space.md,
     paddingHorizontal: tokens.space.sm,
   },
   quickAction: { flex: 1, alignItems: "center", gap: 6 },
-  quickActionLabel: { fontSize: 11 },
+  quickActionLabel: { fontSize: 11, fontWeight: "600" },
   card: {
     borderRadius: tokens.radius.lg,
     borderWidth: 1,

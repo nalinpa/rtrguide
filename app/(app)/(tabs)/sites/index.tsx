@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable } from "react-native";
+import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable, Linking } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Search, X, Bookmark, Image as ImageIcon } from "lucide-react-native";
@@ -28,11 +28,13 @@ export default function SiteListPage() {
 
   const { locations, loading: entitiesLoading, err: entitiesErr } = hooksBag.useLocations();
 
-  const { loc: liveLoc } = hooksBag.useUserLocation({ autoRequest: true });
+  const { loc: liveLoc, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
   const [lockedLoc, setLockedLoc] = useState(() => hooksBag.useLocationStore.getState().location);
   useEffect(() => {
     if (!lockedLoc && liveLoc) setLockedLoc(liveLoc);
   }, [liveLoc, lockedLoc]);
+
+  const handleRefreshGPS = () => Linking.openSettings();
 
   const [category, setCategory] = useState<SiteCategory | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -130,6 +132,17 @@ export default function SiteListPage() {
               autoFocus
             />
           </View>
+        </View>
+      )}
+
+      {locStatus === "denied" && (
+        <View style={styles.paddedSection}>
+          <ErrorCard
+            status="warning"
+            title="Location Disabled"
+            message="Enable location to see distances to nearby sites."
+            action={{ label: "Open Settings", onPress: handleRefreshGPS }}
+          />
         </View>
       )}
 

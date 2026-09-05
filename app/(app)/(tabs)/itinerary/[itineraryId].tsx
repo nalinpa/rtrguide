@@ -205,14 +205,26 @@ export default function ItineraryDetailPage() {
           if (!localTrip) return;
           const currentActiveDayId = activeDayIdRef.current;
           const latestItems = latestItemsRef.current;
-          const updatedDays = localTrip.days
+          const remainingDays = localTrip.days
             .filter((d) => d.id !== dayId)
             .map((d) => (d.id === currentActiveDayId && d.id !== dayId ? { ...d, items: latestItems } : d));
-          const nextTrip = { ...localTrip, days: updatedDays };
+
+          // Re-date sequentially from startDate so the trip's date range never
+          // has a gap where a deleted middle day used to be — a 3-day trip
+          // loses a day and becomes a 2-day trip, it doesn't keep spanning 3
+          // calendar days with only 2 day entries.
+          const start = new Date(localTrip.startDate + "T00:00:00");
+          const updatedDays = remainingDays.map((d, i) => {
+            const date = new Date(start);
+            date.setDate(date.getDate() + i);
+            return { ...d, date: localIsoDate(date) };
+          });
+          const newEndDate = updatedDays[updatedDays.length - 1]?.date ?? localTrip.startDate;
+          const nextTrip = { ...localTrip, days: updatedDays, endDate: newEndDate };
           setLocalTrip(nextTrip);
           if (dayId === activeDayId) setActiveDayId(updatedDays[0]?.id ?? null);
           hasUnsavedChanges.current = false;
-          saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days });
+          saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
         },
       },
     ]);
@@ -473,14 +485,18 @@ export default function ItineraryDetailPage() {
           ))}
 
           {localItems.length === 0 ? (
-            <View style={styles.emptyDayCard}>
+            <TouchableOpacity
+              style={styles.emptyDayCard}
+              onPress={() => router.push("/(app)/(tabs)/sites")}
+              activeOpacity={0.7}
+            >
               <AppText variant="body" style={styles.emptyDayTitle}>
                 Nothing here yet
               </AppText>
               <AppText variant="label" status="hint" style={styles.emptyDayBody}>
-                Tap the bookmark icon on any place to add it to this day.
+                Browse Rotorua's sites and tap "+ Add to Itinerary" to build this day.
               </AppText>
-            </View>
+            </TouchableOpacity>
           ) : (
             freeGaps.map((gap) => (
               <View

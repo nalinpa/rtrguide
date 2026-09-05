@@ -40,8 +40,8 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 ## iOS
 
 - [x] `GoogleService-Info.plist` is untracked **and not in `.gitignore`** — one `git add` away from committing a Firebase secret to the repo. Add it to `.gitignore` (CI already injects it from `secrets.GOOGLE_SERVICES_IOS`)
-- [ ] Fix Sentry org placeholder in [app.config.ts](app.config.ts#L65) — still `"REPLACE_ME_SENTRY_ORG"`
-- [ ] Confirm `EXPO_PUBLIC_SENTRY_DSN` is set as a real secret (referenced in `app/_layout.tsx`, not seen in CI env or `.env`)
+- [x] Fix Sentry org placeholder in [app.config.ts](app.config.ts) — set to `patel-td` (same org as aklguide)
+- [x] `EXPO_PUBLIC_SENTRY_DSN` set as a real value — added to `.env` locally, `eas.json` build profiles reference it, and the actual value is live as an EAS environment variable across production/preview/development (`eas env:set`, confirmed via `eas env:list`)
 - [ ] `usesAppleSignIn: true` + associated domains — confirm Firebase iOS app registration matches (per [[project_apple_signin_firebase_ios_app_registration]], already resolved once, just re-verify before submit)
 
 ## Repo hygiene

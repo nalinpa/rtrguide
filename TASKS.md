@@ -2,6 +2,23 @@
 
 Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 
+## Manual QA — 2026-09-05 bug fixes
+
+Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a`, `59f501a`). None of these have been exercised on a real device yet — check each before shipping.
+
+- [ ] **Delete-trip confirmation** (`121e33a`) — open a trip, tap the header "...", tap "Delete Trip". Confirm a "Delete Trip? This cannot be undone." alert appears before anything is deleted; Cancel keeps the trip, Delete removes it and returns to the trip list.
+- [ ] **Account-tab entitlement cap** (`963599f`) — as a non-entitled (non-purchased) account with 1 existing itinerary, confirm the Account tab's "New Itinerary" button is hidden, matching the Plans tab. As an entitled account, confirm you can still create up to `PLANNER.MAX_ITINERARIES` (3) trips from the Account tab.
+- [ ] **Failed day-move no longer silently discarded** (`3453691`) — start a day-to-day item move, kill network mid-save (airplane mode), background/foreground the app to trigger a refetch. Confirm the move isn't silently reverted — some error should surface rather than the item quietly snapping back with no explanation. (Awkward to force reliably; a code walkthrough may substitute for a full repro.)
+- [ ] **Add Day keeps endDate in sync** (`4c3fde5`) — open a trip, tap "Add Day", then go back to My Trips (need 2+ trips to see the picker). Confirm the trip's displayed date range now includes the newly added day.
+- [ ] **Map re-render loop fixed** (`242b30a`) — on the Map tab, search until exactly one result remains. Confirm the map doesn't jank/flicker/reselect repeatedly (Perf monitor or just visual smoothness works).
+- [ ] **Saved-site name fallback** (`c7fd99e`) — save a site, then mark that site `active: false` in Firestore (or via an admin script). Confirm the Account tab and the full Saved Places list show "Unavailable" instead of a raw Firestore doc id.
+- [ ] **Onboarding tour spotlight for existing trips** (`3b12f9f`) — reset the app-open counter / reinstall on an account that already has 2+ itineraries, trigger the first-open tour, and confirm the "Plan Your Days" step highlights the My Trips header instead of showing a blank centered card.
+- [ ] **Sentry DSN actually reaches builds** (`cb50ccd`) — run a real EAS build (dev, preview, or production profile) and confirm an event/error actually shows up in the Sentry `patel-td` org, not just that the build succeeds. This was silently broken before the fix (see TASKS.md iOS section) — needs the first real proof it works.
+- [ ] **Guide not-found state** (`abb3b5a`) — manually navigate to `/guide/does-not-exist` (or an old/removed slug). Confirm a "Guide Not Found" card with a Go Back button appears instead of a blank page.
+- [ ] **Inactive-but-saved sites stay reachable** (`4045abf`) — save a site, mark it `active: false`, open the full Saved Places screen (not just the Account tab preview). Confirm the site still appears (name resolved, not id) and swipe-to-remove still un-saves it correctly.
+- [ ] **Location-denied banner restored** (`ac8df0a`) — deny location permission for the app, open the Sites tab. Confirm a "Location Disabled" card appears with an "Open Settings" button that opens the OS settings app.
+- [ ] **Map marker settle timing rework** (`59f501a`) — on a real device (ideally an older/slower one), open the Map tab and pinch-zoom rapidly and repeatedly across cluster boundaries. Confirm markers/clusters never freeze on a blank or default icon — this replaced a fixed 700ms timer with an onLayout+rAF-based settle, and needs on-device confirmation since it touches native marker rasterization.
+
 ## Content
 
 - [x] Add "Stay" sites (category already exists in `lib/models.ts` — this is data entry, not code)

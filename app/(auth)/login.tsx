@@ -8,6 +8,8 @@ import {
   Keyboard,
 } from "react-native";
 import { Stack, router } from "expo-router";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { Screen, AppText, components } from "@/lib/uiKit";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
@@ -16,6 +18,10 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { signInWithApple, getAppleSignInErrorMessage } from "@/lib/auth/appleSignIn";
 import { signInWithGoogle, getGoogleSignInErrorMessage } from "@/lib/auth/googleSignIn";
+
+// Te Puia geothermal terraces — already-uploaded R2 site photo, reused as the login hero.
+const HERO_IMAGE_URL = "https://api.blacksands.app/images/rotoruaguide/196f45fa-dc90-45fe-a146-61139450e49b.webp";
+const HERO_HEIGHT = 260;
 
 export default function LoginScreen() {
   const f = useAuthForm("login");
@@ -68,7 +74,18 @@ export default function LoginScreen() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
           >
-            <View style={styles.content}>
+            <View style={styles.hero}>
+              <Image
+                source={{ uri: HERO_IMAGE_URL }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                contentPosition="bottom"
+              />
+              <LinearGradient
+                colors={["rgba(31,75,61,0.65)", "rgba(31,75,61,0.15)", "rgba(31,75,61,0.85)"]}
+                locations={[0, 0.45, 1]}
+                style={StyleSheet.absoluteFill}
+              />
               <View style={styles.brandContainer}>
                 <AppText variant="screenTitle" style={styles.appName}>
                   Rotorua Guide
@@ -77,7 +94,9 @@ export default function LoginScreen() {
                   Your guide to Rotorua
                 </AppText>
               </View>
+            </View>
 
+            <View style={styles.content}>
               <View style={styles.appleSection}>
                 {Platform.OS === "ios" && (
                   <AppleAuthentication.AppleAuthenticationButton
@@ -141,19 +160,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: tokens.space.lg,
     paddingBottom: tokens.space.md,
-    paddingTop: tokens.space.xl,
+    paddingTop: tokens.space.lg,
+  },
+  hero: {
+    height: HERO_HEIGHT,
+    width: "100%",
+    justifyContent: "flex-end",
+    backgroundColor: tokens.colors.surf,
   },
   brandContainer: {
     alignItems: "center",
-    marginBottom: tokens.space.md,
+    paddingHorizontal: tokens.space.lg,
+    paddingBottom: tokens.space.lg,
   },
   appName: {
-    color: tokens.colors.text,
+    color: "#FFFFFF",
     letterSpacing: -1.5,
   },
   tagline: {
     marginTop: 4,
-    color: tokens.colors.text2,
+    color: "rgba(255,255,255,0.85)",
     letterSpacing: 3,
   },
   appleSection: {

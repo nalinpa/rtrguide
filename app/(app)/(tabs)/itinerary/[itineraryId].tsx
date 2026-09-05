@@ -262,11 +262,11 @@ export default function ItineraryDetailPage() {
     const newDayId = `day_${randomUUID()}`;
     const newDay = { id: newDayId, date: nextDate, items: [] };
     const updatedDays = [...localTrip.days, newDay];
-    const nextTrip = { ...localTrip, days: updatedDays };
+    const nextTrip = { ...localTrip, days: updatedDays, endDate: nextDate };
 
     setLocalTrip(nextTrip);
     setActiveDayId(newDayId);
-    await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days });
+    await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
   };
 
   const handleDrop = (itemId: string, requestedSlotIndex: number): number => {

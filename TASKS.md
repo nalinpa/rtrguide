@@ -44,6 +44,11 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 - [x] `EXPO_PUBLIC_SENTRY_DSN` set as a real value — added to `.env` locally, `eas.json` build profiles reference it, and the actual value is live as an EAS environment variable across production/preview/development (`eas env:set`, confirmed via `eas env:list`)
 - [ ] `usesAppleSignIn: true` + associated domains — confirm Firebase iOS app registration matches (per [[project_apple_signin_firebase_ios_app_registration]], already resolved once, just re-verify before submit)
 
+## Observability & security review
+
+- [ ] Review Firestore security rules — haven't located/audited the actual rules file for the `rotoruaguide-d8274` project during this session's debugging (only ever queried via the admin SDK, which bypasses rules entirely, or the API's own user-token-scoped path). Worth confirming rules actually match intended access (e.g. users can only read/write their own `itineraries`/`users` docs, `siteReviews` write is scoped to the authenticated author) before launch.
+- [ ] Replace `console.log`/`console.error` calls with Sentry logging now that `EXPO_PUBLIC_SENTRY_DSN` is actually wired up (2026-09-05) — Sentry only auto-captures unhandled/thrown errors, so existing `console.error` call sites (e.g. [useItineraries.ts:24](lib/hooks/useItineraries.ts#L24), [claim/[token].tsx](app/claim/%5Btoken%5D.tsx)) don't reach Sentry at all today. Audit call sites and swap to `Sentry.captureException`/`captureMessage` where the error is actually worth alerting on (skip expected/handled cases like offline network errors).
+
 ## Repo hygiene
 
 - [x] Large uncommitted diff on `main` — reviewed and split into 5 commits (deps, Google Sign-In, sites/map feature work, test coverage, gitignore/tracker)

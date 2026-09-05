@@ -364,11 +364,8 @@ export default function ItineraryDetailPage() {
     latestItemsRef.current = newDayItems;
 
     hasUnsavedChanges.current = true;
-    try {
-      await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days });
-    } finally {
-      hasUnsavedChanges.current = false;
-    }
+    await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days });
+    hasUnsavedChanges.current = false;
   };
 
   if (loading || entitlementsLoading) {

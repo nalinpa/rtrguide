@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { createHooks } from "@blacksands/hooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
@@ -50,7 +51,8 @@ export const hooksBag = createHooks<Site>(client, {
 const useLocationsRaw = hooksBag.useLocations;
 hooksBag.useLocations = () => {
   const result = useLocationsRaw();
-  return { ...result, locations: result.locations.filter((l) => l.active) };
+  const locations = useMemo(() => result.locations.filter((l) => l.active), [result.locations]);
+  return { ...result, locations };
 };
 
 export const {

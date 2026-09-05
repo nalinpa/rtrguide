@@ -107,7 +107,7 @@ export default function ItineraryListPage() {
   // renders the picker when there's more than one trip.
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+      <View ref={plansTarget.ref} onLayout={plansTarget.onLayout} style={styles.header}>
         <AppText variant="h1">My Trips</AppText>
       </View>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>

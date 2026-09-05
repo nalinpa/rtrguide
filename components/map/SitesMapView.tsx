@@ -72,6 +72,33 @@ function SiteMapMarker({
   );
 }
 
+// Clusters are destroyed and recreated on every re-cluster (e.g. each zoom
+// level change), so they hit the same freeze-before-first-paint issue as
+// individual markers, just more often. Same settle-window fix.
+function SiteClusterMarker({
+  coordinate,
+  count,
+  onPress,
+}: {
+  coordinate: { latitude: number; longitude: number };
+  count: number;
+  onPress: () => void;
+}) {
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(true), MARKER_SETTLE_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <Marker coordinate={coordinate} onPress={onPress} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={!settled}>
+      <View style={styles.cluster}>
+        <Text style={styles.clusterText}>{count}</Text>
+      </View>
+    </Marker>
+  );
+}
+
 const SitesMapViewInner = forwardRef<
   SitesMapViewHandle,
   {
@@ -192,17 +219,12 @@ const SitesMapViewInner = forwardRef<
         const { point_count } = properties;
         const [lng, lat] = geometry.coordinates;
         return (
-          <Marker
+          <SiteClusterMarker
             key={`cluster-${id}`}
             coordinate={{ latitude: lat, longitude: lng }}
+            count={point_count}
             onPress={onPress}
-            anchor={{ x: 0.5, y: 0.5 }}
-            tracksViewChanges={false}
-          >
-            <View style={styles.cluster}>
-              <Text style={styles.clusterText}>{point_count}</Text>
-            </View>
-          </Marker>
+          />
         );
       }}
     >

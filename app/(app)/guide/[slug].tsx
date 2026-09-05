@@ -3,26 +3,40 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 
-import { AppText, AppIconButton } from "@/lib/uiKit";
+import { AppText, AppIconButton, ErrorCard } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { GUIDE_CATEGORIES } from "@/lib/guideContent";
 
 export default function GuideCategoryPage() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const category = GUIDE_CATEGORIES.find((c) => c.slug === slug);
-  const Icon = category?.icon;
-  const color = category?.color ?? tokens.colors.accent;
+
+  if (!category) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <View style={styles.notFound}>
+          <ErrorCard
+            title="Guide Not Found"
+            message="This guide page doesn't exist anymore."
+            action={{ label: "Go Back", onPress: () => router.back() }}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const Icon = category.icon;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <View style={[styles.hero, { backgroundColor: color }]}>
+      <View style={[styles.hero, { backgroundColor: category.color }]}>
         {Icon && (
           <View style={styles.heroIconWrap}>
             <Icon size={28} color="#FFFFFF" strokeWidth={2} />
           </View>
         )}
         <AppText variant="h1" style={styles.title} numberOfLines={2}>
-          {category?.title ?? "Guide"}
+          {category.title}
         </AppText>
         <AppIconButton
           icon={ChevronLeft}
@@ -34,7 +48,7 @@ export default function GuideCategoryPage() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {category?.body.split("\n\n").map((paragraph, index) => (
+        {category.body.split("\n\n").map((paragraph, index) => (
           <AppText key={index} variant="body" style={styles.paragraph}>
             {paragraph}
           </AppText>
@@ -46,6 +60,7 @@ export default function GuideCategoryPage() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: tokens.colors.bgBase },
+  notFound: { flex: 1, justifyContent: "center", padding: tokens.space.md },
   hero: {
     paddingHorizontal: tokens.space.md,
     paddingTop: tokens.space.sm,

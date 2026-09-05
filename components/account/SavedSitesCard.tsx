@@ -1,5 +1,4 @@
 // components/account/SavedSitesCard.tsx
-import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
@@ -9,13 +8,24 @@ import { useSavedSites } from "@/lib/hooks/useSavedSites";
 import { hooksBag } from "@/lib/hooksBag";
 import { tokens } from "@/lib/ui/tokens";
 
+function SavedSiteRow({ siteId }: { siteId: string }) {
+  const { location } = hooksBag.useLocation(siteId);
+  return (
+    <TouchableOpacity
+      style={styles.row}
+      onPress={() => router.push(`/(app)/(tabs)/sites/${siteId}`)}
+      activeOpacity={0.6}
+    >
+      <Text style={styles.rowTitle} numberOfLines={1}>
+        {location?.name ?? "Unavailable"}
+      </Text>
+      <ChevronRight size={14} color={tokens.colors.textMuted} strokeWidth={2} />
+    </TouchableOpacity>
+  );
+}
+
 export function SavedSitesCard() {
   const { savedSiteIds } = useSavedSites();
-  const { locations } = hooksBag.useLocations();
-  const siteNameMap = React.useMemo(
-    () => new Map(locations.map((s) => [s.id, s.name])),
-    [locations],
-  );
   const recentSavedSites = Array.from(savedSiteIds).slice(-3).reverse();
 
   return (
@@ -34,17 +44,7 @@ export function SavedSitesCard() {
       ) : (
         <View style={styles.list}>
           {recentSavedSites.map((siteId) => (
-            <TouchableOpacity
-              key={siteId}
-              style={styles.row}
-              onPress={() => router.push(`/(app)/(tabs)/sites/${siteId}`)}
-              activeOpacity={0.6}
-            >
-              <Text style={styles.rowTitle} numberOfLines={1}>
-                {siteNameMap.get(siteId) ?? siteId}
-              </Text>
-              <ChevronRight size={14} color={tokens.colors.textMuted} strokeWidth={2} />
-            </TouchableOpacity>
+            <SavedSiteRow key={siteId} siteId={siteId} />
           ))}
         </View>
       )}

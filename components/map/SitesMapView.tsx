@@ -8,7 +8,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, LayoutChangeEvent } from "react-native";
 import ClusterMapView from "react-native-map-clustering";
 import MapView, { Marker, Region, MapType } from "react-native-maps";
 
@@ -40,9 +40,18 @@ export type SitesMapViewHandle = {
 // react-native-maps rasterizes a non-tracked marker's children into a bitmap
 // once, at mount. If that happens before the SVG icon has finished its first
 // paint, the marker freezes on a blank/default look until re-selected. Keep
-// tracksViewChanges on for a brief settle window after mount so every marker
-// gets at least one real paint before freezing.
-const MARKER_SETTLE_MS = 700;
+// tracksViewChanges on until onLayout fires (native layout committed) plus
+// one further paint cycle (double rAF), so the marker always gets a real
+// paint before freezing -- regardless of device speed or how fast clusters
+// remount during a pinch-zoom, since each mount settles on its own paint
+// rather than racing a fixed wall-clock timer.
+function useSettleOnPaint() {
+  const [settled, setSettled] = useState(false);
+  const onLayout = useCallback((_e: LayoutChangeEvent) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => setSettled(true)));
+  }, []);
+  return { settled, onLayout };
+}
 
 function SiteMapMarker({
   loc,
@@ -53,11 +62,7 @@ function SiteMapMarker({
   selected: boolean;
   onPress: () => void;
 }) {
-  const [settled, setSettled] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setSettled(true), MARKER_SETTLE_MS);
-    return () => clearTimeout(t);
-  }, []);
+  const { settled, onLayout } = useSettleOnPaint();
 
   return (
     <Marker
@@ -67,14 +72,16 @@ function SiteMapMarker({
       anchor={{ x: 0.5, y: 0.5 }}
       zIndex={selected ? 2 : 1}
     >
-      <SiteMarker selected={selected} completed={loc.completed} category={loc.category} />
+      <View onLayout={onLayout}>
+        <SiteMarker selected={selected} completed={loc.completed} category={loc.category} />
+      </View>
     </Marker>
   );
 }
 
 // Clusters are destroyed and recreated on every re-cluster (e.g. each zoom
 // level change), so they hit the same freeze-before-first-paint issue as
-// individual markers, just more often. Same settle-window fix.
+// individual markers, just more often. Same settle-on-paint fix.
 function SiteClusterMarker({
   coordinate,
   count,
@@ -84,15 +91,11 @@ function SiteClusterMarker({
   count: number;
   onPress: () => void;
 }) {
-  const [settled, setSettled] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setSettled(true), MARKER_SETTLE_MS);
-    return () => clearTimeout(t);
-  }, []);
+  const { settled, onLayout } = useSettleOnPaint();
 
   return (
     <Marker coordinate={coordinate} onPress={onPress} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={!settled}>
-      <View style={styles.cluster}>
+      <View style={styles.cluster} onLayout={onLayout}>
         <Text style={styles.clusterText}>{count}</Text>
       </View>
     </Marker>

@@ -25,7 +25,8 @@ export function ItinerariesCard() {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const atLimit = itineraries.length >= PLANNER.MAX_ITINERARIES;
+  const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
+  const atLimit = isEntitled ? itineraries.length >= PLANNER.MAX_ITINERARIES : itineraries.length >= 1;
   const [isCreating, setIsCreating] = useState(false);
 
   return (
@@ -87,7 +88,7 @@ export function ItinerariesCard() {
 
       <CreateItineraryModal
         visible={isCreating}
-        locked={!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)}
+        locked={!isEntitled}
         onClose={() => setIsCreating(false)}
         onCreated={() => setIsCreating(false)}
         showTemplateOption

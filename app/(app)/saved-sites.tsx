@@ -8,7 +8,7 @@ import { ChevronLeft, Bookmark, Trash2 } from "lucide-react-native";
 
 import { AppText, LoadingState, ErrorCard, AppIconButton } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
-import { hooksBag } from "@/lib/hooksBag";
+import { hooksBag, useAllLocations } from "@/lib/hooksBag";
 import { useSavedSites } from "@/lib/hooks/useSavedSites";
 import { SiteListItem } from "@/components/site/list/SiteListItem";
 import type { SortedRow } from "@blacksands/hooks";
@@ -53,7 +53,7 @@ function SwipeableRow({ item, index, onUnsave }: { item: SiteRow; index: number;
 
 export default function SavedSitesPage() {
   const { savedSiteIds, toggleSavedSite } = useSavedSites();
-  const { locations, loading, err } = hooksBag.useLocations();
+  const { locations, loading, err } = useAllLocations();
   const { loc } = hooksBag.useUserLocation();
 
   const savedLocations = useMemo(

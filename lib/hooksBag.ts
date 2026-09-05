@@ -47,10 +47,11 @@ export const hooksBag = createHooks<Site>(client, {
 });
 
 // Only active sites should ever be listed; inactive ones stay reachable by
-// direct id (useLocation) for things like existing itinerary entries.
-const useLocationsRaw = hooksBag.useLocations;
+// direct id (useLocation), or via useAllLocations, for things like existing
+// itinerary entries and saved sites the user already added.
+export const useAllLocations = hooksBag.useLocations;
 hooksBag.useLocations = () => {
-  const result = useLocationsRaw();
+  const result = useAllLocations();
   const locations = useMemo(() => result.locations.filter((l) => l.active), [result.locations]);
   return { ...result, locations };
 };

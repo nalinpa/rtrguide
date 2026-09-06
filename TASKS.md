@@ -37,6 +37,10 @@ Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a
 - [x] Guide styling/placement — dropped the separate `GuideCard` account-tab row in favour of the existing hero promo card ("Discover Rotorua / Your guide to...") on the account screen; its CTA now opens `/(app)/guide` instead of Browse All Sites ([account.tsx:56-63](app/(app)/(tabs)/account.tsx#L56-L63)), inheriting the promo card's styling. Guide index/detail screens also got a per-category icon + accent color pass ([guideContent.ts](lib/guideContent.ts), [guide/index.tsx](app/(app)/guide/index.tsx), [guide/[slug].tsx](app/(app)/guide/%5Bslug%5D.tsx)) — no photos (none exist yet), icon+color chips/hero bands only
 - [x] Run the transit matrix generator — [assets/data/rotorua-transit.json](assets/data/rotorua-transit.json) is populated (74 sites, real driving times via the Distance Matrix API), `getRequiredTransitSlots` now returns real slot counts instead of the flat 1-slot fallback for any pair in the file
 
+## Free / comp unlock codes
+
+- [x] Admin-mintable free-unlock claim links — `POST /v1/admin/comp-links` in `commerce-api` (2026-09-06), reuses the existing `claimTokens`/`/claim/:token` redemption path this app already handles, zero client changes needed. No admin UI yet — minting one today means calling the endpoint directly (curl/Postman) with an admin bearer token.
+
 ## Review prompts
 
 Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-40](lib/hooks/useItineraries.ts#L38-L40)), via `hooksBag.useReviewPrompt().requestReview()` (OS-throttled, so adding more call sites just adds chances, not actual prompt spam). Add:
@@ -64,7 +68,7 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 ## Observability & security review
 
 - [ ] Review Firestore security rules — haven't located/audited the actual rules file for the `rotoruaguide-d8274` project during this session's debugging (only ever queried via the admin SDK, which bypasses rules entirely, or the API's own user-token-scoped path). Worth confirming rules actually match intended access (e.g. users can only read/write their own `itineraries`/`users` docs, `siteReviews` write is scoped to the authenticated author) before launch.
-- [ ] Replace `console.log`/`console.error` calls with Sentry logging now that `EXPO_PUBLIC_SENTRY_DSN` is actually wired up (2026-09-05) — Sentry only auto-captures unhandled/thrown errors, so existing `console.error` call sites (e.g. [useItineraries.ts:24](lib/hooks/useItineraries.ts#L24), [claim/[token].tsx](app/claim/%5Btoken%5D.tsx)) don't reach Sentry at all today. Audit call sites and swap to `Sentry.captureException`/`captureMessage` where the error is actually worth alerting on (skip expected/handled cases like offline network errors).
+- [x] Replace `console.log`/`console.error` calls with Sentry logging now that `EXPO_PUBLIC_SENTRY_DSN` is actually wired up (2026-09-05) — added `Sentry.captureException` alongside the existing console calls in [claim/[token].tsx](app/claim/%5Btoken%5D.tsx) (×2), [useItineraries.ts:24](lib/hooks/useItineraries.ts#L24), and [RestorePurchasesCard.tsx:20](components/account/RestorePurchasesCard.tsx#L20). `appleSignIn.ts`/`shareService.ts` already did both. Also added a temporary "Send test error to Sentry" button on the Home tab (not `__DEV__`-gated, since it needs to work in the preview/production bundle) — **still needs a real EAS build + confirming the event lands in the `patel-td` Sentry org, then delete the button**.
 
 ## Repo hygiene
 
@@ -74,7 +78,7 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 - [ ] `@blacksands/client` package publish is broken in its own CI (403 on `write_package`) — if site content changes require a new `@blacksands/client`/`@blacksands/components`/`@blacksands/hooks`/`@blacksands/ui` version, publishing currently needs a manual step ([[project_blacksands_client_publish_broken]])
 - [ ] `useLocation(id)` caches for 14 days (`staleTime`/`gcTime`), no refetch on focus/reconnect, and that cache is persisted to AsyncStorage across app restarts ([@blacksands/hooks index.js:406-409](node_modules/@blacksands/hooks/dist/index.js#L406)) — editing a site's Firestore doc (e.g. adding `price`) won't show up in the app for any user who already opened that site, for up to 14 days, without a reinstall/storage clear. Fine for normal content updates, but worth knowing when testing content changes live.
-- [ ] Itinerary drag-and-drop cards can visually cover the transit-time blocks — root cause is in `@blacksands/components`'s `TimelineBlock` (`zIndex: 10`, hardcoded) vs `TransitBlock` (`zIndex: 1`), so a card's shadow/padding always paints over an adjacent transit block regardless of position. This app's own scheduling logic ([itineraryPhysics.ts](lib/utils/itineraryPhysics.ts)) is correct — no logical slot overlap, purely a shared-component z-index/spacing issue. Needs a fix in `enginev1` (the source repo) — hasn't been done since that's a cross-repo edit ([[feedback_no_cross_repo_edits]]), waiting on the go-ahead to do it there.
+- [x] Itinerary drag-and-drop cards can visually cover the transit-time blocks — fixed in `enginev1` (`@blacksands/components` `TimelineBlock`/`TransitBlock`), published as `0.6.2`, bumped here 2026-09-05. Cards now sit below `TransitBlock`'s zIndex at rest and only rise above it while actively dragged.
 
 ## Versioning
 

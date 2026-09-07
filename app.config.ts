@@ -15,7 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,
     usesAppleSignIn: true,
-    googleServicesFile: "./GoogleService-Info.plist",
+    googleServicesFile: process.env.GOOGLE_SERVICES_FILE ?? "./GoogleService-Info.plist",
     associatedDomains: ["applinks:commerce.blacksands.app", "applinks:commerce-staging.blacksands.app"],
     infoPlist: {
       NSLocationWhenInUseUsageDescription: "Rotorua Guide uses your location to verify your visits.",

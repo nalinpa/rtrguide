@@ -85,8 +85,8 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 ## Branding / assets
 
-- [ ] **Splash screen is empty** — `assets/splash-icon.png` is a 68-byte placeholder (effectively blank), referenced by the `expo-splash-screen` plugin in [app.config.ts](app.config.ts). Needs a real image before launch.
-- [ ] **App icon redesign** — current `assets/icon.png` / `assets/adaptive-icon.png` don't fit; want a new design.
+- [x] **Splash screen** — real 1024x1024 geyser-motif image + wordmark, replacing the 68-byte placeholder (2026-09-07)
+- [x] **App icon redesign** — `assets/icon.png` / `assets/adaptive-icon.png` updated to the same geyser motif (2026-09-07). Adaptive-icon artwork runs close to the full canvas edge — Android's mask only guarantees the center ~66% survives, so check it doesn't clip on a real Android launcher before shipping.
 - [x] **Login page redesign** — full-bleed hero background replacing the old boxed 260px image, safe-area-aware brand text (`d6ea5bb`, 2026-09-07). Worth a quick on-device look before launch.
 
 ## Versioning

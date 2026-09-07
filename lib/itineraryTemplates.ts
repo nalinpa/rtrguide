@@ -34,14 +34,14 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
   {
     key: "geothermal-highlights",
     label: "Geothermal Highlights",
-    description: "A free thermal park, a geyser-view walk, lunch, and Te Puia's living valley.",
+    description: "A free thermal park, Te Puia's living geothermal valley, a soak at Polynesian Spa, and lunch at Eat Streat.",
     days: [
       {
         items: [
           { siteId: "5d7c5092ea59432fb72e", siteName: "Kuirau Park", slotIndex: 0, durationSlots: 3 },
-          { siteId: "5b4584fcf1334e0d84f4", siteName: "Pohutu Geyser Lookout Track (Pohaturoa Track)", slotIndex: 5, durationSlots: 4 },
-          { siteId: "589202139fe44e94ab32", siteName: "Eat Streat", slotIndex: 11, durationSlots: 4 },
-          { siteId: "a95ac72ad27d46a7804a", siteName: "Te Puia", slotIndex: 16, durationSlots: 4 },
+          { siteId: "a95ac72ad27d46a7804a", siteName: "Te Puia", slotIndex: 4, durationSlots: 4 },
+          { siteId: "c12ea6fb79de46afbc59", siteName: "Polynesian Spa", slotIndex: 9, durationSlots: 4 },
+          { siteId: "589202139fe44e94ab32", siteName: "Eat Streat", slotIndex: 14, durationSlots: 4 },
         ],
       },
     ],
@@ -55,17 +55,17 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
         items: [
           { siteId: "0947007f6e384dac88eb", siteName: "Whakarewarewa", slotIndex: 0, durationSlots: 4 },
           { siteId: "96d0c070bf394c99a293", siteName: "Redwoods Treewalk", slotIndex: 5, durationSlots: 3 },
-          { siteId: "ae39b50a934c478896c2", siteName: "Trail Kitchen", slotIndex: 10, durationSlots: 4 },
-          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 16, durationSlots: 3 },
-          { siteId: "4c06795965b945c081ad", siteName: "Lady Janes Ice Cream Parlour", slotIndex: 20, durationSlots: 1 },
-          { siteId: "947fd665e1644456bcaa", siteName: "Mitai Māori Village", slotIndex: 22, durationSlots: 3 },
+          { siteId: "3b59c87f607c461397b8", siteName: "Mr Wolf", slotIndex: 9, durationSlots: 4 },
+          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 14, durationSlots: 3 },
+          { siteId: "4c06795965b945c081ad", siteName: "Lady Janes Ice Cream Parlour", slotIndex: 18, durationSlots: 1 },
+          { siteId: "947fd665e1644456bcaa", siteName: "Mitai Māori Village", slotIndex: 20, durationSlots: 3 },
         ],
       },
       {
         items: [
           { siteId: "014e8cdb95c1464fb2b9", siteName: "Waiotapu Thermal Wonderland", slotIndex: 0, durationSlots: 4 },
-          { siteId: "580781cca4e44f3aa7e1", siteName: "Waikite Valley Thermal Pools", slotIndex: 5, durationSlots: 4 },
-          { siteId: "319937225c8d48339889", siteName: "The Buried Village of Te Wairoa", slotIndex: 12, durationSlots: 3 },
+          { siteId: "f337034a9d694ea2869b", siteName: "Rainbow Mountain", slotIndex: 5, durationSlots: 4 },
+          { siteId: "580781cca4e44f3aa7e1", siteName: "Waikite Valley Thermal Pools", slotIndex: 10, durationSlots: 4 },
           { siteId: "589202139fe44e94ab32", siteName: "Eat Streat", slotIndex: 17, durationSlots: 4 },
         ],
       },
@@ -78,10 +78,11 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
     days: [
       {
         items: [
-          { siteId: "fd944c29cbbb427b9c1f", siteName: "Volcanic Air", slotIndex: 0, durationSlots: 5 },
-          { siteId: "67448da5a42b40dfa2ec", siteName: "Wai Ariki Hot Springs", slotIndex: 6, durationSlots: 3 },
-          { siteId: "7a68ca04280249628c9c", siteName: "Poco Tapas & Wine", slotIndex: 10, durationSlots: 4 },
-          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 16, durationSlots: 3 },
+          { siteId: "3b59c87f607c461397b8", siteName: "Mr Wolf", slotIndex: 0, durationSlots: 2 },
+          { siteId: "a95ac72ad27d46a7804a", siteName: "Te Puia", slotIndex: 3, durationSlots: 4 },
+          { siteId: "67448da5a42b40dfa2ec", siteName: "Wai Ariki Hot Springs", slotIndex: 8, durationSlots: 3 },
+          { siteId: "fd944c29cbbb427b9c1f", siteName: "Volcanic Air", slotIndex: 12, durationSlots: 5 },
+          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 19, durationSlots: 8 },
         ],
       },
     ],
@@ -114,8 +115,8 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
           { siteId: "5d7c5092ea59432fb72e", siteName: "Kuirau Park", slotIndex: 0, durationSlots: 3 },
           { siteId: "e286efcf2e254f2d9902", siteName: "Redwoods Circuit", slotIndex: 5, durationSlots: 1 },
           { siteId: "fb6094b4f8d54e3d9a4f", siteName: "Sulphur Point", slotIndex: 8, durationSlots: 2 },
-          { siteId: "4c06795965b945c081ad", siteName: "Lady Janes Ice Cream Parlour", slotIndex: 11, durationSlots: 1 },
-          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 13, durationSlots: 3 },
+          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 11, durationSlots: 3 },
+          { siteId: "4c06795965b945c081ad", siteName: "Lady Janes Ice Cream Parlour", slotIndex: 15, durationSlots: 1 },
         ],
       },
       {
@@ -123,7 +124,7 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
           { siteId: "f4e13763eabd44288bf8", siteName: "Blue Lake Circuit", slotIndex: 0, durationSlots: 3 },
           { siteId: "80efc2e11c174143ac29", siteName: "Okere Falls Track", slotIndex: 6, durationSlots: 4 },
           { siteId: "bd58e93080bb4b95bb08", siteName: "Okere Falls Store", slotIndex: 11, durationSlots: 3 },
-          { siteId: "8d0a1d5c6d5346aa80a5", siteName: "Twin Lakes Track", slotIndex: 16, durationSlots: 3 },
+          { siteId: "27c8ec876bf747c29f97", siteName: "Hamurana Springs Walk", slotIndex: 16, durationSlots: 3 },
         ],
       },
     ],
@@ -160,8 +161,9 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
         items: [
           { siteId: "0947007f6e384dac88eb", siteName: "Whakarewarewa", slotIndex: 0, durationSlots: 4 },
           { siteId: "5b4584fcf1334e0d84f4", siteName: "Pohutu Geyser Lookout Track (Pohaturoa Track)", slotIndex: 5, durationSlots: 4 },
-          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 11, durationSlots: 3 },
-          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 16, durationSlots: 3 },
+          { siteId: "b041f037681b4c61ac92", siteName: "Secret Spot Hot Tubs", slotIndex: 11, durationSlots: 2 },
+          { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 15, durationSlots: 3 },
+          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 20, durationSlots: 8 },
         ],
       },
     ],
@@ -184,7 +186,7 @@ export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
           { siteId: "0947007f6e384dac88eb", siteName: "Whakarewarewa", slotIndex: 0, durationSlots: 4 },
           { siteId: "5b4584fcf1334e0d84f4", siteName: "Pohutu Geyser Lookout Track (Pohaturoa Track)", slotIndex: 5, durationSlots: 4 },
           { siteId: "83e1ee584eeb41cda3ef", siteName: "Government Gardens", slotIndex: 11, durationSlots: 3 },
-          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 16, durationSlots: 3 },
+          { siteId: "5ba5916b583e4fa6a2b2", siteName: "Te Pā Tū", slotIndex: 19, durationSlots: 8 },
         ],
       },
       {

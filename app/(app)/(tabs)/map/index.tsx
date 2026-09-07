@@ -41,7 +41,7 @@ function isInRotorua(lat: number | null | undefined, lng: number | null | undefi
 }
 
 export default function MapScreen() {
-  const mapTarget = useTourTarget("map");
+  const premiumTarget = useTourTarget("mapPremium");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
 
@@ -305,6 +305,8 @@ export default function MapScreen() {
         {lockedSites.length > 0 && (
           <View style={styles.premiumBannerContainer}>
             <TouchableOpacity
+              ref={premiumTarget.ref}
+              onLayout={premiumTarget.onLayout}
               style={styles.premiumBanner}
               activeOpacity={0.88}
               onPress={() => router.push(`/(app)/(tabs)/sites/${lockedSites[0].id}`)}
@@ -354,7 +356,7 @@ export default function MapScreen() {
         )}
       </SafeAreaView>
 
-      <View style={styles.mapControls} ref={mapTarget.ref} onLayout={mapTarget.onLayout}>
+      <View style={styles.mapControls}>
         <TouchableOpacity
           style={styles.controlBtn}
           onPress={() => {

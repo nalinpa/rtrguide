@@ -1,4 +1,4 @@
-jest.mock("expo-router", () => ({ router: { navigate: jest.fn() } }));
+jest.mock("expo-router", () => ({ router: { navigate: jest.fn(), push: jest.fn() } }));
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
@@ -49,12 +49,29 @@ describe("TourContext", () => {
   });
 
   it("registerTarget exposes the rect for the current step", async () => {
+    const exploreIndex = TOUR_STEPS.findIndex((s) => s.id === "explore");
     const { result } = await renderHook(() => useTour(), { wrapper });
     await act(async () => result.current.start());
-    await act(async () => result.current.next()); // -> "explore" step
+    for (let i = 0; i < exploreIndex; i++) {
+      await act(async () => result.current.next());
+    }
+    expect(result.current.step?.id).toBe("explore");
 
     expect(result.current.targetRect).toBeNull();
     await act(async () => result.current.registerTarget("explore", { x: 1, y: 2, width: 3, height: 4 }));
     expect(result.current.targetRect).toEqual({ x: 1, y: 2, width: 3, height: 4 });
+  });
+
+  it("registerStepRoute makes goToStep push a dynamic route for the entering step", async () => {
+    const detailIndex = TOUR_STEPS.findIndex((s) => s.id === "detailIntro");
+    const { router } = require("expo-router");
+    const { result } = await renderHook(() => useTour(), { wrapper });
+    await act(async () => result.current.registerStepRoute("site-detail", "/(app)/(tabs)/sites/abc123"));
+    await act(async () => result.current.start());
+    for (let i = 0; i < detailIndex; i++) {
+      await act(async () => result.current.next());
+    }
+    expect(result.current.step?.id).toBe("detailIntro");
+    expect(router.push).toHaveBeenCalledWith("/(app)/(tabs)/sites/abc123");
   });
 });

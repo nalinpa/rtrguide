@@ -14,9 +14,11 @@ import { SITE_CATEGORIES, SITE_CATEGORY_LABELS, type SiteCategory, type Site } f
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { SitesListView } from "@/components/site/list/SitesListView";
 import { useTourTarget } from "@/lib/tour/useTourTarget";
+import { useTourStepRoute } from "@/lib/tour/useTourStepRoute";
 
 export default function SiteListPage() {
   const exploreTarget = useTourTarget("explore");
+  const featuredTarget = useTourTarget("exploreFeatured");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const isGuest = session.status === "guest";
@@ -71,6 +73,11 @@ export default function SiteListPage() {
   const listRows = useMemo(
     () => (featuredSite ? rows.filter((r) => r.location.id !== featuredSite.location.id) : rows),
     [rows, featuredSite],
+  );
+
+  useTourStepRoute(
+    "site-detail",
+    featuredSite ? `/(app)/(tabs)/sites/${featuredSite.location.id}` : undefined,
   );
 
   if (entitiesLoading || session.status === "loading" || entitlementsLoading) {
@@ -194,6 +201,8 @@ export default function SiteListPage() {
         <>
           {featuredSite && (
             <Pressable
+              ref={featuredTarget.ref}
+              onLayout={featuredTarget.onLayout}
               style={styles.featuredCard}
               onPress={() => router.push(`/(app)/(tabs)/sites/${featuredSite.location.id}`)}
             >

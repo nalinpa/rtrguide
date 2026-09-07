@@ -15,6 +15,7 @@ type TourContextValue = {
   next: () => void;
   skip: () => void;
   registerTarget: (id: string, rect: TourRect) => void;
+  registerStepRoute: (key: string, route: string | undefined) => void;
 };
 
 const TourContext = createContext<TourContextValue | null>(null);
@@ -27,16 +28,35 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [targets, setTargets] = useState<Record<string, TourRect>>({});
+  const [stepRoutes, setStepRoutes] = useState<Record<string, string>>({});
 
   const registerTarget = useCallback((id: string, rect: TourRect) => {
     setTargets((prev) => (rectsEqual(prev[id], rect) ? prev : { ...prev, [id]: rect }));
   }, []);
 
-  const goToStep = useCallback((index: number) => {
-    const target = TOUR_STEPS[index];
-    if (target?.tabKey) router.navigate(TOUR_TAB_ROUTES[target.tabKey] as never);
-    setStepIndex(index);
+  const registerStepRoute = useCallback((key: string, route: string | undefined) => {
+    setStepRoutes((prev) => {
+      if (route === undefined) {
+        if (!(key in prev)) return prev;
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return prev[key] === route ? prev : { ...prev, [key]: route };
+    });
   }, []);
+
+  const goToStep = useCallback(
+    (index: number) => {
+      const target = TOUR_STEPS[index];
+      if (target?.tabKey) router.navigate(TOUR_TAB_ROUTES[target.tabKey] as never);
+      else if (target?.dynamicRouteKey && stepRoutes[target.dynamicRouteKey]) {
+        router.push(stepRoutes[target.dynamicRouteKey] as never);
+      }
+      setStepIndex(index);
+    },
+    [stepRoutes],
+  );
 
   const start = useCallback(() => {
     goToStep(0);
@@ -68,8 +88,9 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       next,
       skip,
       registerTarget,
+      registerStepRoute,
     }),
-    [active, step, stepIndex, targetRect, start, next, skip, registerTarget],
+    [active, step, stepIndex, targetRect, start, next, skip, registerTarget, registerStepRoute],
   );
 
   return <TourContext.Provider value={value}>{children}</TourContext.Provider>;

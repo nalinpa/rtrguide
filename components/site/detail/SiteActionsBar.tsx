@@ -4,6 +4,7 @@ import { MapPin, MessageSquarePlus, Heart, Navigation, Share2 } from "lucide-rea
 
 import { AppText, AppButton, RatingStars, Row, Stack } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 type SiteActionsBarProps = {
   hasReview: boolean;
@@ -55,6 +56,7 @@ export function SiteQuickActions({
   isSaved: boolean;
   onToggleSave: () => void;
 }) {
+  const saveTarget = useTourTarget("detailSave");
   return (
     <Row justify="space-between" gap="sm" style={styles.quickRow}>
       <QuickAction icon={Navigation} label="Directions" onPress={onDirections} />
@@ -66,7 +68,9 @@ export function SiteQuickActions({
         disabled={shareBonus}
         active={shareBonus}
       />
-      <QuickAction icon={Heart} label={isSaved ? "Saved" : "Save"} onPress={onToggleSave} active={isSaved} filled={isSaved} />
+      <View ref={saveTarget.ref} onLayout={saveTarget.onLayout} style={styles.saveWrap}>
+        <QuickAction icon={Heart} label={isSaved ? "Saved" : "Save"} onPress={onToggleSave} active={isSaved} filled={isSaved} />
+      </View>
     </Row>
   );
 }
@@ -106,6 +110,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.space.sm,
   },
   quickAction: { flex: 1, alignItems: "center", gap: 6 },
+  saveWrap: { flex: 1 },
   quickActionLabel: { fontSize: 11, fontWeight: "600" },
   card: {
     borderRadius: tokens.radius.lg,

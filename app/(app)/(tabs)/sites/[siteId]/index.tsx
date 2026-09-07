@@ -22,6 +22,7 @@ import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
 import { SiteHero, SITE_HERO_HEIGHT } from "@/components/site/detail/SiteHero";
 import { SiteQuickActions } from "@/components/site/detail/SiteActionsBar";
+import { useTourTarget } from "@/lib/tour/useTourTarget";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CATEGORY_CONFIG } from "@/components/map/SiteMarker";
 import { SITE_CATEGORY_LABELS } from "@/lib/models";
@@ -29,6 +30,7 @@ import { SITE_CATEGORY_LABELS } from "@/lib/models";
 export default function SiteDetailRoute() {
   const { siteId } = useLocalSearchParams<{ siteId: string }>();
   const id = String(siteId);
+  const addToItineraryTarget = useTourTarget("detailAddToItinerary");
 
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
@@ -277,6 +279,8 @@ export default function SiteDetailRoute() {
       {!site.category.includes("Accommodation") && (
         <SafeAreaView style={styles.itineraryFloatingWrap} pointerEvents="box-none">
           <Pressable
+            ref={addToItineraryTarget.ref}
+            onLayout={addToItineraryTarget.onLayout}
             style={itineraryStyles.button}
             onPress={() => {
               if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {

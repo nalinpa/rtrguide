@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -19,9 +20,9 @@ import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { signInWithApple, getAppleSignInErrorMessage } from "@/lib/auth/appleSignIn";
 import { signInWithGoogle, getGoogleSignInErrorMessage } from "@/lib/auth/googleSignIn";
 
-// Te Puia geothermal terraces — already-uploaded R2 site photo, reused as the login hero.
+// Te Puia geothermal terraces — already-uploaded R2 site photo, used as a
+// full-bleed background rather than a boxed hero.
 const HERO_IMAGE_URL = "https://api.blacksands.app/images/rotoruaguide/196f45fa-dc90-45fe-a146-61139450e49b.webp";
-const HERO_HEIGHT = 260;
 
 export default function LoginScreen() {
   const f = useAuthForm("login");
@@ -45,6 +46,7 @@ export default function LoginScreen() {
   };
 
   const [authErr, setAuthErr] = React.useState<string | null>(null);
+  const insets = useSafeAreaInsets();
 
   const handleAppleSignIn = async () => {
     setAuthErr(null);
@@ -74,26 +76,29 @@ export default function LoginScreen() {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
           >
-            <View style={styles.hero}>
-              <Image
-                source={{ uri: HERO_IMAGE_URL }}
-                style={StyleSheet.absoluteFill}
-                contentFit="cover"
-                contentPosition="bottom"
-              />
-              <LinearGradient
-                colors={["rgba(31,75,61,0.65)", "rgba(31,75,61,0.15)", "rgba(31,75,61,0.85)"]}
-                locations={[0, 0.45, 1]}
-                style={StyleSheet.absoluteFill}
-              />
-              <View style={styles.brandContainer}>
-                <AppText variant="screenTitle" style={styles.appName}>
-                  Rotorua Guide
-                </AppText>
-                <AppText variant="label" style={styles.tagline}>
-                  Your guide to Rotorua
-                </AppText>
-              </View>
+            <Image
+              source={{ uri: HERO_IMAGE_URL }}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+              contentPosition="top"
+            />
+            <LinearGradient
+              colors={[
+                "rgba(31,75,61,0.85)",
+                "rgba(31,75,61,0.55)",
+                tokens.colors.bgBase,
+              ]}
+              locations={[0, 0.4, 0.85]}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <View style={[styles.brandContainer, { paddingTop: insets.top + tokens.space.lg }]}>
+              <AppText variant="screenTitle" style={styles.appName}>
+                Rotorua Guide
+              </AppText>
+              <AppText variant="label" style={styles.tagline}>
+                Your guide to Rotorua
+              </AppText>
             </View>
 
             <View style={styles.content}>
@@ -157,21 +162,13 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.colors.bgBase,
   },
   content: {
-    flex: 1,
     paddingHorizontal: tokens.space.lg,
     paddingBottom: tokens.space.md,
-    paddingTop: tokens.space.lg,
-  },
-  hero: {
-    height: HERO_HEIGHT,
-    width: "100%",
-    justifyContent: "flex-end",
-    backgroundColor: tokens.colors.surf,
   },
   brandContainer: {
     alignItems: "center",
     paddingHorizontal: tokens.space.lg,
-    paddingBottom: tokens.space.lg,
+    paddingBottom: tokens.space.xl,
   },
   appName: {
     color: "#FFFFFF",

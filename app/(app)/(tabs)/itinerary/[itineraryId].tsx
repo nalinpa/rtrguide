@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity, AppState, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, AppState, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { randomUUID } from "expo-crypto";
@@ -8,6 +8,7 @@ import { Plus, MoreHorizontal, X } from "lucide-react-native";
 import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKit";
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
+import { DeleteTripModal } from "@/components/itinerary/DeleteTripModal";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -188,21 +189,15 @@ export default function ItineraryDetailPage() {
     }
   }, [jumpToDay, jumpToSlot, localTrip, activeDayId, flushSave]);
 
-  const handleDeleteItinerary = () => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showTripMenu, setShowTripMenu] = useState(false);
+
+  const handleConfirmDeleteItinerary = async () => {
     if (!localTrip) return;
-    Alert.alert("Delete Trip?", "This cannot be undone.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          if (!localTrip) return;
-          hasUnsavedChanges.current = false;
-          await deleteItinerary(localTrip.id);
-          router.replace("/(app)/(tabs)/itinerary");
-        },
-      },
-    ]);
+    setShowDeleteConfirm(false);
+    hasUnsavedChanges.current = false;
+    await deleteItinerary(localTrip.id);
+    router.replace("/(app)/(tabs)/itinerary");
   };
 
   const handleDeleteDay = (dayId: string) => {
@@ -385,7 +380,15 @@ export default function ItineraryDetailPage() {
   }
 
   if (!localTrip) {
-    return null;
+    // Deleting this trip invalidates the shared itineraries query, so this
+    // screen briefly re-renders with the trip already gone from the list
+    // before router.replace in handleConfirmDeleteItinerary swaps it out —
+    // a loading state here instead of a blank screen covers that gap.
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <LoadingState label="Loading your trip..." />
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -396,15 +399,7 @@ export default function ItineraryDetailPage() {
             {localTrip.title || "My Trip"}
           </AppText>
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert(localTrip.title || "My Trip", undefined, [
-                ...(itineraries.length > 1
-                  ? [{ text: "Switch Trip", onPress: () => router.push("/(app)/(tabs)/itinerary") }]
-                  : []),
-                { text: "Delete Trip", style: "destructive" as const, onPress: handleDeleteItinerary },
-                { text: "Cancel", style: "cancel" as const },
-              ])
-            }
+            onPress={() => setShowTripMenu(true)}
             style={styles.headerBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
@@ -546,6 +541,44 @@ export default function ItineraryDetailPage() {
           requestBuy(FULL_GUIDE_PRODUCT_ID);
         }}
       />
+
+      <DeleteTripModal
+        visible={showDeleteConfirm}
+        tripTitle={localTrip.title || "My Trip"}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={() => void handleConfirmDeleteItinerary()}
+      />
+
+      <Modal visible={showTripMenu} transparent animationType="fade" onRequestClose={() => setShowTripMenu(false)}>
+        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setShowTripMenu(false)}>
+          <SafeAreaView edges={["top"]} style={styles.menuSafeArea} pointerEvents="box-none">
+            <View style={styles.menuCard}>
+              {itineraries.length > 1 && (
+                <TouchableOpacity
+                  style={[styles.menuRow, styles.menuRowDivider]}
+                  activeOpacity={0.6}
+                  onPress={() => {
+                    setShowTripMenu(false);
+                    router.push("/(app)/(tabs)/itinerary");
+                  }}
+                >
+                  <Text style={styles.menuRowText}>Switch Trip</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={styles.menuRow}
+                activeOpacity={0.6}
+                onPress={() => {
+                  setShowTripMenu(false);
+                  setShowDeleteConfirm(true);
+                }}
+              >
+                <Text style={[styles.menuRowText, styles.menuRowDanger]}>Delete Trip</Text>
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -556,6 +589,27 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   title: { fontSize: 24 },
   headerBtn: { padding: 6, borderRadius: tokens.radius.md, backgroundColor: tokens.colors.bgElevated },
+  menuOverlay: { flex: 1, backgroundColor: "rgba(36,26,18,0.3)" },
+  // paddingTop approximates the header's own height (space.md + title line + paddingBottom)
+  // so the menu lands directly under the "..." button rather than needing a measured anchor.
+  menuSafeArea: { alignItems: "flex-end", paddingTop: 60, paddingRight: tokens.space.md },
+  menuCard: {
+    minWidth: 170,
+    backgroundColor: tokens.colors.bgCard,
+    borderRadius: tokens.radius.md,
+    borderWidth: 1,
+    borderColor: tokens.colors.border,
+    paddingVertical: 4,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  menuRow: { paddingVertical: 12, paddingHorizontal: 16 },
+  menuRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: tokens.colors.border },
+  menuRowText: { fontSize: 15, fontWeight: "600", color: tokens.colors.text },
+  menuRowDanger: { color: tokens.colors.danger },
   tabContainer: { borderBottomWidth: 1, borderBottomColor: tokens.colors.borderSubtle },
   tabScroll: { paddingHorizontal: tokens.space.md, alignItems: "stretch" },
   dayTab: { paddingHorizontal: 14, paddingVertical: 12, position: "relative", alignItems: "center" },

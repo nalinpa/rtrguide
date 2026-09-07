@@ -30,6 +30,15 @@ export type ItineraryTemplate = {
   free?: boolean;
 };
 
+// The template key to preselect in CreateItineraryModal's picker. Locked
+// (non-premium) users can't leave this on "Blank" — that option is gated
+// behind the same free flag as the templates — so default them onto the
+// first free template instead.
+export function defaultTemplateKey(locked: boolean): string | null {
+  if (!locked) return null;
+  return ITINERARY_TEMPLATES.find((t) => t.free)?.key ?? null;
+}
+
 export const ITINERARY_TEMPLATES: ItineraryTemplate[] = [
   {
     key: "geothermal-highlights",

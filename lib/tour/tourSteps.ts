@@ -39,6 +39,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "exploreIntro",
     tabKey: "sites",
+    dim: 0.4,
     title: "Explore Rotorua",
     body: "Every site, walk and hidden gem in the guide.",
   },
@@ -78,12 +79,13 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "mapIntro",
     tabKey: "map",
-    dim: 0.1,
+    dim: 0.25,
     title: "Find What's Nearby",
     body: "Every site on the map, closest first.",
   },
   {
     id: "mapPremium",
+    tooltipPosition: "below",
     targetOffsetY: 6,
     targetHeightDelta: -7,
     title: "Unlock the Full Guide",

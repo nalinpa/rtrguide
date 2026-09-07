@@ -71,7 +71,11 @@ export function ItinerariesCard() {
       )}
 
       {atLimit ? (
-        <Text style={styles.limitText}>Up to {PLANNER.MAX_ITINERARIES} itineraries allowed.</Text>
+        <Text style={styles.limitText}>
+          {isEntitled
+            ? `Up to ${PLANNER.MAX_ITINERARIES} itineraries allowed.`
+            : "1 itinerary allowed on the free plan."}
+        </Text>
       ) : (
         <TouchableOpacity
           style={styles.createBtn}

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Calendar, ChevronRight, LogIn, Plus } from "lucide-react-native";
+import { Calendar, ChevronRight, Plus } from "lucide-react-native";
 
-import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppButton, components } from "@/lib/uiKit";
+import { Screen, LoadingState, ErrorCard, CardShell, Stack, AppText, AppButton, components } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -41,10 +41,7 @@ export default function ItineraryListPage() {
           <AppText variant="h1">Plans</AppText>
           <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
             <Stack gap="md" align="center">
-              <Row gap="sm" align="center">
-                <LogIn size={28} color={tokens.colors.accent} />
-                <AppText variant="h1">Sign In to Plan a Trip</AppText>
-              </Row>
+              <AppText variant="h1">Sign In to Plan a Trip</AppText>
               <AppText variant="body" status="hint" style={styles.centerText}>
                 Create an account to build and save a Rotorua itinerary.
               </AppText>
@@ -58,7 +55,10 @@ export default function ItineraryListPage() {
     );
   }
 
-  if (session.status === "loading" || loading || entitlementsLoading) {
+  // itineraries.length === 1 redirects via the effect above — render a
+  // loading state for that one render instead of flashing the "My Trips"
+  // picker for a trip list of one that's about to navigate away anyway.
+  if (session.status === "loading" || loading || entitlementsLoading || itineraries.length === 1) {
     return (
       <Screen>
         <LoadingState label="Loading your trips..." />

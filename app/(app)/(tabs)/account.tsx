@@ -51,7 +51,6 @@ export default function AccountScreen() {
           </View>
 
           <View style={styles.promoCard} ref={homeTarget.ref} onLayout={homeTarget.onLayout}>
-            <Text style={styles.promoEyebrow}>DISCOVER ROTORUA</Text>
             <Text style={styles.promoHeadline}>{"Your guide to the\nLand of Geysers"}</Text>
             <TouchableOpacity
               style={styles.promoBtn}
@@ -131,7 +130,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
-  promoEyebrow: { fontSize: 10, fontWeight: "800", color: "rgba(255,255,255,0.7)", letterSpacing: 3 },
   promoHeadline: { fontSize: 28, fontWeight: "800", color: "#FFFFFF", letterSpacing: -0.6, lineHeight: 34 },
   promoBtn: {
     flexDirection: "row",

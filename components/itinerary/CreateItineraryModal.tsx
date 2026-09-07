@@ -9,7 +9,7 @@ import { randomUUID } from "expo-crypto";
 import { CardShell, AppButton, AppText, Row } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
 import { useItineraries } from "@/lib/hooks/useItineraries";
-import { ITINERARY_TEMPLATES } from "@/lib/itineraryTemplates";
+import { ITINERARY_TEMPLATES, defaultTemplateKey } from "@/lib/itineraryTemplates";
 import { slotIndexToTimeLabel, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 
 type CreateItineraryModalProps = {
@@ -66,7 +66,7 @@ export function CreateItineraryModal({
       setTitle("");
       setStartDate(tomorrow());
       setNumDays(locked ? 1 : 3);
-      setSelectedTemplate(null);
+      setSelectedTemplate(defaultTemplateKey(locked));
       setTemplateOpen(false);
       setShowCalendar(false);
       setErrorMsg(null);
@@ -80,6 +80,10 @@ export function CreateItineraryModal({
     const template = templatesEnabled
       ? ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate && (!locked || t.free))
       : undefined;
+    if (locked && !template) {
+      setErrorMsg("Premium — unlock to start a blank trip.");
+      return;
+    }
     const dayCount = template ? template.days.length : numDays;
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + dayCount - 1);
@@ -207,8 +211,8 @@ export function CreateItineraryModal({
                   >
                     <AppText style={styles.dropdownValue}>
                       {selectedTemplate === null
-                        ? "None"
-                        : (ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate)?.label ?? "None")}
+                        ? "Blank"
+                        : (ITINERARY_TEMPLATES.find((t) => t.key === selectedTemplate)?.label ?? "Blank")}
                     </AppText>
                     <ChevronDown
                       size={16}
@@ -220,7 +224,7 @@ export function CreateItineraryModal({
                     <ScrollView style={styles.dropdownMenu} bounces={false} nestedScrollEnabled>
                       {(
                         [
-                          { key: null, label: "None", description: "Start with a blank trip", free: true },
+                          { key: null, label: "Blank", description: "Start with a blank trip", free: !locked },
                           ...ITINERARY_TEMPLATES,
                         ]
                       ).map((opt) => {

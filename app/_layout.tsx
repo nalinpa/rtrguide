@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Sentry from "@sentry/react-native";
 
 import { AppProviders } from "@/lib/providers/AppProviders";
+import { useSession } from "@/lib/providers/SessionProvider";
 import { OfflineBanner } from "@/lib/uiKit";
 import { hooksBag } from "@/lib/hooksBag";
 import { useAppOpenCount } from "@/lib/hooks/useAppOpenCount";
@@ -59,13 +60,21 @@ function RootLayout() {
               }}
             />
           </Stack>
-        </AppProviders>
 
-        <SpotlightOverlay />
-        <TourAutoStart shouldStart={openCount === 1} />
+          <SpotlightOverlay />
+          <TourAutoStartGate openCount={openCount} />
+        </AppProviders>
       </TourProvider>
     </GestureHandlerRootView>
   );
+}
+
+// Session lives inside AppProviders, so the gate has to render there too —
+// the tour must never auto-start before the user is past the login screen.
+function TourAutoStartGate({ openCount }: { openCount: number }) {
+  const { session } = useSession();
+  const loggedIn = session.status !== "loading" && session.status !== "loggedOut";
+  return <TourAutoStart shouldStart={loggedIn && openCount === 1} />;
 }
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {

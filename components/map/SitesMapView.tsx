@@ -55,10 +55,16 @@ function useSettleOnPaint() {
 
 function SiteMapMarker({
   loc,
+  coordinate,
   selected,
   onPress,
 }: {
   loc: SiteMapPoint;
+  // react-native-map-clustering's isMarker() reads props.coordinate straight
+  // off this component's element (not the <Marker> it renders internally),
+  // to decide whether to feed it into clustering -- must be passed through
+  // at the call site or every marker silently skips clustering entirely.
+  coordinate: { latitude: number; longitude: number };
   selected: boolean;
   onPress: () => void;
 }) {
@@ -66,7 +72,7 @@ function SiteMapMarker({
 
   return (
     <Marker
-      coordinate={{ latitude: loc.lat, longitude: loc.lng }}
+      coordinate={coordinate}
       onPress={onPress}
       tracksViewChanges={selected || !settled}
       anchor={{ x: 0.5, y: 0.5 }}
@@ -190,6 +196,7 @@ const SitesMapViewInner = forwardRef<
         <SiteMapMarker
           key={loc.id}
           loc={loc}
+          coordinate={{ latitude: loc.lat, longitude: loc.lng }}
           selected={selected}
           onPress={() => onPressSite(loc.id)}
         />

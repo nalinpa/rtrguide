@@ -35,6 +35,7 @@ Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a
 - [x] Enter `price` data for sites — 93/93 written via `scripts/update-prices.js` using label tiers (`Free`/`Budget`/`Mid-range`/`High-end`/`Blowout`, matches how `site.price` just renders as raw text on the detail screen).
 - [x] Website link UTM params — `utm_source=blacksands.app&utm_medium=rotorua app&utm_campaign=ios_link` appended in `handleOpenWebsite` before `Linking.openURL`
 - [x] First-open app tour — spotlight walkthrough across all 4 tabs, triggered on `openCount === 1` (see [lib/tour/](lib/tour/)), no new dependency (react-native-svg mask + reanimated, both already installed). Untested on-device — worth a real run-through before launch to check spotlight/tooltip positioning on an actual phone
+- [x] Tour could auto-start over the login screen — `TourAutoStart` only checked `openCount`, not session state. Gated behind a new `TourAutoStartGate` reading `useSession()` (`c330273`, 2026-09-07)
 - [x] Guide styling/placement — dropped the separate `GuideCard` account-tab row in favour of the existing hero promo card ("Discover Rotorua / Your guide to...") on the account screen; its CTA now opens `/(app)/guide` instead of Browse All Sites ([account.tsx:56-63](app/(app)/(tabs)/account.tsx#L56-L63)), inheriting the promo card's styling. Guide index/detail screens also got a per-category icon + accent color pass ([guideContent.ts](lib/guideContent.ts), [guide/index.tsx](app/(app)/guide/index.tsx), [guide/[slug].tsx](app/(app)/guide/%5Bslug%5D.tsx)) — no photos (none exist yet), icon+color chips/hero bands only
 - [x] Run the transit matrix generator — [assets/data/rotorua-transit.json](assets/data/rotorua-transit.json) is populated (74 sites, real driving times via the Distance Matrix API), `getRequiredTransitSlots` now returns real slot counts instead of the flat 1-slot fallback for any pair in the file
 
@@ -70,7 +71,7 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 ## Observability & security review
 
 - [x] Review Firestore security rules (2026-09-06) — the deployed rules were still Firebase's default test-mode ruleset: open read/write to the entire database for anyone, hard-expiring to deny-all on 2026-10-05. Replaced with real rules ([firestore.rules](firestore.rules)) matching actual access patterns — `users/{uid}` own-doc read/write (the only collection the app writes to directly), `itineraries` own-`userId` read only, `sites`/`siteReviews` public read, everything else (including all writes) deny-by-default since real writes go through `enginev1/api`'s admin-authenticated backend anyway — and deployed via `firebase deploy --only firestore:rules`. Also fixed a bug this exposed in `enginev1/api`'s `getDocument` (403 wasn't handled like 404, would have 500'd `GET /itineraries/:id` for a non-owned id once real rules went live).
-- [x] Replace `console.log`/`console.error` calls with Sentry logging now that `EXPO_PUBLIC_SENTRY_DSN` is actually wired up (2026-09-05) — added `Sentry.captureException` alongside the existing console calls in [claim/[token].tsx](app/claim/%5Btoken%5D.tsx) (×2), [useItineraries.ts:24](lib/hooks/useItineraries.ts#L24), and [RestorePurchasesCard.tsx:20](components/account/RestorePurchasesCard.tsx#L20). `appleSignIn.ts`/`shareService.ts` already did both. Also added a temporary "Send test error to Sentry" button on the Home tab (not `__DEV__`-gated, since it needs to work in the preview/production bundle) — **still needs a real EAS build + confirming the event lands in the `patel-td` Sentry org, then delete the button**.
+- [x] Replace `console.log`/`console.error` calls with Sentry logging now that `EXPO_PUBLIC_SENTRY_DSN` is actually wired up (2026-09-05) — added `Sentry.captureException` alongside the existing console calls in [claim/[token].tsx](app/claim/%5Btoken%5D.tsx) (×2), [useItineraries.ts:24](lib/hooks/useItineraries.ts#L24), and [RestorePurchasesCard.tsx:20](components/account/RestorePurchasesCard.tsx#L20). `appleSignIn.ts`/`shareService.ts` already did both. Also added a temporary "Send test error to Sentry" button on the Home tab (not `__DEV__`-gated, since it needs to work in the preview/production bundle) — confirmed on a real EAS build (2026-09-06, event landed in `patel-td`), button removed (`7100aaf`, 2026-09-07).
 
 ## Repo hygiene
 
@@ -86,8 +87,8 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 - [ ] **Splash screen is empty** — `assets/splash-icon.png` is a 68-byte placeholder (effectively blank), referenced by the `expo-splash-screen` plugin in [app.config.ts](app.config.ts). Needs a real image before launch.
 - [ ] **App icon redesign** — current `assets/icon.png` / `assets/adaptive-icon.png` don't fit; want a new design.
-- [ ] **Login page redesign** — current login screen ([app/(auth)/login.tsx](app/(auth)/login.tsx)) looks bad, needs a visual pass.
+- [x] **Login page redesign** — full-bleed hero background replacing the old boxed 260px image, safe-area-aware brand text (`d6ea5bb`, 2026-09-07). Worth a quick on-device look before launch.
 
 ## Versioning
 
-- [ ] `version: "0.1.0"`, Android `versionCode: 1` — fine for a first release, just confirm this is intentional and not a leftover dev value
+- [x] `version` bumped `0.1.0` → `1.0.0` for launch (`8c6e99d`); Android `versionCode: 1` unchanged, correct for a first release

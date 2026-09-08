@@ -487,18 +487,32 @@ export default function ItineraryDetailPage() {
           ))}
 
           {localItems.length === 0 ? (
-            <TouchableOpacity
-              style={styles.emptyDayCard}
-              onPress={() => router.push("/(app)/(tabs)/sites")}
-              activeOpacity={0.7}
-            >
-              <AppText variant="body" style={styles.emptyDayTitle}>
-                Nothing here yet
-              </AppText>
-              <AppText variant="label" status="hint" style={styles.emptyDayBody}>
-                Browse Rotorua's sites and tap "+ Add to Itinerary" to build this day.
-              </AppText>
-            </TouchableOpacity>
+            // Matches AKL's plans.tsx: three copies spread across the grid
+            // (top/middle/bottom thirds) instead of one card appended after
+            // all 28 slot rows, so it reads as sitting on the timeline
+            // rather than as a footer below it.
+            ([0, 1, 2] as const).map((i) => {
+              const sectionSlots = Math.floor(MAX_GRID_SLOTS / 3);
+              return (
+                <View
+                  key={`empty_${i}`}
+                  style={[styles.gapContainer, { top: i * sectionSlots * SLOT_HEIGHT, height: sectionSlots * SLOT_HEIGHT }]}
+                >
+                  <TouchableOpacity
+                    style={styles.emptyDayCard}
+                    onPress={() => router.push("/(app)/(tabs)/sites")}
+                    activeOpacity={0.7}
+                  >
+                    <AppText variant="body" style={styles.emptyDayTitle}>
+                      Nothing here yet
+                    </AppText>
+                    <AppText variant="label" status="hint" style={styles.emptyDayBody}>
+                      Browse Rotorua's sites and tap "+ Add to Itinerary" to build this day.
+                    </AppText>
+                  </TouchableOpacity>
+                </View>
+              );
+            })
           ) : (
             freeGaps.map((gap) => (
               <View
@@ -638,8 +652,7 @@ const styles = StyleSheet.create({
   },
   gapCardText: { fontSize: 14, fontWeight: "600", color: tokens.colors.text2 },
   emptyDayCard: {
-    marginHorizontal: 82,
-    marginTop: 40,
+    maxWidth: 280,
     backgroundColor: tokens.colors.bgCard,
     borderWidth: 1.5,
     borderColor: tokens.colors.border,

@@ -29,10 +29,15 @@ export default function ItineraryListPage() {
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    if (itineraries.length === 1) {
+    // Only auto-jump for non-premium users, who are hard-capped at 1 trip
+    // anyway (PLANNER.MAX_ITINERARIES) — the list would be a pointless extra
+    // tap for them. Premium users can hold up to 3, so redirecting away from
+    // the list the moment they have exactly one would trap them there,
+    // unable to ever reach "+ New Itinerary" again.
+    if (itineraries.length === 1 && !isEntitled) {
       router.replace(`/(app)/(tabs)/itinerary/${itineraries[0].id}`);
     }
-  }, [itineraries]);
+  }, [itineraries, isEntitled]);
 
   if (session.status === "guest") {
     return (
@@ -55,10 +60,16 @@ export default function ItineraryListPage() {
     );
   }
 
-  // itineraries.length === 1 redirects via the effect above — render a
-  // loading state for that one render instead of flashing the "My Trips"
-  // picker for a trip list of one that's about to navigate away anyway.
-  if (session.status === "loading" || loading || entitlementsLoading || itineraries.length === 1) {
+  // itineraries.length === 1 redirects via the effect above, but only for
+  // non-premium users — render a loading state for that one render instead
+  // of flashing the "My Trips" picker for a trip list that's about to
+  // navigate away anyway.
+  if (
+    session.status === "loading" ||
+    loading ||
+    entitlementsLoading ||
+    (itineraries.length === 1 && !isEntitled)
+  ) {
     return (
       <Screen>
         <LoadingState label="Loading your trips..." />
@@ -97,8 +108,9 @@ export default function ItineraryListPage() {
     );
   }
 
-  // itineraries.length === 1 redirects via the effect above — this only
-  // renders the picker when there's more than one trip.
+  // Non-premium + exactly 1 trip redirects via the effect above. Premium
+  // users land here even with just 1 trip, so "+ New Itinerary" stays
+  // reachable.
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>

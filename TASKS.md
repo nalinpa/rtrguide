@@ -39,6 +39,22 @@ Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a
 - [x] Guide styling/placement — dropped the separate `GuideCard` account-tab row in favour of the existing hero promo card ("Discover Rotorua / Your guide to...") on the account screen; its CTA now opens `/(app)/guide` instead of Browse All Sites ([account.tsx:56-63](app/(app)/(tabs)/account.tsx#L56-L63)), inheriting the promo card's styling. Guide index/detail screens also got a per-category icon + accent color pass ([guideContent.ts](lib/guideContent.ts), [guide/index.tsx](app/(app)/guide/index.tsx), [guide/[slug].tsx](app/(app)/guide/%5Bslug%5D.tsx)) — no photos (none exist yet), icon+color chips/hero bands only
 - [x] Run the transit matrix generator — [assets/data/rotorua-transit.json](assets/data/rotorua-transit.json) is populated (74 sites, real driving times via the Distance Matrix API), `getRequiredTransitSlots` now returns real slot counts instead of the flat 1-slot fallback for any pair in the file
 
+## Site availability / time-constraint warnings (not started — design deferred)
+
+Surfaced 2026-09-08 while fixing the Waiotapu template + transit matrix. No site currently has any hours/schedule data at all — confirmed nothing like `hours`/`schedule` exists in `scripts/sites.json`, timing info only shows up as prose buried in `description` text. Three distinct patterns found so far, all currently un-enforced anywhere in the app:
+
+- **Permit/day-restricted access** — Tarawera Falls needs a forestry permit from the Kawerau i-SITE, only available Sat/Sun/public holidays, forest gate closed after dark. A site could be added to any day of an itinerary today with zero warning.
+- **Fixed evening show times** — Te Pā Tū / Mitai Māori Village have real start times (Mitai ~6:30pm, 3hrs) baked into the *templates* (see `lib/itineraryTemplates.ts`) but nothing stops a user manually adding them to the wrong time slot in their own itinerary.
+- **Recurring weekly markets** — Rotorua Night Market, Kuirau Park market — don't exist as sites in `sites.json` yet at all (only on certain days/times when added).
+- General ask: check opening hours broadly so people can't schedule a site after it's closed.
+
+One `Alert.alert` "walk/boat-only, no road access" pattern already shipped for Hot Water Beach as a one-off (`HOT_WATER_BEACH_ID` hardcoded in both [app/(app)/(tabs)/sites/[siteId]/index.tsx](app/(app)/(tabs)/sites/%5BsiteId%5D/index.tsx) and [app/(app)/(tabs)/map/index.tsx](app/(app)/(tabs)/map/index.tsx)) — explicitly *not* meant to be the general solution, just the immediate fix for that one site.
+
+Classified as an **architectural** change (new site-data schema + enforcement across both "Add to Itinerary" entry points, possibly the itinerary builder's drag/schedule flow too) via `superpowers:brainstorming` — paused before the first design question because scope wasn't decided yet:
+
+- [ ] **Open decision**: does v1 need a general schema covering all time-constraint kinds (permit days, recurring market hours, fixed show times, general open/close) with real data backfilled across many sites — or start narrow with just the named sites (Tarawera Falls, Te Pā Tū, Mitai, night market, Kuirau Park market) and generalize later once a pattern proves out?
+- [ ] Once scope is picked, resume brainstorming (data model, where enforcement lives — add-flow warning vs. builder-level validation vs. auto-scheduling — and whether it's a hard block or a dismissible note like the Hot Water Beach one)
+
 ## Free / comp unlock codes
 
 - [x] Admin-mintable free-unlock claim links — `POST /v1/admin/comp-links` in `commerce-api` (2026-09-06), reuses the existing `claimTokens`/`/claim/:token` redemption path this app already handles, zero client changes needed. No admin UI yet — minting one today means calling the endpoint directly (curl/Postman) with an admin bearer token.

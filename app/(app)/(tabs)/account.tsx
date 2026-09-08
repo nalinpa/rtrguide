@@ -17,11 +17,9 @@ import { SavedSitesCard } from "@/components/account/SavedSitesCard";
 import { RestorePurchasesCard } from "@/components/account/RestorePurchasesCard";
 import { DangerZoneCard } from "@/components/account/DangerZoneCard";
 import { useTourTarget } from "@/lib/tour/useTourTarget";
-import { useTour } from "@/lib/tour/TourContext";
 
 export default function AccountScreen() {
   const homeTarget = useTourTarget("home");
-  const { start: startTour } = useTour();
   const { session } = useSession();
   const insets = useSafeAreaInsets();
   const { itineraries } = useItineraries();
@@ -61,12 +59,6 @@ export default function AccountScreen() {
               <ArrowRight size={16} color={tokens.colors.surf} strokeWidth={2.75} />
             </TouchableOpacity>
           </View>
-
-          {__DEV__ && (
-            <TouchableOpacity onPress={startTour} style={styles.devTourBtn}>
-              <Text style={styles.devTourBtnText}>🔧 Replay tour (dev only)</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         <View style={styles.sheet}>
@@ -147,8 +139,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   promoBtnText: { fontSize: 16, fontWeight: "800", color: tokens.colors.surf, letterSpacing: 0.1 },
-  devTourBtn: { alignSelf: "center", marginTop: 12, paddingVertical: 6, paddingHorizontal: 12 },
-  devTourBtnText: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.6)" },
 
   sheet: { backgroundColor: tokens.colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -28, minHeight: 400 },
   dragHandle: { width: 32, height: 4, borderRadius: 2, backgroundColor: tokens.colors.border, alignSelf: "center", marginTop: 14, marginBottom: 4 },

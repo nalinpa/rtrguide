@@ -83,14 +83,6 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Find What's Nearby",
     body: "Every site on the map, closest first.",
   },
-  {
-    id: "mapPremium",
-    tooltipPosition: "below",
-    targetOffsetY: 6,
-    targetHeightDelta: -7,
-    title: "Unlock the Full Guide",
-    body: "One unlock gets every premium location, itinerary planning and drag to reorder.",
-  },
 ];
 
 export const TOUR_TAB_ROUTES: Record<TourTabKey, string> = {

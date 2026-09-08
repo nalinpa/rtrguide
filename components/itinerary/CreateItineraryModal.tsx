@@ -303,7 +303,14 @@ export function CreateItineraryModal({
 
               {errorMsg && <AppText style={styles.errorText}>{errorMsg}</AppText>}
 
-              <AppButton variant="primary" onPress={handleCreate} loading={isSaving} loadingLabel="Creating..." fullWidth>
+              <AppButton
+                variant="primary"
+                onPress={handleCreate}
+                loading={isSaving}
+                loadingLabel="Creating..."
+                fullWidth
+                style={styles.createBtn}
+              >
                 Create Trip
               </AppButton>
             </ScrollView>
@@ -422,4 +429,5 @@ const styles = StyleSheet.create({
   },
   premiumBadgeText: { fontSize: 10, fontWeight: "700", color: tokens.colors.textMuted, letterSpacing: 0.3 },
   errorText: { fontSize: 12, color: tokens.colors.danger, marginTop: tokens.space.sm },
+  createBtn: { marginTop: tokens.space.md },
 });

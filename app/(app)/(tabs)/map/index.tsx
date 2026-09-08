@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Keyboard } from "react-native";
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Keyboard, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -25,7 +25,6 @@ import type { NearbySite, ActiveItineraryItem } from "@/components/map/MapOverla
 import { AddToTripModal } from "@/components/itinerary/AddToTripModal";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
 import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
-import { useTourTarget } from "@/lib/tour/useTourTarget";
 
 const ROTORUA_BOUNDS = { minLat: -38.3, maxLat: -37.95, minLng: 176.05, maxLng: 176.45 };
 
@@ -40,8 +39,11 @@ function isInRotorua(lat: number | null | undefined, lng: number | null | undefi
   );
 }
 
+// Walk-in/boat-only — no road access, so trip transit timing can't be
+// trusted for it. See handleAddToItinerary below.
+const HOT_WATER_BEACH_ID = "77e801056ee1453ebfb1";
+
 export default function MapScreen() {
-  const premiumTarget = useTourTarget("mapPremium");
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
 
@@ -89,19 +91,40 @@ export default function MapScreen() {
     [locations, isSiteLocked],
   );
 
-  const handleAddToItinerary = useCallback(() => {
-    if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-      setShowPremiumAdd(true);
-      return;
-    }
-    if (itineraries.length === 0) {
-      setIsCreatingItinerary(true);
-    } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
-      setShowTripChoice(true);
-    } else {
-      setIsAddingToTrip(true);
-    }
-  }, [itineraries.length, entitledProductIds]);
+  const handleAddToItinerary = useCallback(
+    (siteId?: string) => {
+      const startAddFlow = () => {
+        if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+          setShowPremiumAdd(true);
+          return;
+        }
+        if (itineraries.length === 0) {
+          setIsCreatingItinerary(true);
+        } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
+          setShowTripChoice(true);
+        } else {
+          setIsAddingToTrip(true);
+        }
+      };
+
+      // ponytail: hardcoded for this one site rather than a general
+      // "walk/boat-only" data flag — build the flag if a second site needs it.
+      if (siteId === HOT_WATER_BEACH_ID) {
+        Alert.alert(
+          "Reachable via the Tarawera Trail",
+          "Hot Water Beach sits at the end of the 15–16km Tarawera Trail, or by boat/water taxi — there's no road access, so the itinerary's travel timing won't be accurate for this stop.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { text: "Add Anyway", onPress: startAddFlow },
+          ],
+        );
+        return;
+      }
+
+      startAddFlow();
+    },
+    [itineraries.length, entitledProductIds],
+  );
 
   const mapSites = useMemo(() => {
     const q = debouncedSearchQuery.trim().toLowerCase();
@@ -220,7 +243,6 @@ export default function MapScreen() {
     (id: string) => {
       Haptics.selectionAsync();
       setSelectedSiteId(id);
-      setCategoryFilter(null);
       setSearchQuery("");
       Keyboard.dismiss();
       bottomSheetRef.current?.snapToIndex(1);
@@ -291,13 +313,9 @@ export default function MapScreen() {
                 Haptics.impactAsync();
                 setShowFilters((p) => !p);
               }}
-              style={styles.filterBtn}
+              style={[styles.filterBtn, categoryFilter && styles.filterBtnActive]}
             >
-              <SlidersHorizontal
-                color={categoryFilter ? tokens.colors.surf : "rgba(36,26,18,0.45)"}
-                size={18}
-                strokeWidth={categoryFilter ? 2.25 : 1.75}
-              />
+              <SlidersHorizontal color="#FFFFFF" size={18} strokeWidth={2.25} />
             </TouchableOpacity>
           </View>
         </View>
@@ -305,8 +323,6 @@ export default function MapScreen() {
         {lockedSites.length > 0 && (
           <View style={styles.premiumBannerContainer}>
             <TouchableOpacity
-              ref={premiumTarget.ref}
-              onLayout={premiumTarget.onLayout}
               style={styles.premiumBanner}
               activeOpacity={0.88}
               onPress={() => router.push(`/(app)/(tabs)/sites/${lockedSites[0].id}`)}
@@ -394,7 +410,7 @@ export default function MapScreen() {
         }}
         onAddToItinerary={
           session.status !== "guest" && !selectedSite?.category.includes("Accommodation")
-            ? handleAddToItinerary
+            ? () => handleAddToItinerary(selectedSite?.id)
             : undefined
         }
         nearbySites={nearbySites}
@@ -466,7 +482,20 @@ const styles = StyleSheet.create({
   },
   searchInput: { flex: 1, fontSize: 15, color: tokens.colors.text },
   divider: { width: StyleSheet.hairlineWidth, height: 20, backgroundColor: "rgba(36,26,18,0.18)" },
-  filterBtn: { padding: 4 },
+  filterBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: tokens.colors.accent,
+    shadowColor: tokens.colors.accent,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.45,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  filterBtnActive: { backgroundColor: tokens.colors.surf, shadowColor: tokens.colors.surf },
   chipRow: { paddingHorizontal: 16, paddingVertical: 10, gap: 8, flexDirection: "row" },
   chip: {
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.95)",

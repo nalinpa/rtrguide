@@ -27,6 +27,10 @@ import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CATEGORY_CONFIG } from "@/components/map/SiteMarker";
 import { SITE_CATEGORY_LABELS } from "@/lib/models";
 
+// Walk-in/boat-only — no road access, so trip transit timing can't be
+// trusted for it. See the "Add to Itinerary" handler below.
+const HOT_WATER_BEACH_ID = "77e801056ee1453ebfb1";
+
 export default function SiteDetailRoute() {
   const { siteId } = useLocalSearchParams<{ siteId: string }>();
   const id = String(siteId);
@@ -283,17 +287,36 @@ export default function SiteDetailRoute() {
             onLayout={addToItineraryTarget.onLayout}
             style={itineraryStyles.button}
             onPress={() => {
-              if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
-                setShowPremiumAdd(true);
+              const startAddFlow = () => {
+                if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
+                  setShowPremiumAdd(true);
+                  return;
+                }
+                if (itineraries.length === 0) {
+                  setIsCreatingItinerary(true);
+                } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
+                  setShowTripChoice(true);
+                } else {
+                  setIsAddingToTrip(true);
+                }
+              };
+
+              // ponytail: hardcoded for this one site rather than a general
+              // "walk/boat-only" data flag — build the flag if a second site
+              // needs it.
+              if (id === HOT_WATER_BEACH_ID) {
+                Alert.alert(
+                  "Reachable via the Tarawera Trail",
+                  "Hot Water Beach sits at the end of the 15–16km Tarawera Trail, or by boat/water taxi — there's no road access, so the itinerary's travel timing won't be accurate for this stop.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Add Anyway", onPress: startAddFlow },
+                  ],
+                );
                 return;
               }
-              if (itineraries.length === 0) {
-                setIsCreatingItinerary(true);
-              } else if (itineraries.length < PLANNER.MAX_ITINERARIES) {
-                setShowTripChoice(true);
-              } else {
-                setIsAddingToTrip(true);
-              }
+
+              startAddFlow();
             }}
           >
             <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>

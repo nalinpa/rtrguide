@@ -73,7 +73,7 @@ export function SiteListItem({
 
         <View style={styles.imageWrap}>
           {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Image source={{ uri: imageUrl }} style={styles.image} contentFit="cover" />
           ) : (
             <View style={styles.imagePlaceholder}>
               <ImageIcon size={28} color={tokens.colors.borderStrong} />
@@ -125,7 +125,6 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
   },
   imagePlaceholder: {
     flex: 1,

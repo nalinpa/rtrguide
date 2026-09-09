@@ -182,26 +182,33 @@ export default function LoginScreen() {
                 </View>
               </View>
 
-              <View style={styles.authCardWrap}>
-                <components.AuthCard
-                  mode={f.mode}
-                  title={f.title}
-                  subtitle={f.subtitle}
-                  email={f.email}
-                  password={f.password}
-                  confirm={f.confirm}
-                  busy={busy}
-                  err={f.err ?? authErr}
-                  notice={f.notice}
-                  canSubmit={f.canSubmit}
-                  onChangeMode={f.setMode}
-                  onChangeEmail={f.setEmail}
-                  onChangePassword={f.setPassword}
-                  onChangeConfirm={f.setConfirm}
-                  onSubmit={() => void f.submit()}
-                  onGuest={handleGuestEntry}
-                />
-              </View>
+              <LinearGradient
+                colors={[tokens.colors.accent, tokens.colors.surf]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.authCardWrap}
+              >
+                <View style={styles.authCardInner}>
+                  <components.AuthCard
+                    mode={f.mode}
+                    title={f.title}
+                    subtitle={f.subtitle}
+                    email={f.email}
+                    password={f.password}
+                    confirm={f.confirm}
+                    busy={busy}
+                    err={f.err ?? authErr}
+                    notice={f.notice}
+                    canSubmit={f.canSubmit}
+                    onChangeMode={f.setMode}
+                    onChangeEmail={f.setEmail}
+                    onChangePassword={f.setPassword}
+                    onChangeConfirm={f.setConfirm}
+                    onSubmit={() => void f.submit()}
+                    onGuest={handleGuestEntry}
+                  />
+                </View>
+              </LinearGradient>
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
@@ -272,17 +279,23 @@ const styles = StyleSheet.create({
   // Card white vs. the screen's cream bgBase is barely any value contrast,
   // so shadow alone reads as nothing — the accent-tinted ring is what
   // actually separates it from the background.
+  // Orange-to-teal gradient frame — AuthCard is shared across the monorepo's
+  // apps and has no style/color override prop, so this is the only way to
+  // bring both accent colors into the card without touching the shared
+  // component. The gradient's own padding is the visible border thickness;
+  // authCardInner clips it back down to a plain card surface inside.
   authCardWrap: {
-    borderRadius: 21,
-    padding: 2.5,
-    borderWidth: 1.5,
-    borderColor: "rgba(193,87,28,0.4)",
-    backgroundColor: tokens.colors.bgCard,
+    borderRadius: 22,
+    padding: 3,
     shadowColor: tokens.colors.surf,
     shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 32,
     elevation: 16,
+  },
+  authCardInner: {
+    backgroundColor: tokens.colors.bgCard,
+    borderRadius: 19,
   },
   orLine: {
     flex: 1,

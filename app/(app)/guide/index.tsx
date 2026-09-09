@@ -13,7 +13,11 @@ export default function GuideIndexPage() {
       <View style={styles.header}>
         <AppIconButton
           icon={ChevronLeft}
-          onPress={() => router.back()}
+          // router.back() pops back into the (tabs) group, but Expo Router's
+          // Tabs navigator resets to its first Tabs.Screen ("sites"/Explore)
+          // rather than restoring "account" as the last active tab — so this
+          // is an explicit target instead, not a generic back.
+          onPress={() => router.replace("/(app)/(tabs)/account")}
           accessibilityLabel="Back"
           style={styles.backBtn}
         />

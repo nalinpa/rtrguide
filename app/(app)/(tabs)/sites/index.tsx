@@ -200,30 +200,32 @@ export default function SiteListPage() {
       {!isSearching && rows.length > 0 && (
         <>
           {featuredSite && (
-            <Pressable
-              ref={featuredTarget.ref}
-              onLayout={featuredTarget.onLayout}
-              style={styles.featuredCard}
-              onPress={() => router.push(`/(app)/(tabs)/sites/${featuredSite.location.id}`)}
-            >
-              {featuredSite.location.imageUrl ? (
-                <Image source={{ uri: featuredSite.location.imageUrl }} style={styles.featuredImage} />
-              ) : (
-                <View style={styles.featuredPlaceholder}>
-                  <ImageIcon size={40} color="#FFFFFF" />
-                </View>
-              )}
-              <LinearGradient
-                colors={["transparent", "rgba(36,26,18,0.85)"]}
-                style={styles.featuredOverlay}
+            <View style={styles.featuredCardShadow}>
+              <Pressable
+                ref={featuredTarget.ref}
+                onLayout={featuredTarget.onLayout}
+                style={styles.featuredCard}
+                onPress={() => router.push(`/(app)/(tabs)/sites/${featuredSite.location.id}`)}
               >
-                <AppText style={styles.featuredBadge}>Featured</AppText>
-                <AppText style={styles.featuredTitle}>{featuredSite.location.name}</AppText>
-                <AppText style={styles.featuredSubtitle} numberOfLines={2}>
-                  {featuredSite.location.description || "Discover this Rotorua location."}
-                </AppText>
-              </LinearGradient>
-            </Pressable>
+                {featuredSite.location.imageUrl ? (
+                  <Image source={{ uri: featuredSite.location.imageUrl }} style={styles.featuredImage} contentFit="cover" />
+                ) : (
+                  <View style={styles.featuredPlaceholder}>
+                    <ImageIcon size={40} color="#FFFFFF" />
+                  </View>
+                )}
+                <LinearGradient
+                  colors={["transparent", "rgba(36,26,18,0.85)"]}
+                  style={styles.featuredOverlay}
+                >
+                  <AppText style={styles.featuredBadge}>Featured</AppText>
+                  <AppText style={styles.featuredTitle}>{featuredSite.location.name}</AppText>
+                  <AppText style={styles.featuredSubtitle} numberOfLines={2}>
+                    {featuredSite.location.description || "Discover this Rotorua location."}
+                  </AppText>
+                </LinearGradient>
+              </Pressable>
+            </View>
           )}
 
           <View style={styles.paddedSection}>
@@ -288,15 +290,23 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.colors.surf,
     borderRadius: 1,
   },
-  featuredCard: {
+  featuredCardShadow: {
     marginHorizontal: 16,
+    marginBottom: tokens.space.md,
+    borderRadius: tokens.radius.lg,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  featuredCard: {
     height: 220,
     borderRadius: tokens.radius.lg,
     overflow: "hidden",
-    marginBottom: tokens.space.md,
     backgroundColor: tokens.colors.accent,
   },
-  featuredImage: { width: "100%", height: "100%", resizeMode: "cover" },
+  featuredImage: { width: "100%", height: "100%" },
   featuredPlaceholder: { flex: 1, justifyContent: "center", alignItems: "center" },
   featuredOverlay: {
     position: "absolute",

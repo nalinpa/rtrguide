@@ -18,7 +18,7 @@ export function SiteHero({ imageUrl, imageThumbnailUrl }: SiteHeroProps) {
   return (
     <View style={styles.container}>
       {uri ? (
-        <Image source={{ uri }} style={styles.image} />
+        <Image source={{ uri }} style={styles.image} contentFit="cover" />
       ) : (
         <View style={styles.placeholder}>
           <ImageOff size={40} color="rgba(255,255,255,0.7)" />
@@ -35,6 +35,6 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: tokens.colors.accent,
   },
-  image: { width: "100%", height: "100%", resizeMode: "cover" },
+  image: { width: "100%", height: "100%" },
   placeholder: { flex: 1, justifyContent: "center", alignItems: "center" },
 });

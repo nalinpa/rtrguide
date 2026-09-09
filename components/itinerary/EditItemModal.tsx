@@ -34,7 +34,7 @@ function ItemImage({ imageUrl, siteId }: { imageUrl?: string; siteId: string }) 
       </View>
     );
   }
-  return <Image source={{ uri }} style={styles.image} />;
+  return <Image source={{ uri }} style={styles.image} contentFit="cover" />;
 }
 
 type DayOption = { id: string; label: string; full?: boolean };
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   modalWrapper: { margin: tokens.space.md, marginBottom: 40 },
   modalContent: { padding: 0, borderRadius: tokens.radius.lg, overflow: "hidden" },
   imageContainer: { height: 160, width: "100%", position: "relative", backgroundColor: tokens.colors.bgElevated },
-  image: { width: "100%", height: "100%", resizeMode: "cover" },
+  image: { width: "100%", height: "100%" },
   imagePlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
   closeButton: {
     position: "absolute",

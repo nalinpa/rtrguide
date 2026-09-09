@@ -108,3 +108,7 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 ## Versioning
 
 - [x] `version` bumped `0.1.0` → `1.0.0` for launch (`8c6e99d`); Android `versionCode: 1` unchanged, correct for a first release
+
+## Post-launch
+
+- [ ] **AuthCard per-instance styling** — `components.AuthCard` (shared `@blacksands/components`, used by Cones/Eats/Rings too) takes no style/color prop at all (checked `AuthCardProps` in `enginev1/components/src/AuthCard.tsx`) — its tabs/inputs/borders just inherit whatever `lib/ui/tokens.ts` colors this app already uses everywhere else (`accent`, `border`, `bgElevated`, `bgCard`). The login screen's card currently only stands out via an external gradient-frame wrapper in `login.tsx` (orange→teal, added 2026-09-08) since there was no other way to add color without touching the shared component. Real fix — giving AuthCard a proper color/style override prop — means editing the shared package and republishing `@blacksands/client`-style (bump + `npm run build` + `npm publish` from `enginev1/components`, then bump the dependency here), which affects every consuming app, so deferring until after launch rather than doing it under time pressure.

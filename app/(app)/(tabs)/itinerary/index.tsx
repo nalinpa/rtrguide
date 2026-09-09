@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -12,6 +12,7 @@ import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { CreateItineraryModal } from "@/components/itinerary/CreateItineraryModal";
+import { ItineraryDetailView } from "@/components/itinerary/ItineraryDetailView";
 
 function formatTripDates(startDate: string, endDate: string): string {
   const fmt = (iso: string) =>
@@ -27,17 +28,6 @@ export default function ItineraryListPage() {
   const isEntitled = entitledProductIds.has(FULL_GUIDE_PRODUCT_ID);
   const { itineraries, loading, error, refetch } = useItineraries();
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    // Only auto-jump for non-premium users, who are hard-capped at 1 trip
-    // anyway (PLANNER.MAX_ITINERARIES) — the list would be a pointless extra
-    // tap for them. Premium users can hold up to 3, so redirecting away from
-    // the list the moment they have exactly one would trap them there,
-    // unable to ever reach "+ New Itinerary" again.
-    if (itineraries.length === 1 && !isEntitled) {
-      router.replace(`/(app)/(tabs)/itinerary/${itineraries[0].id}`);
-    }
-  }, [itineraries, isEntitled]);
 
   if (session.status === "guest") {
     return (
@@ -60,21 +50,24 @@ export default function ItineraryListPage() {
     );
   }
 
-  // itineraries.length === 1 redirects via the effect above, but only for
-  // non-premium users — render a loading state for that one render instead
-  // of flashing the "My Trips" picker for a trip list that's about to
-  // navigate away anyway.
-  if (
-    session.status === "loading" ||
-    loading ||
-    entitlementsLoading ||
-    (itineraries.length === 1 && !isEntitled)
-  ) {
+  if (session.status === "loading" || loading || entitlementsLoading) {
     return (
       <Screen>
         <LoadingState label="Loading your trips..." />
       </Screen>
     );
+  }
+
+  // Non-premium users are hard-capped at 1 trip (PLANNER.MAX_ITINERARIES),
+  // so the "My Trips" picker would be a pointless extra tap for them —
+  // render their one trip directly instead of navigating to a different
+  // route for it. This used to be a router.push/replace redirect, but that
+  // meant this screen (or the pushed one) could be discarded from the tab's
+  // nested stack, leaving nothing for the tab bar to land back on after
+  // navigating elsewhere and back. Rendering inline sidesteps that class of
+  // bug entirely — there's no cross-screen navigation to desync.
+  if (itineraries.length === 1 && !isEntitled) {
+    return <ItineraryDetailView tripId={itineraries[0].id} />;
   }
 
   if (error && itineraries.length === 0) {
@@ -108,9 +101,8 @@ export default function ItineraryListPage() {
     );
   }
 
-  // Non-premium + exactly 1 trip redirects via the effect above. Premium
-  // users land here even with just 1 trip, so "+ New Itinerary" stays
-  // reachable.
+  // Non-premium + exactly 1 trip renders inline above. Premium users land
+  // here even with just 1 trip, so "+ New Itinerary" stays reachable.
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>

@@ -258,7 +258,6 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
 
   const handleAddDay = async () => {
     if (!localTrip) return;
-    flushSave();
 
     const validDates = localTrip.days.map((d) => d.date).filter((date) => !!date).sort();
     let nextDate = localIsoDate(new Date());
@@ -267,6 +266,23 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
       last.setDate(last.getDate() + 1);
       nextDate = localIsoDate(last);
     }
+
+    // Creating a trip already checks for date overlap against other trips
+    // (CreateItineraryModal) — extending one via Add Day grows its endDate
+    // the same way and needs the same check, or it can silently grow into
+    // another trip's dates.
+    const conflict = itineraries.find(
+      (itin) => itin.id !== localTrip.id && localTrip.startDate <= itin.endDate && nextDate >= itin.startDate,
+    );
+    if (conflict) {
+      Alert.alert(
+        "Dates overlap",
+        `Adding this day would overlap with "${conflict.title}". Shorten that trip first, or pick different dates.`,
+      );
+      return;
+    }
+
+    flushSave();
 
     const newDayId = `day_${randomUUID()}`;
     const newDay = { id: newDayId, date: nextDate, items: [] };

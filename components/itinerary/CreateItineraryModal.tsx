@@ -42,6 +42,11 @@ function isoDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+// react-native-ui-datepicker needs an explicit IANA timeZone to compute its
+// calendar grid correctly — derived from the device rather than hardcoded,
+// so it's correct for any user, not just NZ testers.
+const DEVICE_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 export function CreateItineraryModal({
   visible,
   locked = false,
@@ -176,30 +181,99 @@ export function CreateItineraryModal({
                   style={{ transform: [{ rotate: showCalendar ? "180deg" : "0deg" }] }}
                 />
               </TouchableOpacity>
-              {showCalendar && (
-                <View style={styles.calendarWrapper}>
-                  <DateTimePicker
-                    mode="single"
-                    date={startDate}
-                    onChange={({ date }) => {
-                      if (date) {
-                        setStartDate(dayjs(date).toDate());
-                        setShowCalendar(false);
-                      }
-                    }}
-                    minDate={new Date()}
-                    styles={{
-                      selected: { backgroundColor: tokens.colors.accent },
-                      selected_label: { color: "#FFFFFF" },
-                      day_label: { color: tokens.colors.text },
-                      today_label: { color: tokens.colors.accent },
-                      month_selector_label: { color: tokens.colors.text },
-                      year_selector_label: { color: tokens.colors.text },
-                      weekday_label: { color: tokens.colors.text2 },
-                    }}
-                  />
-                </View>
-              )}
+              {/* Always mounted (visibility toggled via style), not conditionally
+                  rendered — react-native-ui-datepicker treats a fresh mount with
+                  a defined timeZone as "the timezone just changed" (it compares
+                  against its own usePrevious, which starts undefined) and fires
+                  a synthetic onChange to report the resolved date. Conditionally
+                  rendering this on showCalendar meant every single open was a
+                  fresh mount, so that synthetic onChange fired every time and
+                  immediately closed the sheet we'd just opened. Mounting once
+                  and toggling display keeps its internal state alive across
+                  opens, so the synthetic-change guard only trips on the app's
+                  first render (while this is still hidden, so it's harmless). */}
+              <View style={[styles.calendarWrapper, !showCalendar && styles.hidden]}>
+                <DateTimePicker
+                  mode="single"
+                  timeZone={DEVICE_TIME_ZONE}
+                  date={startDate}
+                  onChange={() => {
+                    // Real selection now happens in the components.Day
+                    // override below — this stays as a no-op fallback for
+                    // any other internal path that might still call it
+                    // (e.g. month/year navigation), so it's never left
+                    // undefined.
+                  }}
+                  components={{
+                    // react-native-ui-datepicker's own onChange/onSelectDate
+                    // pipeline (getStartOfDay -> dayjs.tz(...) -> onChange)
+                    // consistently resolved to the day *after* whatever was
+                    // actually tapped once timeZone was set to Pacific/Auckland
+                    // (confirmed: a tapped cell producing a raw UTC instant
+                    // that, correctly converted to NZ time, was already
+                    // midnight the next day — the bug is in the library's own
+                    // date construction, not in how we read its result).
+                    // day.date here is the plain dayjs instance the library
+                    // builds the cell's *label* from too (both come from the
+                    // same loop variable in generateCalendarDay, utils.js),
+                    // so reading year/month/date straight off it is
+                    // guaranteed to match what's on screen — no further
+                    // timezone reprocessing to go wrong. The Pressable here
+                    // is nested inside the library's own cell Pressable, but
+                    // RN's touch responder system awards the tap to the
+                    // innermost one, so the library's own (buggy) onPress
+                    // never fires.
+                    Day: (day: any) => {
+                      // day.isSelected/isToday (library-computed) go through
+                      // areDatesOnSameDay -> plain dayjs(startDate).format(...),
+                      // the same broken re-interpretation that caused the date
+                      // value bug — comparing our own known-good startDate
+                      // fields directly against day.date's own fields sidesteps
+                      // it the same way the tap handler below does.
+                      const d = day.date;
+                      const isSelected =
+                        d.year() === startDate.getFullYear() &&
+                        d.month() === startDate.getMonth() &&
+                        d.date() === startDate.getDate();
+                      const now = new Date();
+                      const isToday =
+                        d.year() === now.getFullYear() && d.month() === now.getMonth() && d.date() === now.getDate();
+                      return (
+                        <TouchableOpacity
+                          disabled={day.isDisabled}
+                          activeOpacity={0.7}
+                          style={[calendarDayStyles.cell, isSelected && calendarDayStyles.cellSelected]}
+                          onPress={() => {
+                            setStartDate(new Date(d.year(), d.month(), d.date()));
+                            setShowCalendar(false);
+                          }}
+                        >
+                          <AppText
+                            style={[
+                              calendarDayStyles.label,
+                              !day.isCurrentMonth && calendarDayStyles.labelOutside,
+                              isToday && !isSelected && calendarDayStyles.labelToday,
+                              isSelected && calendarDayStyles.labelSelected,
+                              day.isDisabled && calendarDayStyles.labelDisabled,
+                            ]}
+                          >
+                            {day.text}
+                          </AppText>
+                        </TouchableOpacity>
+                      );
+                    },
+                  }}
+                  minDate={new Date()}
+                  styles={{
+                    // day/selected/today_label are unused now — the
+                    // components.Day override above fully replaces day-cell
+                    // rendering (calendarDayStyles handles that look).
+                    month_selector_label: { color: tokens.colors.text },
+                    year_selector_label: { color: tokens.colors.text },
+                    weekday_label: { color: tokens.colors.text2 },
+                  }}
+                />
+              </View>
 
               {templatesEnabled && (
                 <>
@@ -382,6 +456,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginTop: 4,
   },
+  hidden: { display: "none" },
   daysText: { fontSize: 20, fontWeight: "800", color: tokens.colors.accent },
   daysTextLocked: { color: tokens.colors.textMuted },
   dropdownTrigger: {
@@ -430,4 +505,20 @@ const styles = StyleSheet.create({
   premiumBadgeText: { fontSize: 10, fontWeight: "700", color: tokens.colors.textMuted, letterSpacing: 0.3 },
   errorText: { fontSize: 12, color: tokens.colors.danger, marginTop: tokens.space.sm },
   createBtn: { marginTop: tokens.space.md },
+});
+
+const calendarDayStyles = StyleSheet.create({
+  cell: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cellSelected: { backgroundColor: tokens.colors.accent },
+  label: { fontSize: 14, color: tokens.colors.text },
+  labelOutside: { color: tokens.colors.textMuted },
+  labelToday: { color: tokens.colors.accent, fontWeight: "700" },
+  labelSelected: { color: "#FFFFFF", fontWeight: "700" },
+  labelDisabled: { color: tokens.colors.textMuted, opacity: 0.5 },
 });

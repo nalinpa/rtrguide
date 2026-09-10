@@ -22,8 +22,8 @@ export default function AccountScreen() {
   const homeTarget = useTourTarget("home");
   const { session } = useSession();
   const insets = useSafeAreaInsets();
-  const { itineraries } = useItineraries();
-  const { savedSiteIds } = useSavedSites();
+  const { itineraries, loading: itinerariesLoading } = useItineraries();
+  const { savedSiteIds, loading: savedSitesLoading } = useSavedSites();
 
   if (session.status === "loading") {
     return (
@@ -67,12 +67,12 @@ export default function AccountScreen() {
           {isAuthed && (
             <View style={styles.statsRow}>
               <View style={styles.statChip}>
-                <Text style={styles.statNum}>{itineraries.length}</Text>
+                <Text style={styles.statNum}>{itinerariesLoading ? "" : itineraries.length}</Text>
                 <Text style={styles.statLabel}>{itineraries.length === 1 ? "Trip" : "Trips"}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statChip}>
-                <Text style={styles.statNum}>{savedSiteIds.size}</Text>
+                <Text style={styles.statNum}>{savedSitesLoading ? "" : savedSiteIds.size}</Text>
                 <Text style={styles.statLabel}>Saved</Text>
               </View>
             </View>

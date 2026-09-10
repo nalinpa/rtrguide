@@ -10,7 +10,7 @@ export function useSavedSites() {
   const uid = session.status === "authed" ? session.uid : null;
   const queryClient = useQueryClient();
 
-  const { data: savedSiteIds = new Set<string>() } = useQuery({
+  const { data: savedSiteIds = new Set<string>(), isLoading } = useQuery({
     queryKey: ["savedSites", uid],
     queryFn: async () => {
       if (!uid) return new Set<string>();
@@ -49,6 +49,7 @@ export function useSavedSites() {
 
   return {
     savedSiteIds,
+    loading: isLoading,
     toggleSavedSite: toggleMutation.mutate,
     isToggling: toggleMutation.isPending,
   };

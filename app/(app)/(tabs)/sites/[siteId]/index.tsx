@@ -3,6 +3,7 @@ import { Animated, View, StyleSheet, Alert, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack as ExpoStack, router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNetInfo } from "@react-native-community/netinfo";
 import * as Haptics from "expo-haptics";
 import * as Linking from "expo-linking";
 import { ArrowLeft, Globe } from "lucide-react-native";
@@ -45,7 +46,15 @@ export default function SiteDetailRoute() {
   const { sharedLocationIds } = hooksBag.useMyCompletions(uid);
   const hasShareBonus = sharedLocationIds.has(id);
 
-  const { location: site, loading: entityLoading, err: entityErr } = hooksBag.useLocation(id);
+  const { location: rawSite, loading: entityLoading, err: entityErr } = hooksBag.useLocation(id);
+  // The full locations list (fetched for every tier, including guests, as
+  // soon as the Explore tab loads) already carries the same full site shape
+  // as this single-item fetch — fall back to it so a site opened offline
+  // still renders from that already-cached catalog instead of erroring out.
+  const { locations: allLocations } = hooksBag.useLocations();
+  const site = rawSite ?? allLocations.find((l) => l.id === id) ?? null;
+  const netInfo = useNetInfo();
+  const isOffline = netInfo.isConnected === false || netInfo.isInternetReachable === false;
 
   // useLocation caches for 14 days with no refetch-on-focus (see @blacksands/hooks),
   // so force a revalidation whenever this screen regains focus.
@@ -90,6 +99,21 @@ export default function SiteDetailRoute() {
     });
   }, [site?.lat, site?.lng]);
 
+  const handleOpenReview = useCallback(() => {
+    if (!uid) {
+      Alert.alert("Sign In Required", "Sign in to write a review.", [
+        { text: "Cancel", style: "cancel" },
+        { text: "Sign In", onPress: () => router.push("/(auth)/login") },
+      ]);
+      return;
+    }
+    if (myRating != null) {
+      Alert.alert("Already Reviewed", "You've already reviewed this location.");
+      return;
+    }
+    setReviewOpen(true);
+  }, [uid, myRating]);
+
   const handleOpenWebsite = useCallback((raw: string) => {
     let url: URL;
     try {
@@ -117,7 +141,11 @@ export default function SiteDetailRoute() {
     extrapolate: "clamp",
   });
 
-  if (entityLoading || session.status === "loading" || entitlementsLoading) {
+  // entityLoading only blocks the page when there's no fallback data at all —
+  // a site already present in the cached `allLocations` list renders
+  // immediately instead of waiting on the per-site fetch, which retries for
+  // several seconds before failing over while offline.
+  if ((entityLoading && !site) || session.status === "loading" || entitlementsLoading) {
     return (
       <View style={styles.container}>
         <LoadingState label="Loading..." />
@@ -125,15 +153,19 @@ export default function SiteDetailRoute() {
     );
   }
 
-  if (entityErr || !site) {
+  // entityErr alone isn't fatal: react-query keeps serving cached `site` data
+  // from a prior successful fetch even when a background refetch (e.g. the
+  // focus-triggered invalidate above) fails offline — only a missing `site`
+  // means there's nothing to show.
+  if (!site) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top"]}>
         <ErrorCard
-          title="Location Not Found"
-          message={entityErr || "Could not find this Location."}
+          title={isOffline ? "You're Offline" : "Location Not Found"}
+          message={isOffline ? "Check your connection and try again." : entityErr || "Could not find this Location."}
           action={{ label: "Go Back", onPress: () => router.replace("/(app)/(tabs)/sites") }}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -223,12 +255,13 @@ export default function SiteDetailRoute() {
 
             <SiteQuickActions
               onDirections={handleDirections}
-              onOpenReview={() => setReviewOpen(true)}
+              onOpenReview={handleOpenReview}
               hasReview={!!myRating}
               shareBonus={hasShareBonus}
               onShareBonus={() =>
                 router.push({ pathname: "/share-frame", params: { entityId: id, entityName: site.name } })
               }
+              isOffline={isOffline}
               isSaved={isSaved}
               onToggleSave={() => {
                 if (!isSaved && !uid) {
@@ -263,7 +296,8 @@ export default function SiteDetailRoute() {
               onViewAll={() => router.push(`/(app)/(tabs)/sites/${id}/reviews`)}
               isCompleted={true}
               hasUserReviewed={!!myRating}
-              onAddReview={() => setReviewOpen(true)}
+              onAddReview={handleOpenReview}
+              isOffline={isOffline}
             />
 
           </Stack>
@@ -285,7 +319,8 @@ export default function SiteDetailRoute() {
           <Pressable
             ref={addToItineraryTarget.ref}
             onLayout={addToItineraryTarget.onLayout}
-            style={itineraryStyles.button}
+            style={[itineraryStyles.button, isOffline && itineraryStyles.buttonDisabled]}
+            disabled={isOffline}
             onPress={() => {
               const startAddFlow = () => {
                 if (!entitledProductIds.has(FULL_GUIDE_PRODUCT_ID)) {
@@ -319,7 +354,7 @@ export default function SiteDetailRoute() {
               startAddFlow();
             }}
           >
-            <AppText style={itineraryStyles.text}>+ Add to Itinerary</AppText>
+            <AppText style={itineraryStyles.text}>{isOffline ? "Reconnect to Add to Itinerary" : "+ Add to Itinerary"}</AppText>
           </Pressable>
         </SafeAreaView>
       )}
@@ -345,6 +380,8 @@ export default function SiteDetailRoute() {
             if (preReviewCountRef.current === 0) requestReview();
           } else {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            console.error("review save failed:", res.err);
+            Alert.alert("Couldn't Save Review", "Something went wrong saving your review. Please try again.");
           }
         }}
       />
@@ -486,5 +523,6 @@ const itineraryStyles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 8,
   },
+  buttonDisabled: { opacity: 0.5 },
   text: { color: "#FFFFFF", fontWeight: "700" },
 });

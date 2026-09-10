@@ -70,7 +70,9 @@ export default function SavedSitesPage() {
     );
   }
 
-  if (err) {
+  // Only block on err when there's no cached data — a background refetch
+  // failing offline shouldn't hide locations we already have.
+  if (err && locations.length === 0) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ErrorCard title="Connection Issue" message={err} />

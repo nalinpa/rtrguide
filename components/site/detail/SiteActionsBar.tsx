@@ -30,7 +30,7 @@ function QuickAction({
 }) {
   const color = active ? tokens.colors.accent : tokens.colors.text2;
   return (
-    <Pressable style={styles.quickAction} onPress={onPress} disabled={disabled} hitSlop={6}>
+    <Pressable style={[styles.quickAction, disabled && styles.quickActionDisabled]} onPress={onPress} disabled={disabled} hitSlop={6}>
       <Icon size={22} color={color} fill={filled ? color : "none"} />
       <AppText variant="label" style={[styles.quickActionLabel, { color }]}>
         {label}
@@ -45,6 +45,7 @@ export function SiteQuickActions({
   hasReview,
   onShareBonus,
   shareBonus,
+  isOffline,
   isSaved,
   onToggleSave,
 }: {
@@ -53,6 +54,7 @@ export function SiteQuickActions({
   hasReview: boolean;
   onShareBonus: () => void;
   shareBonus: boolean;
+  isOffline?: boolean;
   isSaved: boolean;
   onToggleSave: () => void;
 }) {
@@ -60,12 +62,18 @@ export function SiteQuickActions({
   return (
     <Row justify="space-between" gap="sm" style={styles.quickRow}>
       <QuickAction icon={Navigation} label="Directions" onPress={onDirections} />
-      <QuickAction icon={MessageSquarePlus} label={hasReview ? "Reviewed" : "Review"} onPress={onOpenReview} active={hasReview} />
+      <QuickAction
+        icon={MessageSquarePlus}
+        label={hasReview ? "Reviewed" : isOffline ? "Offline" : "Review"}
+        onPress={onOpenReview}
+        active={hasReview}
+        disabled={!hasReview && isOffline}
+      />
       <QuickAction
         icon={Share2}
-        label={shareBonus ? "Shared" : "Share"}
+        label={shareBonus ? "Shared" : isOffline ? "Offline" : "Share"}
         onPress={onShareBonus}
-        disabled={shareBonus}
+        disabled={shareBonus || isOffline}
         active={shareBonus}
       />
       <View ref={saveTarget.ref} onLayout={saveTarget.onLayout} style={styles.saveWrap}>
@@ -110,6 +118,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.space.sm,
   },
   quickAction: { flex: 1, alignItems: "center", gap: 6 },
+  quickActionDisabled: { opacity: 0.4 },
   saveWrap: { flex: 1 },
   quickActionLabel: { fontSize: 11, fontWeight: "600" },
   card: {

@@ -88,7 +88,9 @@ export default function SiteListPage() {
     );
   }
 
-  if (entitiesErr) {
+  // Only block on entitiesErr when there's no cached data — a background
+  // refetch failing offline shouldn't hide locations we already have.
+  if (entitiesErr && locations.length === 0) {
     return (
       <Screen>
         <ErrorCard title="Connection Issue" message={entitiesErr} />

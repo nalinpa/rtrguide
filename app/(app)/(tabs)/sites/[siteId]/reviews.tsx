@@ -77,7 +77,9 @@ export default function SiteReviewsPage() {
     );
   }
 
-  if (err) {
+  // Only block on err when there's nothing cached to show — a background
+  // refetch failing offline shouldn't hide reviews we already have.
+  if (err && !reviews?.length) {
     return (
       <Screen>
         <Stack.Screen options={{ title: "Reviews" }} />

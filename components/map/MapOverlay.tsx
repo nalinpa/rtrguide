@@ -45,6 +45,7 @@ interface MapOverlayProps {
   onSelectSite: (id: string) => void;
   onFocusSite: () => void;
   onAddToItinerary?: () => void;
+  isOffline?: boolean;
   nearbySites: NearbySite[];
   todayItems: ActiveItineraryItem[] | null;
   locStatus: "unknown" | "granted" | "denied";
@@ -92,6 +93,7 @@ export function MapOverlayCard({
   onSelectSite,
   onFocusSite,
   onAddToItinerary,
+  isOffline = false,
   nearbySites,
   todayItems,
   locStatus,
@@ -198,9 +200,13 @@ export function MapOverlayCard({
         </View>
         {onAddToItinerary && (
           <View style={styles.actionsSecondary}>
-            <Pressable onPress={onAddToItinerary} style={styles.btnAddToTrip}>
+            <Pressable
+              onPress={onAddToItinerary}
+              disabled={isOffline}
+              style={[styles.btnAddToTrip, isOffline && styles.btnAddToTripDisabled]}
+            >
               <CalendarPlus size={15} color="#FFFFFF" strokeWidth={2} />
-              <Text style={styles.btnAddToTripText}>Add to Itinerary</Text>
+              <Text style={styles.btnAddToTripText}>{isOffline ? "Reconnect to Add" : "Add to Itinerary"}</Text>
             </Pressable>
           </View>
         )}
@@ -351,6 +357,7 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
     paddingVertical: 13, borderRadius: 10, backgroundColor: tokens.colors.surf,
   },
+  btnAddToTripDisabled: { opacity: 0.5 },
   btnAddToTripText: { fontSize: 14, fontWeight: "600", color: "#FFFFFF", letterSpacing: 0.1 },
   nearbySection: { paddingTop: 4 },
   nearbySep: {

@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { useNetInfo } from "@react-native-community/netinfo";
 import { Search, SlidersHorizontal, Crosshair, Layers, AlertCircle, Lock, ChevronRight, X } from "lucide-react-native";
 import type { MapType } from "react-native-maps";
 
@@ -55,6 +56,8 @@ export default function MapScreen() {
   );
 
   const { locations, loading, err } = hooksBag.useLocations();
+  const netInfo = useNetInfo();
+  const isOffline = netInfo.isConnected === false || netInfo.isInternetReachable === false;
   const { loc, err: locErr, status: locStatus } = hooksBag.useUserLocation({ autoRequest: true });
   const { selectedLocationId: selectedSiteId, setSelectedLocationId: setSelectedSiteId } = hooksBag.useMapStore();
   const { itineraries } = useItineraries();
@@ -257,7 +260,9 @@ export default function MapScreen() {
       </View>
     );
   }
-  if (err) {
+  // Only block on err when there's no cached data to fall back to — a
+  // background refetch failing offline shouldn't hide sites we already have.
+  if (err && locations.length === 0) {
     return (
       <View style={styles.container}>
         <ErrorCard title="Map Error" message={err} />
@@ -413,6 +418,7 @@ export default function MapScreen() {
             ? () => handleAddToItinerary(selectedSite?.id)
             : undefined
         }
+        isOffline={isOffline}
         nearbySites={nearbySites}
         todayItems={todayItems}
         locStatus={locStatus}

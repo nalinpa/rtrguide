@@ -2,17 +2,106 @@
 
 Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 
+## Full Manual Test Matrix — Guest / Free / Premium
+
+Built 2026-09-10 from reading the actual current code (not guessed), covering every major flow per tier. Full retest from scratch — nothing pre-checked. Where a fuller writeup already exists elsewhere in this file (commit hash, exact repro), this list stays one line and points there instead of duplicating.
+
+**Auth & onboarding**
+- [ ] Sign up with email/password
+- [ ] Sign in with email/password
+- [ ] Forgot-password / reset flow
+- [ ] Sign in with Apple — native button, credential exchange, refresh token stored server-side (previously verified 2026-09-09 after the `blacksands-api` prod deploy that was blocking it — retest)
+- [ ] Sign in with Google
+- [ ] Continue as Guest
+- [ ] First-open tour (4-tab spotlight walkthrough)
+- [ ] Tour spotlight highlights "My Trips" header for an account with 2+ existing trips (see Manual QA below)
+- [ ] Tour doesn't auto-start over the login screen before session resolves
+
+**Guest**
+- [ ] Explore/Sites and Map tabs fully browsable, no login prompt
+- [ ] Non-premium site detail viewable; premium/locked site shows the buy paywall
+- [ ] Tapping Save on a site prompts "Sign In Required" (`Alert.alert`, confirmed in `sites/[siteId]/index.tsx`) rather than silently failing or crashing
+- [ ] Plans tab shows "Sign In to Plan a Trip" card instead of a list
+- [ ] Account tab shows "Guest Explorer" label, no stats row, no Trips/Saved/Restore/Danger-Zone cards — only the profile card + "Open Guide" promo
+- [ ] Guide section itself is reachable as a guest (promo card isn't auth-gated)
+- [ ] Map overlay's "Add to Itinerary" is fully absent for a guest (`onAddToItinerary` only set when `session.status !== "guest"`), not just disabled
+
+**Free / signed-in, non-premium**
+- [ ] Hard-capped at 1 itinerary — Account-tab "New Itinerary" button hidden once 1 exists (open item below, "Account-tab entitlement cap")
+- [ ] Single existing trip renders inline on the Plans tab instead of a list (this session's rework)
+- [ ] "1 itinerary allowed on the free plan" copy shown, not "up to 3" (this session's fix)
+- [ ] `CreateItineraryModal` defaults to a free template (not Blank) when locked, blocks submitting Blank
+- [ ] Dragging/reordering an itinerary item shows the premium upsell modal instead of moving it
+- [ ] "Add Day" button is hidden entirely (gated on `isEntitled`)
+- [ ] Premium/locked site detail shows the blurred-title paywall card, Buy triggers the real IAP sheet
+- [ ] Restore Purchases button works after a reinstall / on a second device
+- [ ] Account tab stats row shows correct trip/saved counts
+
+**Premium / entitled**
+- [ ] Up to 3 itineraries; Account-tab "+ New Itinerary" stays reachable even with exactly 1 trip (this session's tab-navigation fix)
+- [ ] Drag-and-drop reordering an itinerary item actually moves it
+- [ ] "Add Day" keeps the trip's date range in sync (open item below)
+- [ ] "Add Day" blocks if it would overlap another trip's dates (this session's fix, untested on-device)
+- [ ] Create-trip date picker selects the exact tapped day, highlight matches (this session's fix, previously confirmed working — retest)
+- [ ] Create-trip blocks a date range that overlaps an existing trip
+- [ ] Delete Trip via the "..." menu → confirm modal → removed (see Manual QA below)
+- [ ] Delete Day removes it and re-dates the remaining days with no gap
+- [ ] "Switch Trip" popover (2+ trips) opens the trip list correctly
+- [ ] Premium/locked sites open fully unlocked, no paywall card
+- [ ] Full Guide content accessible start to finish
+
+**Explore / Map (all tiers, same behavior)**
+- [ ] Featured site card renders with its drop shadow
+- [ ] Map category filter button is visually distinct and survives tapping a site (this session's fixes)
+- [ ] Search clears the active category filter
+- [ ] Location-denied banner + "Open Settings" button (open item below)
+- [ ] Marker clustering groups correctly while zooming (open item below, re-verify)
+- [ ] Marker settle timing doesn't freeze on blank icons during rapid pinch-zoom (open item below)
+- [ ] Map's premium banner shows the correct locked-site count and routes to one on tap
+- [ ] Hot Water Beach shows the walk/boat-only warning before "Add to Itinerary" proceeds (this session's fix)
+
+**Site detail**
+- [ ] Hero image + back button render correctly
+- [ ] Quick actions: Directions opens Maps, Review opens the review modal, Share opens `share-frame` and shows "Shared" after, Save toggles (guest gets the sign-in prompt)
+- [ ] Website chip opens the browser with UTM params attached
+- [ ] Reviews summary card + "View All" navigates to the full reviews list
+- [ ] "Add to Itinerary" is hidden for Accommodation-category sites
+- [ ] `PurchasePendingBanner` shows correctly if a purchase is mid-flight when the screen opens
+
+**Guide**
+- [ ] Guide index lists categories with correct icon/color
+- [ ] A guide category page renders its content
+- [ ] Bad/removed slug shows "Guide Not Found" with a working Go Back, not a blank page (open item below)
+- [ ] Guide back button returns to the Account tab, not Explore (this session's fix)
+
+**Account tab**
+- [ ] Saved Sites card + full Saved Places screen, swipe-to-remove works
+- [ ] Inactive-but-saved site shows a resolved name (or "Unavailable"), not a raw Firestore id (open item below)
+- [ ] Restore Purchases flow end to end
+- [ ] Delete Account danger-zone confirm flow, on-device
+
+**Claim / comp codes**
+- [ ] Tapping a real minted claim link actually deep-links into the app (not just the web fallback) — flagged in detail below
+- [ ] Sign-in gate on the claim screen works for a not-yet-authed tapper
+- [ ] Claiming grants the entitlement immediately, no restart needed (this session's fix)
+
+**Cross-cutting**
+- [ ] Delete-trip confirmation modal (see Manual QA below)
+- [ ] A failed day-move surfaces a visible error instead of silently reverting (open item below, hard to force reliably)
+- [ ] Offline banner appears when the network actually drops
+- [ ] Sentry captures real errors on a production-profile build (previously confirmed 2026-09-06 — retest)
+
 ## Manual QA — 2026-09-05 bug fixes
 
 Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a`, `59f501a`). None of these have been exercised on a real device yet — check each before shipping.
 
-- [ ] **Delete-trip confirmation** (`121e33a`) — open a trip, tap the header "...", tap "Delete Trip". Confirm a "Delete Trip? This cannot be undone." alert appears before anything is deleted; Cancel keeps the trip, Delete removes it and returns to the trip list.
+- [x] **Delete-trip confirmation** (`121e33a`) — verified on-device 2026-09-10 (superseded by the custom `DeleteTripModal` flow built the same day).
 - [ ] **Account-tab entitlement cap** (`963599f`) — as a non-entitled (non-purchased) account with 1 existing itinerary, confirm the Account tab's "New Itinerary" button is hidden, matching the Plans tab. As an entitled account, confirm you can still create up to `PLANNER.MAX_ITINERARIES` (3) trips from the Account tab.
 - [ ] **Failed day-move no longer silently discarded** (`3453691`) — start a day-to-day item move, kill network mid-save (airplane mode), background/foreground the app to trigger a refetch. Confirm the move isn't silently reverted — some error should surface rather than the item quietly snapping back with no explanation. (Awkward to force reliably; a code walkthrough may substitute for a full repro.)
 - [ ] **Add Day keeps endDate in sync** (`4c3fde5`) — open a trip, tap "Add Day", then go back to My Trips (need 2+ trips to see the picker). Confirm the trip's displayed date range now includes the newly added day.
 - [ ] **Map re-render loop fixed** (`242b30a`) — on the Map tab, search until exactly one result remains. Confirm the map doesn't jank/flicker/reselect repeatedly (Perf monitor or just visual smoothness works).
 - [ ] **Saved-site name fallback** (`c7fd99e`) — save a site, then mark that site `active: false` in Firestore (or via an admin script). Confirm the Account tab and the full Saved Places list show "Unavailable" instead of a raw Firestore doc id.
-- [ ] **Onboarding tour spotlight for existing trips** (`3b12f9f`) — reset the app-open counter / reinstall on an account that already has 2+ itineraries, trigger the first-open tour, and confirm the "Plan Your Days" step highlights the My Trips header instead of showing a blank centered card.
+- [x] **Onboarding tour spotlight for existing trips** (`3b12f9f`) — verified on-device 2026-09-10.
 - [x] **Sentry DSN actually reaches builds** (`cb50ccd`) — confirmed on a real dev-profile EAS build (2026-09-06): manual test event landed in the `patel-td` Sentry org. Test button removed from the Account tab.
 - [ ] **Guide not-found state** (`abb3b5a`) — manually navigate to `/guide/does-not-exist` (or an old/removed slug). Confirm a "Guide Not Found" card with a Go Back button appears instead of a blank page.
 - [ ] **Inactive-but-saved sites stay reachable** (`4045abf`) — save a site, mark it `active: false`, open the full Saved Places screen (not just the Account tab preview). Confirm the site still appears (name resolved, not id) and swipe-to-remove still un-saves it correctly.
@@ -58,6 +147,8 @@ Classified as an **architectural** change (new site-data schema + enforcement ac
 ## Free / comp unlock codes
 
 - [x] Admin-mintable free-unlock claim links — `POST /v1/admin/comp-links` in `commerce-api` (2026-09-06), reuses the existing `claimTokens`/`/claim/:token` redemption path this app already handles, zero client changes needed. No admin UI yet — minting one today means calling the endpoint directly (curl/Postman) with an admin bearer token.
+- [x] Entitlements not reflecting immediately after claim (2026-09-10) — `useEntitlements` (`enginev1/hooks`) caches with a 5-minute `staleTime`, and `app/claim/[token].tsx`'s `handleClaim` never invalidated that query — claim, see "You're all set," Continue into the app, still reads the pre-claim locked state. Fixed: invalidates the `["rotoruaguide","entitlements",uid]` query on successful claim.
+- [ ] **Needs a real on-device test** — server (`claimLinks.ts` mint/read/redeem) and client (`app/claim/[token].tsx`) both verified correct by reading the source end-to-end (2026-09-10), but the actual flow has never been run on a physical device. Specifically unverified: does tapping a real `claimUrl` deep-link into the app at all, or does it just open the web fallback page (`claimPage.ts`)? The AASA file resolving via curl only proves the file is correct, not that a real Universal Link tap-through opens the native app. Mint a comp link (see commerce-api section of `enginev1/TASKS.md` or ask for the curl steps again), open it on a phone, confirm: deep-link opens the app, sign-in works, Claim succeeds, and the unlock is visible immediately without a restart. Rework whatever breaks.
 
 ## Review prompts
 

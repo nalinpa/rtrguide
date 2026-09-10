@@ -1,3 +1,4 @@
+jest.mock("@react-native-community/netinfo", () => require("@react-native-community/netinfo/jest/netinfo-mock"));
 jest.mock("@/lib/providers/SessionProvider", () => ({ useSession: jest.fn() }));
 jest.mock("@/lib/services/itineraryService", () => ({
   itineraryService: {

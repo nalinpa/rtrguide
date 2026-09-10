@@ -6,13 +6,13 @@ import { getAuthErrorMessage } from "@/lib/auth/authErrors";
 
 export const getGoogleSignInErrorMessage = getAuthErrorMessage;
 
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(): Promise<{ signedIn: boolean }> {
   const webClientId = Constants.expoConfig?.extra?.google?.webClientId as string;
   GoogleSignin.configure({ webClientId });
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
 
   const response = await GoogleSignin.signIn();
-  if (response.type === "cancelled") return;
+  if (response.type === "cancelled") return { signedIn: false };
 
   const idToken = response.data.idToken;
   if (!idToken) {
@@ -21,4 +21,5 @@ export async function signInWithGoogle(): Promise<void> {
 
   const googleCredential = GoogleAuthProvider.credential(idToken);
   await signInWithCredential(auth, googleCredential);
+  return { signedIn: true };
 }

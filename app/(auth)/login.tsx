@@ -97,7 +97,8 @@ export default function LoginScreen() {
     setAuthErr(null);
     setSigningInWith("google");
     try {
-      await signInWithGoogle();
+      const { signedIn } = await signInWithGoogle();
+      if (!signedIn) setSigningInWith(null);
     } catch (e) {
       setAuthErr(getGoogleSignInErrorMessage(e));
       setSigningInWith(null);

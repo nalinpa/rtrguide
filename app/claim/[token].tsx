@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as Sentry from "@sentry/react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { Screen, AppText, AppButton, components } from "@/lib/uiKit";
 import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { client } from "@/lib/api";
+import { QUERY_KEY_PREFIX } from "@/lib/hooksBag";
 import { tokens } from "@/lib/ui/tokens";
 
 const COMMERCE_BASE_URL = "https://commerce-staging.blacksands.app";
@@ -16,6 +18,7 @@ export default function ClaimScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
   const { session } = useSession();
   const f = useAuthForm("login");
+  const queryClient = useQueryClient();
 
   const [info, setInfo] = useState<ClaimInfo | null>(null);
   const [infoErr, setInfoErr] = useState<string | null>(null);
@@ -54,6 +57,12 @@ export default function ClaimScreen() {
     setClaimErr(null);
     try {
       await client.entitlements!.claim(token);
+      // useEntitlements (enginev1/hooks) caches with a 5-minute staleTime and
+      // nothing else triggers a refetch on claim — without this, "You're all
+      // set" -> Continue would drop the user back into the app still reading
+      // the pre-claim (locked) entitlement state.
+      const uid = session.status === "authed" ? session.uid : null;
+      await queryClient.invalidateQueries({ queryKey: [...QUERY_KEY_PREFIX, "entitlements", uid] });
       setClaimed(true);
     } catch (e) {
       console.error("[claim] claim failed:", e);

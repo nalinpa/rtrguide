@@ -32,6 +32,25 @@ function forwardCascade(packed: ItineraryItem[]): ItineraryItem[] {
   return packed;
 }
 
+// Authoritative overlap check, independent of whatever order `items` is
+// currently in — re-sorts by slotIndex itself rather than trusting the
+// caller's array order, so it stays correct even if some other step (a
+// drag, a save) built that order a different way. A dropped item's body or
+// its neighbor's transit buffer landing on top of anything else should
+// never be allowed to commit; this is the single gate all drop/save paths
+// should check against instead of each re-deriving the same invariant.
+export function hasScheduleOverlap(items: ItineraryItem[]): boolean {
+  const sorted = [...items].sort((a, b) => (a.slotIndex || 0) - (b.slotIndex || 0));
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const curr = sorted[i];
+    const next = sorted[i + 1];
+    const currEnd = (curr.slotIndex || 0) + (curr.durationSlots || 2);
+    const transitRequired = getRequiredTransitSlots(curr.siteId, next.siteId);
+    if (currEnd + transitRequired > (next.slotIndex || 0)) return true;
+  }
+  return false;
+}
+
 export function runPhysicsEngine(items: ItineraryItem[]): ItineraryItem[] {
   if (items.length === 0) return items;
   let packed = [...items];

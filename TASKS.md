@@ -4,109 +4,123 @@ Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 
 ## Full Manual Test Matrix — Guest / Free / Premium
 
-Built 2026-09-10 from reading the actual current code (not guessed), covering every major flow per tier. Full retest from scratch — nothing pre-checked. Where a fuller writeup already exists elsewhere in this file (commit hash, exact repro), this list stays one line and points there instead of duplicating.
+Built 2026-09-10 from reading the actual current code (not guessed), covering every major flow per tier. Where a fuller writeup already exists elsewhere in this file (commit hash, exact repro), this list stays one line and points there instead of duplicating.
+
+**Status after the 2026-09-11/12 device pass:** everything below is checked off as passing except the items still unticked — those are purchases/IAP, account deletion, claim links, Apple refresh-token storage, review report/block, the day-move error path, and Sentry on a production build. Ticks reflect what the tester reported on a real device, not a code reading.
 
 **Auth & onboarding**
-- [ ] Sign up with email/password
-- [ ] Sign in with email/password
-- [ ] Forgot-password / reset flow
-- [ ] Sign in with Apple — native button, credential exchange, refresh token stored server-side (previously verified 2026-09-09 after the `blacksands-api` prod deploy that was blocking it — retest)
-- [ ] Sign in with Google
-- [ ] Continue as Guest
-- [ ] First-open tour (4-tab spotlight walkthrough)
-- [ ] Tour spotlight highlights "My Trips" header for an account with 2+ existing trips (see Manual QA below)
-- [ ] Tour doesn't auto-start over the login screen before session resolves
+- [x] Sign up with email/password
+- [x] Sign in with email/password
+- [x] Forgot-password / reset flow
+- [ ] Sign in with Apple — native button and credential exchange work; **storing the refresh token server-side still fails** with `400 apple_signin_not_configured` (confirmed 2026-09-11). Blocked on ops, not code: set `APPLE_TEAM_ID`/`APPLE_KEY_ID`/`APPLE_PRIVATE_KEY` on the `blacksands-api` Worker (none are set) and add `appleSignIn.clientId = app.blacksands.rtrguide` to the `apps/rotoruaguide` registry doc (config is KV-cached 5 min). Until then account deletion cannot revoke at Apple — App Store 5.1.1(v) risk.
+- [x] Sign in with Google
+- [x] Continue as Guest
+- [x] First-open tour (4-tab spotlight walkthrough)
+- [x] Tour spotlight highlights "My Trips" header for an account with 2+ existing trips (see Manual QA below)
+- [x] Tour doesn't auto-start over the login screen before session resolves
 
 **Guest**
-- [ ] Explore/Sites and Map tabs fully browsable, no login prompt
-- [ ] Non-premium site detail viewable; premium/locked site shows the buy paywall
-- [ ] Tapping Save on a site prompts "Sign In Required" (`Alert.alert`, confirmed in `sites/[siteId]/index.tsx`) rather than silently failing or crashing
-- [ ] Plans tab shows "Sign In to Plan a Trip" card instead of a list
-- [ ] Account tab shows "Guest Explorer" label, no stats row, no Trips/Saved/Restore/Danger-Zone cards — only the profile card + "Open Guide" promo
-- [ ] Guide section itself is reachable as a guest (promo card isn't auth-gated)
-- [ ] Map overlay's "Add to Itinerary" is fully absent for a guest (`onAddToItinerary` only set when `session.status !== "guest"`), not just disabled
+- [x] Explore/Sites and Map tabs fully browsable, no login prompt
+- [x] Non-premium site detail viewable; premium/locked site shows the buy paywall
+- [x] Tapping Save on a site prompts "Sign In Required" (`Alert.alert`, confirmed in `sites/[siteId]/index.tsx`) rather than silently failing or crashing
+- [x] Plans tab shows "Sign In to Plan a Trip" card instead of a list
+- [x] Account tab shows "Guest Explorer" label, no stats row, no Trips/Saved/Restore/Danger-Zone cards — only the profile card + "Open Guide" promo
+- [x] Guide section itself is reachable as a guest (promo card isn't auth-gated)
+- [x] Map overlay's "Add to Itinerary" is fully absent for a guest (`onAddToItinerary` only set when `session.status !== "guest"`), not just disabled
+- [x] Guest sign-in card on Explore is one compact line (`60963f6`)
 
 **Free / signed-in, non-premium**
-- [ ] Hard-capped at 1 itinerary — Account-tab "New Itinerary" button hidden once 1 exists (open item below, "Account-tab entitlement cap")
-- [ ] Single existing trip renders inline on the Plans tab instead of a list (this session's rework)
-- [ ] "1 itinerary allowed on the free plan" copy shown, not "up to 3" (this session's fix)
-- [ ] `CreateItineraryModal` defaults to a free template (not Blank) when locked, blocks submitting Blank
-- [ ] Dragging/reordering an itinerary item shows the premium upsell modal instead of moving it
-- [ ] "Add Day" button is hidden entirely (gated on `isEntitled`)
-- [ ] Premium/locked site detail shows the blurred-title paywall card, Buy triggers the real IAP sheet
+- [x] Hard-capped at 1 itinerary — Account-tab "New Itinerary" button hidden once 1 exists (open item below, "Account-tab entitlement cap")
+- [x] Single existing trip renders inline on the Plans tab instead of a list
+- [x] "1 itinerary allowed on the free plan" copy shown, not "up to 3"
+- [x] `CreateItineraryModal` defaults to a free template (not Blank) when locked, blocks submitting Blank
+- [x] Dragging/reordering an itinerary item shows the premium upsell modal instead of moving it
+- [x] "Add Day" button is hidden entirely (gated on `isEntitled`)
+- [ ] Premium/locked site detail shows the blurred-title paywall card, Buy triggers the real IAP sheet — paywall card verified, **Buy untested** (needs a dev-client/TestFlight build + sandbox tester)
 - [ ] Restore Purchases button works after a reinstall / on a second device
-- [ ] Account tab stats row shows correct trip/saved counts
+- [x] Account tab stats row shows correct trip/saved counts
 
 **Premium / entitled**
-- [ ] Up to 3 itineraries; Account-tab "+ New Itinerary" stays reachable even with exactly 1 trip (this session's tab-navigation fix)
-- [ ] Drag-and-drop reordering an itinerary item actually moves it
-- [ ] "Add Day" keeps the trip's date range in sync (open item below)
-- [ ] "Add Day" blocks if it would overlap another trip's dates (this session's fix, untested on-device)
-- [ ] Create-trip date picker selects the exact tapped day, highlight matches (this session's fix, previously confirmed working — retest)
-- [ ] Create-trip blocks a date range that overlaps an existing trip
-- [ ] Delete Trip via the "..." menu → confirm modal → removed (see Manual QA below)
-- [ ] Delete Day removes it and re-dates the remaining days with no gap
-- [ ] "Switch Trip" popover (2+ trips) opens the trip list correctly
-- [ ] Premium/locked sites open fully unlocked, no paywall card
-- [ ] Full Guide content accessible start to finish
+- [x] Up to 3 itineraries; Account-tab "+ New Itinerary" stays reachable even with exactly 1 trip
+- [x] Drag-and-drop reordering an itinerary item actually moves it
+- [x] "Add Day" keeps the trip's date range in sync (open item below)
+- [x] "Add Day" blocks if it would overlap another trip's dates
+- [x] Create-trip date picker selects the exact tapped day, highlight matches
+- [x] Create-trip blocks a date range that overlaps an existing trip
+- [x] Delete Trip via the "..." menu → confirm modal → removed (see Manual QA below)
+- [x] Delete Day removes it and re-dates the remaining days with no gap
+- [x] "Switch Trip" popover (2+ trips) opens the trip list correctly
+- [x] Premium/locked sites open fully unlocked, no paywall card
+- [x] Full Guide content accessible start to finish
+- [x] Deleted trip disappears from the Plans list immediately, no lingering card (`10b0dcf`)
 
 **Explore / Map (all tiers, same behavior)**
-- [ ] Featured site card renders with its drop shadow
-- [ ] Map category filter button is visually distinct and survives tapping a site (this session's fixes)
-- [ ] Search clears the active category filter
-- [ ] Location-denied banner + "Open Settings" button (open item below)
-- [ ] Marker clustering groups correctly while zooming (open item below, re-verify)
-- [ ] Marker settle timing doesn't freeze on blank icons during rapid pinch-zoom (open item below)
-- [ ] Map's premium banner shows the correct locked-site count and routes to one on tap
-- [ ] Hot Water Beach shows the walk/boat-only warning before "Add to Itinerary" proceeds (this session's fix)
+- [x] Featured site card renders with its drop shadow
+- [x] Map category filter button is visually distinct and survives tapping a site
+- [x] Search clears the active category filter
+- [x] Location-denied card + "Open Settings", now with a "Not Now" dismiss (`60963f6`); enabling location in Settings clears it without an app restart (`8f73ead`)
+- [x] Marker clustering groups correctly while zooming (open item below, re-verify)
+- [x] Marker settle timing doesn't freeze on blank icons during rapid pinch-zoom (open item below)
+- [x] Map's premium banner shows the correct locked-site count and routes to one on tap
+- [x] Hot Water Beach shows the walk/boat-only warning before "Add to Itinerary" proceeds
+- [x] Typing in map search for 10+ seconds, with and without a category filter, no longer crashes with "Maximum update depth exceeded" (`8f73ead`, `349e6dc`)
 
 **Site detail**
-- [ ] Hero image + back button render correctly
-- [ ] Quick actions: Directions opens Maps, Review opens the review modal, Share opens `share-frame` and shows "Shared" after, Save toggles (guest gets the sign-in prompt)
-- [ ] Website chip opens the browser with UTM params attached
-- [ ] Reviews summary card + "View All" navigates to the full reviews list
-- [ ] "Add to Itinerary" is hidden for Accommodation-category sites
-- [ ] `PurchasePendingBanner` shows correctly if a purchase is mid-flight when the screen opens
+- [x] Hero image + back button render correctly
+- [x] Quick actions: Directions opens Maps, Review opens the review modal, Share opens `share-frame` and shows "Shared" after, Save toggles (guest gets the sign-in prompt)
+- [x] Website chip opens the browser with UTM params attached
+- [x] Reviews summary card + "View All" navigates to the full reviews list
+- [x] Reviews screen is titled with the site's name, not "Location" (`7b93184`)
+- [ ] Report and block on a review (`ReviewOptionsMenu` → report, block author, blocked author's reviews disappear)
+- [x] "Add to Itinerary" is hidden for Accommodation-category sites
+- [x] `PurchasePendingBanner` shows correctly if a purchase is mid-flight when the screen opens
 
 **Guide**
-- [ ] Guide index lists categories with correct icon/color
-- [ ] A guide category page renders its content
-- [ ] Bad/removed slug shows "Guide Not Found" with a working Go Back, not a blank page (open item below)
-- [ ] Guide back button returns to the Account tab, not Explore (this session's fix)
+- [x] Guide index lists categories with correct icon/color
+- [x] A guide category page renders its content
+- [x] Bad/removed slug shows "Guide Not Found" with a working Go Back, not a blank page (open item below)
+- [x] Guide back button returns to the Account tab, not Explore
 
 **Account tab**
-- [ ] Saved Sites card + full Saved Places screen, swipe-to-remove works
-- [ ] Inactive-but-saved site shows a resolved name (or "Unavailable"), not a raw Firestore id (open item below)
+- [x] Saved Sites card + full Saved Places screen, swipe-to-remove works
+- [x] Inactive-but-saved site shows a resolved name (or "Unavailable"), not a raw Firestore id (open item below)
 - [ ] Restore Purchases flow end to end
 - [ ] Delete Account danger-zone confirm flow, on-device
 
-**Claim / comp codes**
+**Claim / comp codes** — all blocked on the commerce-api production deploy
 - [ ] Tapping a real minted claim link actually deep-links into the app (not just the web fallback) — flagged in detail below
 - [ ] Sign-in gate on the claim screen works for a not-yet-authed tapper
-- [ ] Claiming grants the entitlement immediately, no restart needed (this session's fix)
+- [ ] Claiming grants the entitlement immediately, no restart needed
 
 **Cross-cutting**
-- [ ] Delete-trip confirmation modal (see Manual QA below)
+- [x] Delete-trip confirmation modal (see Manual QA below)
 - [ ] A failed day-move surfaces a visible error instead of silently reverting (open item below, hard to force reliably)
-- [ ] Offline banner appears when the network actually drops
+- [x] Offline banner appears when the network actually drops
 - [ ] Sentry captures real errors on a production-profile build (previously confirmed 2026-09-06 — retest)
+
+**Offline** (2026-09-11/12 pass, fixes `bf6625b` / `1adf947` / `cf97057`)
+- [x] Cold launch offline: trips and saved places load from cache, no "Couldn't load your trips" over data that loaded fine, no `[useItineraries] load failed` in the log
+- [x] Saved place saved while offline shows its name on the Account tab, not "Unavailable"
+- [x] Add to Trip / Create Trip are disabled offline with "Reconnect to …" labels
+- [x] Reconnecting refetches on its own
+- [ ] Trip edits made offline (reorder, add/delete day, move item) still there after reconnect — reorder reported as not saving, repro case still to be pinned down
 
 ## Manual QA — 2026-09-05 bug fixes
 
 Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a`, `59f501a`). None of these have been exercised on a real device yet — check each before shipping.
 
 - [x] **Delete-trip confirmation** (`121e33a`) — verified on-device 2026-09-10 (superseded by the custom `DeleteTripModal` flow built the same day).
-- [ ] **Account-tab entitlement cap** (`963599f`) — as a non-entitled (non-purchased) account with 1 existing itinerary, confirm the Account tab's "New Itinerary" button is hidden, matching the Plans tab. As an entitled account, confirm you can still create up to `PLANNER.MAX_ITINERARIES` (3) trips from the Account tab.
+- [x] **Account-tab entitlement cap** (`963599f`) — verified in the 2026-09-11/12 device pass — as a non-entitled (non-purchased) account with 1 existing itinerary, confirm the Account tab's "New Itinerary" button is hidden, matching the Plans tab. As an entitled account, confirm you can still create up to `PLANNER.MAX_ITINERARIES` (3) trips from the Account tab.
 - [ ] **Failed day-move no longer silently discarded** (`3453691`) — start a day-to-day item move, kill network mid-save (airplane mode), background/foreground the app to trigger a refetch. Confirm the move isn't silently reverted — some error should surface rather than the item quietly snapping back with no explanation. (Awkward to force reliably; a code walkthrough may substitute for a full repro.)
-- [ ] **Add Day keeps endDate in sync** (`4c3fde5`) — open a trip, tap "Add Day", then go back to My Trips (need 2+ trips to see the picker). Confirm the trip's displayed date range now includes the newly added day.
-- [ ] **Map re-render loop fixed** (`242b30a`) — on the Map tab, search until exactly one result remains. Confirm the map doesn't jank/flicker/reselect repeatedly (Perf monitor or just visual smoothness works).
-- [ ] **Saved-site name fallback** (`c7fd99e`) — save a site, then mark that site `active: false` in Firestore (or via an admin script). Confirm the Account tab and the full Saved Places list show "Unavailable" instead of a raw Firestore doc id.
+- [x] **Add Day keeps endDate in sync** (`4c3fde5`) — verified in the 2026-09-11/12 device pass — open a trip, tap "Add Day", then go back to My Trips (need 2+ trips to see the picker). Confirm the trip's displayed date range now includes the newly added day.
+- [x] **Map re-render loop fixed** (`242b30a`) — verified 2026-09-12, but note the real loop was elsewhere: an unstable `locations` array drove react-native-map-clustering into "Maximum update depth exceeded" while searching, fixed in `8f73ead` (plus redundant `Stack.Screen` options in `349e6dc`) — on the Map tab, search until exactly one result remains. Confirm the map doesn't jank/flicker/reselect repeatedly (Perf monitor or just visual smoothness works).
+- [x] **Saved-site name fallback** (`c7fd99e`) — verified 2026-09-12; names now come from the cached locations list so they also survive offline (`cf97057`) — save a site, then mark that site `active: false` in Firestore (or via an admin script). Confirm the Account tab and the full Saved Places list show "Unavailable" instead of a raw Firestore doc id.
 - [x] **Onboarding tour spotlight for existing trips** (`3b12f9f`) — verified on-device 2026-09-10.
 - [x] **Sentry DSN actually reaches builds** (`cb50ccd`) — confirmed on a real dev-profile EAS build (2026-09-06): manual test event landed in the `patel-td` Sentry org. Test button removed from the Account tab.
-- [ ] **Guide not-found state** (`abb3b5a`) — manually navigate to `/guide/does-not-exist` (or an old/removed slug). Confirm a "Guide Not Found" card with a Go Back button appears instead of a blank page.
-- [ ] **Inactive-but-saved sites stay reachable** (`4045abf`) — save a site, mark it `active: false`, open the full Saved Places screen (not just the Account tab preview). Confirm the site still appears (name resolved, not id) and swipe-to-remove still un-saves it correctly.
-- [ ] **Location-denied banner restored** (`ac8df0a`) — deny location permission for the app, open the Sites tab. Confirm a "Location Disabled" card appears with an "Open Settings" button that opens the OS settings app.
-- [ ] **Map marker settle timing rework** (`59f501a`) — on a real device (ideally an older/slower one), open the Map tab and pinch-zoom rapidly and repeatedly across cluster boundaries. Confirm markers/clusters never freeze on a blank or default icon — this replaced a fixed 700ms timer with an onLayout+rAF-based settle, and needs on-device confirmation since it touches native marker rasterization.
+- [x] **Guide not-found state** (`abb3b5a`) — verified in the 2026-09-11/12 device pass — manually navigate to `/guide/does-not-exist` (or an old/removed slug). Confirm a "Guide Not Found" card with a Go Back button appears instead of a blank page.
+- [x] **Inactive-but-saved sites stay reachable** (`4045abf`) — verified in the 2026-09-11/12 device pass — save a site, mark it `active: false`, open the full Saved Places screen (not just the Account tab preview). Confirm the site still appears (name resolved, not id) and swipe-to-remove still un-saves it correctly.
+- [x] **Location-denied banner restored** (`ac8df0a`) — verified 2026-09-12, now dismissible (`60963f6`) and clears on return from Settings (`8f73ead`) — deny location permission for the app, open the Sites tab. Confirm a "Location Disabled" card appears with an "Open Settings" button that opens the OS settings app.
+- [x] **Map marker settle timing rework** (`59f501a`) — verified in the 2026-09-11/12 device pass — on a real device (ideally an older/slower one), open the Map tab and pinch-zoom rapidly and repeatedly across cluster boundaries. Confirm markers/clusters never freeze on a blank or default icon — this replaced a fixed 700ms timer with an onLayout+rAF-based settle, and needs on-device confirmation since it touches native marker rasterization.
 - [x] **Clustering silently broken since `96ce2ad`** (found 2026-09-06 on first real device test) — `renderedMarkers` wrapped each site marker in a `SiteMapMarker` component instead of a raw `<Marker coordinate=.../>`. `react-native-map-clustering`'s `isMarker()` check reads `child.props.coordinate` directly off the element passed as a child of `ClusterMapView`, not off whatever that element renders internally — so every marker failed the check and clustering silently no-op'd (all markers rendered individually, ungrouped) for two days across 3 commits before anyone tested on a physical device. Fixed in [components/map/SitesMapView.tsx](components/map/SitesMapView.tsx) by passing `coordinate` through as an explicit prop on `SiteMapMarker` itself. Re-verify clustering visually on-device.
 
 ## Content
@@ -116,7 +130,7 @@ Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a
 - [ x ] Set up a photo storage bucket (no Firebase Storage / bucket integration currently in the app — `imageUrl`/`imageThumbnailUrl` on `Site` exist but nothing populates or uploads to a bucket today)
 - [x] Source and upload photos for sites, wire into the bucket above
 - [x] Rewrite site content (descriptions/copy) now that every site has an entry — all 89/89 descriptions rewritten and pushed to Firestore via `scripts/update-site-descriptions.js` (Fat Dog Cafe filled in and re-pushed). 2nd pass done 2026-09-01.
-- [ ] Review all site data in Firestore (descriptions, price, website, category, photos) for accuracy and completeness before launch
+- [x] Review all site data in Firestore (descriptions, price, website, category, photos) for accuracy and completeness before launch — done 2026-09-11
 
 ## Features
 
@@ -161,7 +175,7 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 ## Store compliance (will block App Store / Play review)
 
-- [x] Add an in-app account-deletion flow that also **revokes the Apple token** — client side done: `appleSignIn.ts` now persists the Apple refresh token server-side on sign-in (ca880e1), `userService.deleteAccount` calls the server-side `client.auth.deleteAccount()` instead of client-side `deleteUser` "so Apple revocation always runs" (946fa0d), and it signs out locally after (`auth.signOut()`) since the server-side delete doesn't clear local SDK session state (a721645). Actual revoke-on-Apple's-servers happens in the `enginev1/api` backend — out of scope to verify here ([[feedback_no_cross_repo_edits]]); worth a quick confirm with whoever owns that repo that the revoke call is implemented before relying on this for App Store review.
+- [x] Add an in-app account-deletion flow that also **revokes the Apple token** — client side done: `appleSignIn.ts` now persists the Apple refresh token server-side on sign-in (ca880e1), `userService.deleteAccount` calls the server-side `client.auth.deleteAccount()` instead of client-side `deleteUser` "so Apple revocation always runs" (946fa0d), and it signs out locally after (`auth.signOut()`) since the server-side delete doesn't clear local SDK session state (a721645). Actual revoke-on-Apple's-servers happens in the `enginev1/api` backend. **Verified 2026-09-11 that it cannot work yet**: the backend code exists (`routes/auth.ts`, `lib/apple.ts`, revoke in `routes/account.ts`), but `wrangler secret list` on `blacksands-api` shows no `APPLE_TEAM_ID`/`APPLE_KEY_ID`/`APPLE_PRIVATE_KEY`, and the app's Apple sign-in returns `400 apple_signin_not_configured` because `apps/rotoruaguide` has no `appleSignIn.clientId`. So no refresh token has ever been stored and nothing can be revoked — see the Auth line in the test matrix for the fix steps. App Store 5.1.1(v) blocker.
 - [x] Privacy Policy page live at **https://blacksands.app/rotorua-guide#privacy** (`public/rotorua-guide.html` in the `blacksands` repo, deployed) — paste this URL into App Store Connect's Privacy Policy field. No hero screenshot yet (`app-detail-hero__visual` block omitted) — add one later, no restructuring needed. Nothing in the *rotorua-guide* app itself links to this page yet — consider adding a link from the account/settings screen too.
 - [x] Terms of Service added at **https://blacksands.app/rotorua-guide#terms** (custom, not just Apple's default EULA — covers the one-time IAP, content accuracy, location-based check-ins, user content, termination, NZ governing law)
 - [ ] Confirm IAP products (`expo-iap`) are actually created and approved in App Store Connect / Play Console — `usePurchase(productId)` takes the id from the caller, no product IDs hardcoded here to audit against

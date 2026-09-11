@@ -54,7 +54,17 @@ export function useItineraries() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => itineraryService.deleteItinerary(id),
-    onSuccess: () => {
+    // Drop it from the cached list now, not after the refetch, so it doesn't linger on screen.
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<Itinerary[]>(queryKey);
+      queryClient.setQueryData<Itinerary[]>(queryKey, (old) => old?.filter((i) => i.id !== id));
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
     },
   });

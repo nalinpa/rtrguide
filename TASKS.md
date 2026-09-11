@@ -71,7 +71,7 @@ Built 2026-09-10 from reading the actual current code (not guessed), covering ev
 - [x] Website chip opens the browser with UTM params attached
 - [x] Reviews summary card + "View All" navigates to the full reviews list
 - [x] Reviews screen is titled with the site's name, not "Location" (`7b93184`)
-- [ ] Report and block on a review (`ReviewOptionsMenu` → report, block author, blocked author's reviews disappear)
+- [ ] Report and block on a review (`ReviewOptionsMenu` → report, block author, blocked author's reviews disappear) — **tested 2026-09-12 and silently broken**: `enginev1/api`'s `routes/moderation.ts` writes `reports/*` and `blocks/*` under the caller's own id token, not an admin one, so [firestore.rules](firestore.rules) applied and both hit the catch-all deny (verified against the live DB: neither collection exists, so nothing has landed since the real rules shipped in `7932a37`). Rules + visible success/failure feedback added in `11af080`. **Still needs `firebase deploy --only firestore:rules`**, then retest: report a review, block its author, confirm a `reports/` and a `blocks/` doc appear and the blocked author's reviews vanish.
 - [x] "Add to Itinerary" is hidden for Accommodation-category sites
 - [x] `PurchasePendingBanner` shows correctly if a purchase is mid-flight when the screen opens
 

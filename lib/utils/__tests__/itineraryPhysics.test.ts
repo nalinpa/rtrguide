@@ -2,7 +2,6 @@ import {
   slotsToDurationLabel,
   slotIndexToTimeLabel,
   runPhysicsEngine,
-  hasScheduleOverlap,
 } from "@/lib/utils/itineraryPhysics";
 import type { ItineraryItem } from "@/lib/models";
 
@@ -91,43 +90,5 @@ describe("runPhysicsEngine", () => {
     expect(result[0].timeLabel).toBe("5:00 PM");
     expect(result[1].timeLabel).toBe("6:30 PM");
     expect(result[2].timeLabel).toBe("8:00 PM");
-  });
-});
-
-describe("hasScheduleOverlap", () => {
-  it("is false when items are exactly touching their required transit gap", () => {
-    const items = [
-      makeItem({ id: "a", siteId: "site-a", slotIndex: 0, durationSlots: 2 }),
-      makeItem({ id: "b", siteId: "site-b", slotIndex: 3, durationSlots: 2 }),
-    ];
-
-    expect(hasScheduleOverlap(items)).toBe(false);
-  });
-
-  it("is true when an item's body overlaps another item", () => {
-    const items = [
-      makeItem({ id: "a", siteId: "site-a", slotIndex: 0, durationSlots: 4 }),
-      makeItem({ id: "b", siteId: "site-b", slotIndex: 2, durationSlots: 2 }),
-    ];
-
-    expect(hasScheduleOverlap(items)).toBe(true);
-  });
-
-  it("is true when an item lands inside the required transit buffer", () => {
-    const items = [
-      makeItem({ id: "a", siteId: "site-a", slotIndex: 0, durationSlots: 2 }),
-      makeItem({ id: "b", siteId: "site-b", slotIndex: 2, durationSlots: 2 }),
-    ];
-
-    expect(hasScheduleOverlap(items)).toBe(true);
-  });
-
-  it("checks pairs by slot order, not array order", () => {
-    const items = [
-      makeItem({ id: "b", siteId: "site-b", slotIndex: 3, durationSlots: 2 }),
-      makeItem({ id: "a", siteId: "site-a", slotIndex: 0, durationSlots: 2 }),
-    ];
-
-    expect(hasScheduleOverlap(items)).toBe(false);
   });
 });

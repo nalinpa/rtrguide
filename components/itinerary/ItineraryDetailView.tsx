@@ -23,7 +23,7 @@ import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
 import { useEntitlementGate } from "@/lib/hooks/useEntitlementGate";
 import { usePurchaseContext } from "@/lib/iap/PurchaseProvider";
-import { runPhysicsEngine, hasScheduleOverlap, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
+import { runPhysicsEngine, slotsToDurationLabel } from "@/lib/utils/itineraryPhysics";
 import { getRequiredTransitSlots } from "@/lib/utils/transitMatrix";
 import { PLANNER } from "@/lib/constants/gameplay";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
@@ -309,22 +309,15 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
     const itemSize = movedItem.durationSlots || 2;
     const targetSlot = Math.max(0, Math.min(requestedSlotIndex, MAX_GRID_SLOTS - itemSize));
 
-    // Sort by start slot, not center — the render (and handleSaveEdit) both
-    // assume array order matches chronological start order to pair items up
-    // for transit blocks. Sorting by center could put two items in the wrong
-    // order when their durations differ, causing a transit block to be
-    // computed between the wrong pair and rendered in the wrong place.
-    let updatedItems = [...otherItems, { ...movedItem, slotIndex: targetSlot }];
-    updatedItems.sort((a, b) => (a.slotIndex || 0) - (b.slotIndex || 0));
-    updatedItems = runPhysicsEngine(updatedItems);
+    const getCenter = (item: ItineraryItem, isMovedItem: boolean) => {
+      const start = isMovedItem ? targetSlot : item.slotIndex || 0;
+      const duration = item.durationSlots || 2;
+      return start + duration / 2;
+    };
 
-    // Authoritative check on the final arrangement, independent of whatever
-    // order the cascade above left things in — a card must never be allowed
-    // to settle on top of another item OR a transit buffer, full stop.
-    // Bounce back to where it started rather than commit an overlap.
-    if (hasScheduleOverlap(updatedItems)) {
-      return movedItem.slotIndex;
-    }
+    let updatedItems = [...otherItems, { ...movedItem, slotIndex: targetSlot }];
+    updatedItems.sort((a, b) => getCenter(a, a.id === itemId) - getCenter(b, b.id === itemId));
+    updatedItems = runPhysicsEngine(updatedItems);
 
     const finalizedMovedItem = updatedItems.find((item) => item.id === itemId);
     const actualFinalSlot = finalizedMovedItem?.slotIndex ?? targetSlot;

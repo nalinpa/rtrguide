@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { AppState } from "react-native";
 import { createHooks } from "@blacksands/hooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
@@ -13,6 +14,11 @@ export const hooksBag = createHooks<Site>(client, {
   appId: "rotoruaguide",
   queryKeyPrefix: QUERY_KEY_PREFIX,
   storage: AsyncStorage,
+  // Identity, but declared once here on purpose. useLocations memoizes on this function,
+  // and its default is created inline on every render — so `locations` came back as a new
+  // array each render, which made the map rebuild every marker each render and drove
+  // react-native-map-clustering's re-cluster effect into "Maximum update depth exceeded".
+  normalizeLocation: (raw) => raw,
   locationSource: {
     requestPermission: async () => {
       const perm = await Location.requestForegroundPermissionsAsync();
@@ -54,6 +60,26 @@ hooksBag.useLocations = () => {
   const result = useAllLocations();
   const locations = useMemo(() => result.locations.filter((l) => l.active), [result.locations]);
   return { ...result, locations };
+};
+
+// The shared hook only asks for permission once, on mount, so a user who enables
+// location in Settings stayed "denied" until an app restart. Re-check silently on
+// return to the foreground — getForegroundPermissionsAsync never prompts, and
+// request() only runs once it's already granted (so no re-prompt on Android).
+const baseUseUserLocation = hooksBag.useUserLocation;
+hooksBag.useUserLocation = (...args: Parameters<typeof baseUseUserLocation>) => {
+  const result = baseUseUserLocation(...args);
+  const { status, request } = result;
+  useEffect(() => {
+    if (status !== "denied") return;
+    const sub = AppState.addEventListener("change", async (next) => {
+      if (next !== "active") return;
+      const perm = await Location.getForegroundPermissionsAsync();
+      if (perm.granted) void request();
+    });
+    return () => sub.remove();
+  }, [status, request]);
+  return result;
 };
 
 export const {

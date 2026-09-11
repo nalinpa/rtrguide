@@ -18,6 +18,7 @@ import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKi
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
 import { PremiumFeatureModal } from "@/components/itinerary/PremiumFeatureModal";
 import { DeleteTripModal } from "@/components/itinerary/DeleteTripModal";
+import { NoteCard } from "@/components/itinerary/NoteCard";
 import { tokens } from "@/lib/ui/tokens";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { useItineraries } from "@/lib/hooks/useItineraries";
@@ -76,6 +77,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
   const activeDay = localTrip?.days.find((d) => d.id === activeDayId) || localTrip?.days[0];
   const [localItems, setLocalItems] = useState<ItineraryItem[]>([]);
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
+  const [viewingNote, setViewingNote] = useState<ItineraryItem | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showPremiumMove, setShowPremiumMove] = useState(false);
 
@@ -518,6 +520,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
               }}
               onDragEnd={() => setIsDragging(false)}
               onEdit={(item) => setEditingItem(item as ItineraryItem)}
+              onNotePress={(item) => setViewingNote(item as ItineraryItem)}
             />
           ))}
 
@@ -590,6 +593,8 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
           requestBuy(FULL_GUIDE_PRODUCT_ID);
         }}
       />
+
+      <NoteCard item={viewingNote} onClose={() => setViewingNote(null)} />
 
       <DeleteTripModal
         visible={showDeleteConfirm}

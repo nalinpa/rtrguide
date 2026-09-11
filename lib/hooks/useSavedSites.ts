@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { doc, getDoc, setDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
@@ -10,16 +11,18 @@ export function useSavedSites() {
   const uid = session.status === "authed" ? session.uid : null;
   const queryClient = useQueryClient();
 
-  const { data: savedSiteIds = new Set<string>(), isLoading } = useQuery({
+  // Cached as an array, not a Set: the query cache is persisted to AsyncStorage as
+  // JSON, and a Set serializes to "{}" — saved places would be empty on an offline launch.
+  const { data, isLoading } = useQuery({
     queryKey: ["savedSites", uid],
     queryFn: async () => {
-      if (!uid) return new Set<string>();
+      if (!uid) return [];
       const snap = await getDoc(doc(db, COL.users, uid));
-      const data = snap.data();
-      return new Set<string>(data?.savedSites ?? []);
+      return (snap.data()?.savedSites ?? []) as string[];
     },
     enabled: !!uid,
   });
+  const savedSiteIds = useMemo(() => new Set(data), [data]);
 
   const toggleMutation = useMutation({
     mutationFn: ({ siteId, isSaving }: { siteId: string; isSaving: boolean }) => {
@@ -32,11 +35,9 @@ export function useSavedSites() {
     },
     onMutate: async ({ siteId, isSaving }: { siteId: string; isSaving: boolean }) => {
       await queryClient.cancelQueries({ queryKey: ["savedSites", uid] });
-      const previous = queryClient.getQueryData<Set<string>>(["savedSites", uid]);
-      const next = new Set(previous);
-      if (isSaving) next.add(siteId);
-      else next.delete(siteId);
-      queryClient.setQueryData(["savedSites", uid], next);
+      const previous = queryClient.getQueryData<string[]>(["savedSites", uid]);
+      const rest = (previous ?? []).filter((id) => id !== siteId);
+      queryClient.setQueryData(["savedSites", uid], isSaving ? [...rest, siteId] : rest);
       return { previous };
     },
     onError: (_err, _vars, context) => {

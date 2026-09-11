@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Keyboard, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack, router } from "expo-router";
+import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useNetInfo } from "@react-native-community/netinfo";
@@ -272,8 +272,6 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
-
       <SitesMapView
         ref={mapViewRef}
         sites={mapSites}

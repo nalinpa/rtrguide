@@ -8,6 +8,12 @@ import { hooksBag } from "@/lib/hooksBag";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { tokens } from "@/lib/ui/tokens";
 
+// Module-level on purpose: <Stack.Screen> calls navigation.setOptions whenever the
+// options object's identity changes, so an inline literal re-fires it every render —
+// that's what hit "Maximum update depth exceeded" on the Map tab.
+const PLAIN_OPTIONS = { title: "Reviews" };
+const LIST_OPTIONS = { title: "Community Reviews", headerTransparent: true };
+
 function SiteReviewOptionsMenu({
   reviewId,
   authorId,
@@ -44,7 +50,10 @@ export default function SiteReviewsPage() {
   const { session } = useSession();
   const currentUid = session.status === "authed" ? session.uid : null;
 
-  const title = siteName?.trim() || "Location";
+  // The param isn't set when arriving from the site screen or a deep link, so fall back
+  // to the site itself rather than showing a placeholder title.
+  const { location } = hooksBag.useLocation(id);
+  const title = siteName?.trim() || location?.name || "Reviews";
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) router.back();
@@ -71,7 +80,7 @@ export default function SiteReviewsPage() {
   if (loading) {
     return (
       <Screen>
-        <Stack.Screen options={{ title: "Reviews" }} />
+        <Stack.Screen options={PLAIN_OPTIONS} />
         <LoadingState label="Loading reviews..." />
       </Screen>
     );
@@ -82,7 +91,7 @@ export default function SiteReviewsPage() {
   if (err && !reviews?.length) {
     return (
       <Screen>
-        <Stack.Screen options={{ title: "Reviews" }} />
+        <Stack.Screen options={PLAIN_OPTIONS} />
         <ErrorCard
           title="Couldn't load reviews"
           message={err}
@@ -95,7 +104,7 @@ export default function SiteReviewsPage() {
 
   return (
     <Screen padded={false}>
-      <Stack.Screen options={{ title: "Community Reviews", headerTransparent: true }} />
+      <Stack.Screen options={LIST_OPTIONS} />
 
       <FlashList
         data={safeReviews}

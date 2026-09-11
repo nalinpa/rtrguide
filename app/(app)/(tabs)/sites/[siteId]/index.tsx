@@ -293,7 +293,12 @@ export default function SiteDetailRoute() {
             <components.ReviewsSummaryCard
               ratingCount={ratingCount}
               avgRating={avgRating}
-              onViewAll={() => router.push(`/(app)/(tabs)/sites/${id}/reviews`)}
+              onViewAll={() =>
+                router.push({
+                  pathname: "/(app)/(tabs)/sites/[siteId]/reviews",
+                  params: { siteId: id, siteName: site.name },
+                })
+              }
               isCompleted={true}
               hasUserReviewed={!!myRating}
               onAddReview={handleOpenReview}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { ApiError } from "@blacksands/client";
+import { useNetInfo } from "@react-native-community/netinfo";
 import { X, Minus, Plus, ChevronDown, Check, CalendarDays, Lock } from "lucide-react-native";
 import DateTimePicker from "react-native-ui-datepicker";
 import dayjs from "dayjs";
@@ -55,6 +56,8 @@ export function CreateItineraryModal({
   showTemplateOption = false,
 }: CreateItineraryModalProps) {
   const { itineraries, saveItinerary, isSaving } = useItineraries();
+  const netInfo = useNetInfo();
+  const isOffline = netInfo.isConnected === false || netInfo.isInternetReachable === false;
 
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState(tomorrow());
@@ -377,15 +380,17 @@ export function CreateItineraryModal({
 
               {errorMsg && <AppText style={styles.errorText}>{errorMsg}</AppText>}
 
+              {/* Saves queue while offline, and a new trip needs its server id before onCreated. */}
               <AppButton
                 variant="primary"
                 onPress={handleCreate}
                 loading={isSaving}
                 loadingLabel="Creating..."
+                disabled={isOffline}
                 fullWidth
                 style={styles.createBtn}
               >
-                Create Trip
+                {isOffline ? "Reconnect to Create Trip" : "Create Trip"}
               </AppButton>
             </ScrollView>
           </CardShell>

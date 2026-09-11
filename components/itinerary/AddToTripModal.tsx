@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { useNetInfo } from "@react-native-community/netinfo";
 import { X, Minus, Plus, Image as ImageIcon } from "lucide-react-native";
 
 import { CardShell, AppButton } from "@/lib/uiKit";
@@ -26,6 +27,8 @@ type AddToTripModalProps = {
 
 export function AddToTripModal({ site, onClose, initialItineraryId }: AddToTripModalProps) {
   const { itineraries, saveItinerary, isSaving } = useItineraries();
+  const netInfo = useNetInfo();
+  const isOffline = netInfo.isConnected === false || netInfo.isInternetReachable === false;
 
   const [itineraryId, setItineraryId] = useState<string | null>(null);
   const [dayId, setDayId] = useState<string | null>(null);
@@ -82,7 +85,12 @@ export function AddToTripModal({ site, onClose, initialItineraryId }: AddToTripM
     const placedItem = items.find((i) => i.id === newItem.id)!;
     const updatedDays = selectedTrip.days.map((d) => (d.id === dayId ? { ...d, items } : d));
 
-    await saveItinerary({ id: selectedTrip.id, days: updatedDays });
+    try {
+      await saveItinerary({ id: selectedTrip.id, days: updatedDays });
+    } catch {
+      setErrorMsg("Couldn't add to your trip. Try again.");
+      return;
+    }
     onClose();
     router.push({
       pathname: "/(app)/(tabs)/itinerary/[itineraryId]",
@@ -185,8 +193,16 @@ export function AddToTripModal({ site, onClose, initialItineraryId }: AddToTripM
 
               {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
 
-              <AppButton variant="primary" onPress={handleAdd} loading={isSaving} loadingLabel="Adding..." fullWidth>
-                Add to Trip
+              {/* Saves queue while offline, so without this the button would just spin until reconnect. */}
+              <AppButton
+                variant="primary"
+                onPress={handleAdd}
+                loading={isSaving}
+                loadingLabel="Adding..."
+                disabled={isOffline}
+                fullWidth
+              >
+                {isOffline ? "Reconnect to Add" : "Add to Trip"}
               </AppButton>
             </ScrollView>
           </CardShell>

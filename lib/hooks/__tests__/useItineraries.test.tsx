@@ -13,7 +13,7 @@ jest.mock("@/lib/hooksBag", () => ({
 
 import React from "react";
 import { renderHook, waitFor, act } from "@testing-library/react-native";
-import { QueryClient, QueryClientProvider, notifyManager } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, notifyManager, onlineManager } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
 
 // react-query batches observer updates via a real setTimeout by default, which fires
@@ -135,6 +135,35 @@ describe("useItineraries", () => {
     await act(async () => result.current.saveItinerary({ title: "Another trip" }));
 
     expect(requestReview).not.toHaveBeenCalled();
+  });
+
+  it("queues saves made offline and sends them in order on reconnect", async () => {
+    mockUseSession.mockReturnValue({ session: { status: "authed", uid: "user-1" } });
+    mockGetMyItineraries.mockResolvedValue([itin()]);
+    mockSaveItinerary.mockResolvedValue("itin-1");
+
+    const { result } = await renderHook(() => useItineraries(), { wrapper });
+    await waitFor(() => expect(result.current.itineraries).toHaveLength(1));
+
+    onlineManager.setOnline(false);
+    try {
+      let saves: Promise<unknown>[] = [];
+      await act(async () => {
+        saves = [
+          result.current.saveItinerary({ id: "itin-1", title: "first" }),
+          result.current.saveItinerary({ id: "itin-1", title: "second" }),
+        ];
+      });
+      expect(mockSaveItinerary).not.toHaveBeenCalled();
+
+      await act(async () => {
+        onlineManager.setOnline(true);
+        await Promise.all(saves);
+      });
+      expect(mockSaveItinerary.mock.calls.map(([d]) => d.title)).toEqual(["first", "second"]);
+    } finally {
+      onlineManager.setOnline(true);
+    }
   });
 
   it("deletes an itinerary by id", async () => {

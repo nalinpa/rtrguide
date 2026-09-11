@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, TouchableOpacity, TextInput, ScrollView, Pressable, Linking } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Search, X, Bookmark, Image as ImageIcon } from "lucide-react-native";
+import { Search, X, Bookmark, ChevronRight, Image as ImageIcon } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Screen, LoadingState, ErrorCard, CardShell, Stack, Row, AppText, AppIconButton } from "@/lib/uiKit";
@@ -37,6 +37,9 @@ export default function SiteListPage() {
   }, [liveLoc, lockedLoc]);
 
   const handleRefreshGPS = () => Linking.openSettings();
+  // Dismissible so the app never nags about a permission the user has declined —
+  // App Review dislikes that. Per app run: it returns next launch while still denied.
+  const [locationNoticeDismissed, setLocationNoticeDismissed] = useState(false);
 
   const [category, setCategory] = useState<SiteCategory | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -144,26 +147,27 @@ export default function SiteListPage() {
         </View>
       )}
 
-      {locStatus === "denied" && (
+      {locStatus === "denied" && !locationNoticeDismissed && (
         <View style={styles.paddedSection}>
           <ErrorCard
             status="warning"
             title="Location Disabled"
             message="Enable location to see distances to nearby sites."
             action={{ label: "Open Settings", onPress: handleRefreshGPS }}
+            secondaryAction={{ label: "Not Now", onPress: () => setLocationNoticeDismissed(true) }}
           />
         </View>
       )}
 
       {isGuest ? (
         <View style={styles.paddedSection}>
-          <CardShell status="surf" onPress={() => router.push("/(auth)/login")}>
-            <Stack gap="xs">
-              <AppText variant="sectionTitle">Sign In for More</AppText>
-              <AppText variant="label" status="hint">
-                Sign in to save sites, plan itineraries, and leave reviews.
+          <CardShell status="surf" style={styles.signInCard} onPress={() => router.push("/(auth)/login")}>
+            <Row gap="sm" align="center">
+              <AppText variant="hint" style={styles.signInText}>
+                <AppText variant="hint" style={styles.signInLead}>Sign in</AppText> to save sites and plan trips
               </AppText>
-            </Stack>
+              <ChevronRight size={16} color={tokens.colors.surf} />
+            </Row>
           </CardShell>
         </View>
       ) : null}
@@ -281,6 +285,9 @@ const styles = StyleSheet.create({
     height: 44,
   },
   searchInput: { flex: 1, color: tokens.colors.text, fontSize: 15 },
+  signInCard: { paddingVertical: tokens.space.sm, paddingHorizontal: tokens.space.md },
+  signInText: { flex: 1 },
+  signInLead: { fontWeight: "800", color: tokens.colors.surf },
   categoryTabContent: { gap: 20, paddingRight: 16 },
   categoryTab: { paddingVertical: 8, alignItems: "center" },
   categoryTabText: { fontSize: 14, fontWeight: "600", color: tokens.colors.text2 },

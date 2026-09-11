@@ -5,11 +5,15 @@ import { ChevronRight } from "lucide-react-native";
 
 import { AppButton, AppText } from "@/lib/uiKit";
 import { useSavedSites } from "@/lib/hooks/useSavedSites";
-import { hooksBag } from "@/lib/hooksBag";
+import { hooksBag, useAllLocations } from "@/lib/hooksBag";
 import { tokens } from "@/lib/ui/tokens";
 
-function SavedSiteRow({ siteId }: { siteId: string }) {
+function SavedSiteRow({ siteId, cachedName }: { siteId: string; cachedName?: string }) {
+  // Falls back to the per-site query only for a site missing from the list (e.g. one
+  // deactivated after it was saved) — that query pauses offline, where the cached
+  // list still has every name.
   const { location } = hooksBag.useLocation(siteId);
+  const name = cachedName ?? location?.name;
   return (
     <TouchableOpacity
       style={styles.row}
@@ -17,7 +21,7 @@ function SavedSiteRow({ siteId }: { siteId: string }) {
       activeOpacity={0.6}
     >
       <Text style={styles.rowTitle} numberOfLines={1}>
-        {location?.name ?? "Unavailable"}
+        {name ?? "Unavailable"}
       </Text>
       <ChevronRight size={14} color={tokens.colors.textMuted} strokeWidth={2} />
     </TouchableOpacity>
@@ -26,6 +30,7 @@ function SavedSiteRow({ siteId }: { siteId: string }) {
 
 export function SavedSitesCard() {
   const { savedSiteIds } = useSavedSites();
+  const { locations } = useAllLocations();
   const recentSavedSites = Array.from(savedSiteIds).slice(-3).reverse();
 
   return (
@@ -44,7 +49,11 @@ export function SavedSitesCard() {
       ) : (
         <View style={styles.list}>
           {recentSavedSites.map((siteId) => (
-            <SavedSiteRow key={siteId} siteId={siteId} />
+            <SavedSiteRow
+              key={siteId}
+              siteId={siteId}
+              cachedName={locations.find((l) => l.id === siteId)?.name}
+            />
           ))}
         </View>
       )}

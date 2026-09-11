@@ -6,13 +6,13 @@ Snapshot taken 2026-08-28. Tests green (16 suites / 83 tests), typecheck clean.
 
 Built 2026-09-10 from reading the actual current code (not guessed), covering every major flow per tier. Where a fuller writeup already exists elsewhere in this file (commit hash, exact repro), this list stays one line and points there instead of duplicating.
 
-**Status after the 2026-09-11/12 device pass:** everything below is checked off as passing except the items still unticked — those are purchases/IAP, account deletion, claim links, Apple refresh-token storage, review report/block, the day-move error path, and Sentry on a production build. Ticks reflect what the tester reported on a real device, not a code reading.
+**Status after the 2026-09-11/12 device pass:** everything below is checked off as passing except the items still unticked — those are purchases/IAP, claim links, review report/block, the day-move error path, and Sentry on a production build. Account deletion and Apple refresh-token storage both passed on 2026-09-12, clearing the 5.1.1(v) blocker. Ticks reflect what the tester reported on a real device, not a code reading.
 
 **Auth & onboarding**
 - [x] Sign up with email/password
 - [x] Sign in with email/password
 - [x] Forgot-password / reset flow
-- [ ] Sign in with Apple — native button and credential exchange work; **storing the refresh token server-side still fails** with `400 apple_signin_not_configured` (confirmed 2026-09-11). Blocked on ops, not code: set `APPLE_TEAM_ID`/`APPLE_KEY_ID`/`APPLE_PRIVATE_KEY` on the `blacksands-api` Worker (none are set) and add `appleSignIn.clientId = app.blacksands.rtrguide` to the `apps/rotoruaguide` registry doc (config is KV-cached 5 min). Until then account deletion cannot revoke at Apple — App Store 5.1.1(v) risk.
+- [x] Sign in with Apple — native button, credential exchange, **and server-side refresh-token storage all working** (2026-09-12). The ops fix landed: `APPLE_TEAM_ID`/`APPLE_KEY_ID`/`APPLE_PRIVATE_KEY` set on the `blacksands-api` Worker, and `appleSignIn.clientId = app.blacksands.rtrguide` written to the `apps/rotoruaguide` registry doc. Verified on device — `POST /v1/rotoruaguide/auth/apple/link` returned 200 and `appleGrants/{uid}.refreshToken` held a real token. Note a repeat sign-in returns no `authorizationCode` and stores nothing, so re-testing needs an Apple ID that hasn't used the app before.
 - [x] Sign in with Google
 - [x] Continue as Guest
 - [x] First-open tour (4-tab spotlight walkthrough)
@@ -85,7 +85,7 @@ Built 2026-09-10 from reading the actual current code (not guessed), covering ev
 - [x] Saved Sites card + full Saved Places screen, swipe-to-remove works
 - [x] Inactive-but-saved site shows a resolved name (or "Unavailable"), not a raw Firestore id (open item below)
 - [ ] Restore Purchases flow end to end
-- [ ] Delete Account danger-zone confirm flow, on-device
+- [x] Delete Account danger-zone confirm flow, on-device — 2026-09-12, `DELETE /v1/rotoruaguide/account` → 200, Firebase Auth user gone, Apple grant revoked (see Store compliance)
 
 **Claim / comp codes** — all blocked on the commerce-api production deploy
 - [ ] Tapping a real minted claim link actually deep-links into the app (not just the web fallback) — flagged in detail below
@@ -175,7 +175,9 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 
 ## Store compliance (will block App Store / Play review)
 
-- [x] Add an in-app account-deletion flow that also **revokes the Apple token** — client side done: `appleSignIn.ts` now persists the Apple refresh token server-side on sign-in (ca880e1), `userService.deleteAccount` calls the server-side `client.auth.deleteAccount()` instead of client-side `deleteUser` "so Apple revocation always runs" (946fa0d), and it signs out locally after (`auth.signOut()`) since the server-side delete doesn't clear local SDK session state (a721645). Actual revoke-on-Apple's-servers happens in the `enginev1/api` backend. **Verified 2026-09-11 that it cannot work yet**: the backend code exists (`routes/auth.ts`, `lib/apple.ts`, revoke in `routes/account.ts`), but `wrangler secret list` on `blacksands-api` shows no `APPLE_TEAM_ID`/`APPLE_KEY_ID`/`APPLE_PRIVATE_KEY`, and the app's Apple sign-in returns `400 apple_signin_not_configured` because `apps/rotoruaguide` has no `appleSignIn.clientId`. So no refresh token has ever been stored and nothing can be revoked — see the Auth line in the test matrix for the fix steps. App Store 5.1.1(v) blocker.
+- [x] Add an in-app account-deletion flow that also **revokes the Apple token** — client side done: `appleSignIn.ts` now persists the Apple refresh token server-side on sign-in (ca880e1), `userService.deleteAccount` calls the server-side `client.auth.deleteAccount()` instead of client-side `deleteUser` "so Apple revocation always runs" (946fa0d), and it signs out locally after (`auth.signOut()`) since the server-side delete doesn't clear local SDK session state (a721645). Actual revoke-on-Apple's-servers happens in the `enginev1/api` backend (`routes/auth.ts`, `lib/apple.ts`, revoke in `routes/account.ts`). **Verified end-to-end on device 2026-09-12** — the ops setup that was missing on 2026-09-11 is now done (Sign in with Apple `.p8` key created, the three `APPLE_*` Worker secrets set, `appleSignIn.clientId` added to the registry doc). Full pass: sign-in stored a refresh token on `appleGrants/{uid}`, Delete Account returned 200, `refreshToken` was cleared to null, the Firebase Auth user was deleted, and no `apple revoke failed` appeared in `wrangler tail` — meaning Apple's `/auth/revoke` returned 2xx, since `revokeToken` throws on any non-2xx. The Apple ID's "Sign in with Apple" section no longer lists the app. **5.1.1(v) blocker cleared.**
+
+  Debugging note for next time: Worker-side revoke failures are `console.error` and go to `wrangler tail`, **not Sentry**. Revoke is best-effort and never blocks deletion, so the app's UI looks identical whether it worked or not — always check the tail plus `appleGrants/{uid}`.
 - [x] Privacy Policy page live at **https://blacksands.app/rotorua-guide#privacy** (`public/rotorua-guide.html` in the `blacksands` repo, deployed) — paste this URL into App Store Connect's Privacy Policy field. No hero screenshot yet (`app-detail-hero__visual` block omitted) — add one later, no restructuring needed. Nothing in the *rotorua-guide* app itself links to this page yet — consider adding a link from the account/settings screen too.
 - [x] Terms of Service added at **https://blacksands.app/rotorua-guide#terms** (custom, not just Apple's default EULA — covers the one-time IAP, content accuracy, location-based check-ins, user content, termination, NZ governing law)
 - [ ] Confirm IAP products (`expo-iap`) are actually created and approved in App Store Connect / Play Console — `usePurchase(productId)` takes the id from the caller, no product IDs hardcoded here to audit against

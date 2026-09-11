@@ -12,3 +12,5 @@ ios/
 android/
 scripts/images/
 scripts/*firebase-adminsdk*.json
+# Apple private keys (Sign in with Apple, App Store Connect) — never commit
+*.p8

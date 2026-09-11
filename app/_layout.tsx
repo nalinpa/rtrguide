@@ -71,7 +71,7 @@ function RootLayout() {
 
 // Session lives inside AppProviders, so the gate has to render there too —
 // the tour must never auto-start before the user is past the login screen.
-function TourAutoStartGate({ openCount }: { openCount: number }) {
+function TourAutoStartGate({ openCount }: { openCount: number | null }) {
   const { session } = useSession();
   const loggedIn = session.status !== "loading" && session.status !== "loggedOut";
   return <TourAutoStart shouldStart={loggedIn && openCount === 1} />;

@@ -161,7 +161,9 @@ export function EditItemModal({
 
               {otherDays.length > 0 && (
                 <View style={styles.moveSection}>
-                  <Text style={styles.modalLabel}>Move to another day?</Text>
+                  <View style={styles.moveLabelWrap}>
+                    <Text style={styles.modalLabel}>Move to another day?</Text>
+                  </View>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moveScroll}>
                     {otherDays.map((day) => (
                       <TouchableOpacity
@@ -253,6 +255,9 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   moveSection: { paddingBottom: tokens.space.lg },
+  // Inset on the label only — the day row keeps its own padding so it can scroll
+  // edge to edge rather than clipping at a container inset.
+  moveLabelWrap: { paddingHorizontal: tokens.space.lg },
   moveScroll: { paddingHorizontal: tokens.space.lg, gap: 8 },
   moveBtn: {
     flexDirection: "row",

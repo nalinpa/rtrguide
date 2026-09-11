@@ -189,12 +189,14 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 - [ ] `@blacksands/client` package publish is broken in its own CI (403 on `write_package`) — if site content changes require a new `@blacksands/client`/`@blacksands/components`/`@blacksands/hooks`/`@blacksands/ui` version, publishing currently needs a manual step ([[project_blacksands_client_publish_broken]])
 - [ ] `useLocation(id)` caches for 14 days (`staleTime`/`gcTime`), no refetch on focus/reconnect, and that cache is persisted to AsyncStorage across app restarts ([@blacksands/hooks index.js:406-409](node_modules/@blacksands/hooks/dist/index.js#L406)) — editing a site's Firestore doc (e.g. adding `price`) won't show up in the app for any user who already opened that site, for up to 14 days, without a reinstall/storage clear. Fine for normal content updates, but worth knowing when testing content changes live.
 - [x] Itinerary drag-and-drop cards can visually cover the transit-time blocks — fixed in `enginev1` (`@blacksands/components` `TimelineBlock`/`TransitBlock`), published as `0.6.2`, bumped here 2026-09-05. Cards now sit below `TransitBlock`'s zIndex at rest and only rise above it while actively dragged.
+- [ ] Dragged itinerary card seen sliding *under* a transit block mid-drag (iOS, 2026-09-11), couldn't reproduce afterward. On `@blacksands/components` 0.6.4 the card should be at zIndex 10 while dragging, above `TransitBlock`'s 1. If it recurs, capture: slow drag or flick, whether it was the first drag after opening the screen, whether it stayed under for the whole slide or only a moment, and a screenshot mid-slide.
 
 ## Branding / assets
 
 - [x] **Splash screen** — real 1024x1024 geyser-motif image + wordmark, replacing the 68-byte placeholder (2026-09-07)
 - [x] **App icon redesign** — `assets/icon.png` / `assets/adaptive-icon.png` updated to the same geyser motif (2026-09-07). Adaptive-icon artwork runs close to the full canvas edge — Android's mask only guarantees the center ~66% survives, so check it doesn't clip on a real Android launcher before shipping.
 - [x] **Login page redesign** — full-bleed hero background replacing the old boxed 260px image, safe-area-aware brand text (`d6ea5bb`, 2026-09-07). Worth a quick on-device look before launch.
+- [ ] **Custom alert cards** — replace the native iOS-style `Alert.alert` popups with Rotorua Guide-styled alert cards. 14 calls across 5 files: `app/(app)/(tabs)/sites/[siteId]/index.tsx` (9), `components/itinerary/ItineraryDetailView.tsx` (2), `components/itinerary/EditItemModal.tsx` (1), `app/(app)/(tabs)/map/index.tsx` (1), `app/share-frame.tsx` (1). `DeleteTripModal` is an existing custom modal to follow, and the itinerary note pop-up card should share the same card style.
 
 ## Versioning
 

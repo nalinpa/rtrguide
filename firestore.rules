@@ -31,6 +31,27 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Moderation. Unlike every other write, enginev1/api writes these two under
+    // the *caller's* own id token (routes/moderation.ts), so they need explicit
+    // rules — without them both silently 403'd and no report or block ever
+    // reached Firestore. Reports are write-only for users: triage happens over
+    // Telegram and the admin SDK, which bypasses these rules.
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+                    && request.resource.data.reportedByUid == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    // GET /blocks queries blocks where blockedByUid == caller, which satisfies
+    // this read rule; a broader query is rejected, as it should be.
+    match /blocks/{blockId} {
+      allow read: if request.auth != null
+                  && resource.data.blockedByUid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.blockedByUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

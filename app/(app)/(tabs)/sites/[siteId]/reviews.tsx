@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 
@@ -28,14 +28,40 @@ function SiteReviewOptionsMenu({
   const report = hooksBag.useReportContent();
   const block = hooksBag.useBlockUser(currentUid);
 
+  // Both calls used to fire and forget, so a failure looked exactly like success —
+  // which is how a Firestore rules gap left report and block silently dead.
+  const failed = (title: string) => () =>
+    Alert.alert(title, "Something went wrong. Please check your connection and try again.");
+
   return (
     <components.ReviewOptionsMenu
       reviewId={reviewId}
       authorId={authorId}
       authorName={authorName}
       currentUserId={currentUid}
-      onReport={(args) => report.mutate({ reviewId: args.reviewId, authorId: args.authorId })}
-      onBlock={(args) => block.mutate(args)}
+      onReport={(args) =>
+        report.mutate(
+          { reviewId: args.reviewId, authorId: args.authorId },
+          {
+            onSuccess: () =>
+              Alert.alert("Report Received", "Thanks — our team will review this shortly."),
+            onError: failed("Couldn't Send Report"),
+          },
+        )
+      }
+      onBlock={(args) =>
+        block.mutate(args, {
+          onSuccess: () =>
+            Alert.alert("User Blocked", `You won't see reviews from ${authorName} any more.`),
+          onError: failed("Couldn't Block User"),
+        })
+      }
+      onGuestBlocked={() =>
+        Alert.alert("Sign In Required", "Sign in to report content or block a user.", [
+          { text: "Cancel", style: "cancel" },
+          { text: "Sign In", onPress: () => router.push("/(auth)/login") },
+        ])
+      }
     />
   );
 }

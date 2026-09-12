@@ -94,7 +94,7 @@ Built 2026-09-10 from reading the actual current code (not guessed), covering ev
 
 **Cross-cutting**
 - [x] Delete-trip confirmation modal (see Manual QA below)
-- [ ] A failed day-move surfaces a visible error instead of silently reverting (open item below, hard to force reliably)
+- [x] A failed day-move surfaces a visible error instead of silently reverting — code walkthrough 2026-09-12 confirmed it didn't: all five save paths ignored the result, so a failure rejected unhandled and the edit sat on screen looking saved. Fixed in `710b9b8` (one wrapper: keeps the change dirty for the retry, reports to Sentry, shows one "Couldn't Save Changes" alert). Offline no longer fails at all — those saves queue (`1adf947`). Still worth an opportunistic on-device check if a real server error ever shows up.
 - [x] Offline banner appears when the network actually drops
 - [ ] Sentry captures real errors on a production-profile build (previously confirmed 2026-09-06 — retest)
 
@@ -111,7 +111,7 @@ Code review turned up 12 bugs, each fixed in its own commit (`121e33a`..`ac8df0a
 
 - [x] **Delete-trip confirmation** (`121e33a`) — verified on-device 2026-09-10 (superseded by the custom `DeleteTripModal` flow built the same day).
 - [x] **Account-tab entitlement cap** (`963599f`) — verified in the 2026-09-11/12 device pass — as a non-entitled (non-purchased) account with 1 existing itinerary, confirm the Account tab's "New Itinerary" button is hidden, matching the Plans tab. As an entitled account, confirm you can still create up to `PLANNER.MAX_ITINERARIES` (3) trips from the Account tab.
-- [ ] **Failed day-move no longer silently discarded** (`3453691`) — start a day-to-day item move, kill network mid-save (airplane mode), background/foreground the app to trigger a refetch. Confirm the move isn't silently reverted — some error should surface rather than the item quietly snapping back with no explanation. (Awkward to force reliably; a code walkthrough may substitute for a full repro.)
+- [x] **Failed day-move no longer silently discarded** (`3453691`) — closed by code walkthrough 2026-09-12. The dirty flag already survived a failure, so the move was retried rather than dropped, but nothing was ever shown to the user and the rejection was unhandled; both fixed in `710b9b8`. The airplane-mode repro no longer applies: offline saves queue and send on reconnect (`1adf947`).
 - [x] **Add Day keeps endDate in sync** (`4c3fde5`) — verified in the 2026-09-11/12 device pass — open a trip, tap "Add Day", then go back to My Trips (need 2+ trips to see the picker). Confirm the trip's displayed date range now includes the newly added day.
 - [x] **Map re-render loop fixed** (`242b30a`) — verified 2026-09-12, but note the real loop was elsewhere: an unstable `locations` array drove react-native-map-clustering into "Maximum update depth exceeded" while searching, fixed in `8f73ead` (plus redundant `Stack.Screen` options in `349e6dc`) — on the Map tab, search until exactly one result remains. Confirm the map doesn't jank/flicker/reselect repeatedly (Perf monitor or just visual smoothness works).
 - [x] **Saved-site name fallback** (`c7fd99e`) — verified 2026-09-12; names now come from the cached locations list so they also survive offline (`cf97057`) — save a site, then mark that site `active: false` in Firestore (or via an admin script). Confirm the Account tab and the full Saved Places list show "Unavailable" instead of a raw Firestore doc id.
@@ -172,6 +172,14 @@ Only trigger today is first itinerary created ([lib/hooks/useItineraries.ts:38-4
 - [x] First review submitted — site detail screen, `saveReviewToDb` success (`res.ok` branch, ~line 246)
 - [~] ~~Share card created/shared~~ — **cancelled**
 - [x] 2nd app open — [lib/hooks/useAppOpenCount.ts](lib/hooks/useAppOpenCount.ts) tracks launch count generically (AsyncStorage-persisted), wired into [app/_layout.tsx](app/_layout.tsx); fires `requestReview()` when count hits 2. Kept general-purpose (count, not a boolean) so it can also drive a first-open app tour later (`openCount === 1`) — **tour itself not built yet, only the counter**
+
+## Launch order (decided 2026-09-12)
+
+Ship the iOS app first; the Stripe web storefront follows later. Consequences:
+
+- **commerce-api still needs a production deploy before submitting**, even with Stripe in test mode — the app resolves entitlements against it, so IAP purchases would otherwise be validated against staging. Deploy `enginev1/commerce-api` (`npm run deploy`, env production; the worker doesn't exist yet as of 2026-09-12) and set its secrets. A test-mode `STRIPE_SECRET_KEY` is fine while the storefront is dark.
+- **Then switch this app off staging**: `commerceBaseUrl` in [lib/api/index.ts](lib/api/index.ts) and `COMMERCE_BASE_URL` in [app/claim/[token].tsx](app/claim/%5Btoken%5D.tsx) are both hardcoded to `commerce-staging.blacksands.app`. Point both at production (one shared constant) and rebuild — do this *before* the TestFlight IAP test so the real path is what gets tested.
+- **Deferred with the storefront**: Stripe account activation, live key + live webhook endpoint, `enginev1/storefront` deploy to `shop.blacksands.app`, and the Resend key that emails claim links to web buyers. Admin-minted comp links don't need Stripe.
 
 ## Store compliance (will block App Store / Play review)
 

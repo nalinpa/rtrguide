@@ -8,9 +8,8 @@ import { useAuthForm } from "@/lib/hooks/useAuthForm";
 import { useSession } from "@/lib/providers/SessionProvider";
 import { client } from "@/lib/api";
 import { QUERY_KEY_PREFIX } from "@/lib/hooksBag";
+import { COMMERCE_BASE_URL } from "@/lib/constants/commerce";
 import { tokens } from "@/lib/ui/tokens";
-
-const COMMERCE_BASE_URL = "https://commerce-staging.blacksands.app";
 
 type ClaimInfo = { productName: string | null; used: boolean; expired: boolean; refunded: boolean };
 

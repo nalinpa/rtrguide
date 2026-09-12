@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { Plus, MoreHorizontal, X } from "lucide-react-native";
+import * as Sentry from "@sentry/react-native";
 
 import { Screen, LoadingState, ErrorCard, AppText, components } from "@/lib/uiKit";
 import { EditItemModal } from "@/components/itinerary/EditItemModal";
@@ -127,6 +128,32 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
   useEffect(() => {
     saveItineraryRef.current = saveItinerary;
   }, [saveItinerary]);
+
+  // Every save on this screen goes through here. Offline the mutation pauses and
+  // resolves on reconnect, so this only fires on a real failure — which used to
+  // reject unhandled, leaving the edit on screen looking saved and reaching Sentry
+  // as a stack with no app frames. Keep the change dirty so the next save attempt
+  // (leaving the screen, backgrounding, switching day) retries it.
+  const saveFailedRef = useRef(false);
+  const saveTrip = useCallback(async (data: Partial<Itinerary>) => {
+    try {
+      await saveItineraryRef.current(data);
+      saveFailedRef.current = false;
+      return true;
+    } catch (e) {
+      hasUnsavedChanges.current = true;
+      Sentry.captureException(e);
+      // One alert at a time: a retry that fails again shouldn't stack another.
+      if (!saveFailedRef.current) {
+        saveFailedRef.current = true;
+        Alert.alert(
+          "Couldn't Save Changes",
+          "Your changes are still here and we'll try again when you leave this screen. Check your connection if this keeps happening.",
+        );
+      }
+      return false;
+    }
+  }, []);
   useEffect(() => {
     latestItemsRef.current = localItems;
   }, [localItems]);
@@ -159,7 +186,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
     if (anyFixed) {
       const fixedTrip = { ...localTrip, days: fixedDays };
       setLocalTrip(fixedTrip);
-      saveItineraryRef.current({ id: fixedTrip.id, days: fixedTrip.days });
+      saveTrip({ id: fixedTrip.id, days: fixedTrip.days });
     }
   }, [localTrip?.id]);
 
@@ -180,7 +207,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
       const updatedDays = currentTrip.days.map((day) =>
         day.id === activeDayIdRef.current ? { ...day, items: latestItemsRef.current } : day,
       );
-      saveItineraryRef.current({ id: currentTrip.id, days: updatedDays });
+      saveTrip({ id: currentTrip.id, days: updatedDays });
       hasUnsavedChanges.current = false;
     }
   }, []);
@@ -245,7 +272,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
           setLocalTrip(nextTrip);
           if (dayId === activeDayId) setActiveDayId(updatedDays[0]?.id ?? null);
           hasUnsavedChanges.current = false;
-          saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
+          saveTrip({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
         },
       },
     ]);
@@ -293,7 +320,7 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
 
     setLocalTrip(nextTrip);
     setActiveDayId(newDayId);
-    await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
+    await saveTrip({ id: nextTrip.id, days: nextTrip.days, endDate: nextTrip.endDate });
   };
 
   const handleDrop = (itemId: string, requestedSlotIndex: number): number => {
@@ -391,8 +418,10 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
     latestItemsRef.current = newDayItems;
 
     hasUnsavedChanges.current = true;
-    await saveItineraryRef.current({ id: nextTrip.id, days: nextTrip.days });
-    hasUnsavedChanges.current = false;
+    // Only clear the flag if it actually saved — saveTrip leaves it set on failure
+    // so the retry on leaving the screen still has the move to send.
+    const saved = await saveTrip({ id: nextTrip.id, days: nextTrip.days });
+    if (saved) hasUnsavedChanges.current = false;
   };
 
   if (loading || entitlementsLoading) {

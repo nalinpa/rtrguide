@@ -61,7 +61,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "@sentry/react-native/expo",
       {
         url: "https://sentry.io/",
-        project: "rotoruaguide",
+        // Sentry's project slug is hyphenated (patel-td.sentry.io/projects/rotorua-guide),
+        // unlike the Expo slug — a mismatch fails the build at source-map upload with
+        // "One or more projects are invalid (400)".
+        project: "rotorua-guide",
         organization: "patel-td",
       },
     ],

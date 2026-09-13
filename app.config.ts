@@ -47,6 +47,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-splash-screen",
       {
         image: "./assets/splash-icon.png",
+        // Plugin default is 100pt, and the art only fills ~57% of its 1024px canvas —
+        // at the default the wordmark rendered unreadably small on device.
+        imageWidth: 300,
         resizeMode: "contain",
         backgroundColor: "#FBF7F1",
       },

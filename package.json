@@ -46,6 +46,7 @@
     "expo-splash-screen": "~57.0.8",
     "expo-status-bar": "~57.0.1",
     "expo-store-review": "~57.0.2",
+    "expo-updates": "~57.0.22",
     "firebase": "^12.17.0",
     "lucide-react-native": "^1.28.0",
     "moti": "^0.30.0",

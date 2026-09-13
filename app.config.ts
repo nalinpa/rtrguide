@@ -11,6 +11,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/icon.png",
   userInterfaceStyle: "automatic",
 
+  // Over-the-air JS updates. The fingerprint policy hashes the native project, so an
+  // update is only delivered to binaries with identical native code — a JS update can
+  // never land on a build missing a native module it needs. Native changes still need
+  // a new store build. `eas fingerprint:compare` explains a mismatch.
+  runtimeVersion: { policy: "fingerprint" },
+  updates: {
+    url: "https://u.expo.dev/a20dda00-eb80-45e7-80d5-0c695129a95f",
+  },
+
   ios: {
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,

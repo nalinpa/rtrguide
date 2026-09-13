@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Alert } from "react-native";
+import { router } from "expo-router";
 import { useIAP, ErrorCode, getAvailablePurchases, type Purchase } from "expo-iap";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
@@ -10,10 +12,11 @@ import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { deriveAppAccountToken } from "./deriveAppAccountToken";
 
 const ENTITLEMENTS_QUERY_KEY_PREFIX = ["rotoruaguide", "entitlements"] as const;
-// ponytail: fixed 2s x 15 poll (30s) for the webhook-lag window, not a backoff/websocket —
-// Apple's sandbox notification usually lands well inside that; raise POLL_MAX_ATTEMPTS if it doesn't.
+// ponytail: fixed 2s x 45 poll (90s) for the webhook-lag window, not a backoff/websocket.
+// Was 30s; the first TestFlight sandbox purchase (2026-09-13) took ~40s for Apple's
+// notification to land, so the poll gave up and the paywall reappeared mid-purchase.
 const POLL_INTERVAL_MS = 2000;
-const POLL_MAX_ATTEMPTS = 15;
+const POLL_MAX_ATTEMPTS = 45;
 
 type PurchaseContextValue = {
   connected: boolean;
@@ -50,6 +53,11 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   function pollForGrant(productId: string, pollUid: string | null, attempt = 0) {
     if (attempt >= POLL_MAX_ATTEMPTS) {
       setPendingProductId((current) => (current === productId ? null : current));
+      // Silently dropping back to the Buy card here reads as "the purchase failed".
+      setError({
+        productId,
+        message: "Your purchase went through but is taking longer than usual to unlock. Check back shortly, or use Restore Purchases in Account.",
+      });
       return;
     }
     pollTimeoutRef.current = setTimeout(() => {
@@ -75,14 +83,17 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
     inFlightTransactionIdsRef.current.add(txId);
     try {
       const result = await client.entitlements!.register(txId);
-      queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
       await finishTransaction({ purchase, isConsumable: false });
-      setPurchasingProductId(null);
       setError(null);
       if (result.pending) {
         setPendingProductId(purchase.productId);
+        setPurchasingProductId(null);
         pollForGrant(purchase.productId, uid);
       } else {
+        // Await the refetch before clearing purchasing: screens show the pending banner while
+        // it's set, and clearing it first flashed the locked paywall back until the refetch landed.
+        await queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
+        setPurchasingProductId(null);
         setPendingProductId((current) => (current === purchase.productId ? null : current));
         requestReview();
       }
@@ -124,7 +135,15 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
       pendingProductId,
       error,
       requestBuy: (productId: string) => {
-        if (!uid) return;
+        // Entitlements are granted to an account (server-side, synced across devices and
+        // claim links), so a guest has to sign in first. This used to return silently.
+        if (!uid) {
+          Alert.alert("Sign In to Unlock", "Create a free account or sign in so your unlock is saved and can be restored on any device.", [
+            { text: "Not Now", style: "cancel" },
+            { text: "Sign In", onPress: () => router.push("/(auth)/login") },
+          ]);
+          return;
+        }
         setError(null);
         setPurchasingProductId(productId);
         deriveAppAccountToken(uid)

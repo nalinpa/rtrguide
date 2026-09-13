@@ -41,7 +41,7 @@ export default function SiteDetailRoute() {
   const uid = session.status === "authed" ? session.uid : null;
 
   const { entitledProductIds, loading: entitlementsLoading } = useEntitlementGate(uid);
-  const { requestBuy, pendingProductId } = usePurchaseContext();
+  const { requestBuy, pendingProductId, purchasingProductId, error: purchaseError } = usePurchaseContext();
 
   const { sharedLocationIds } = hooksBag.useMyCompletions(uid);
   const hasShareBonus = sharedLocationIds.has(id);
@@ -189,9 +189,17 @@ export default function SiteDetailRoute() {
               <AppText variant="h1" style={styles.blurredTitle}>
                 {site.name}
               </AppText>
-              {pendingProductId === FULL_GUIDE_PRODUCT_ID ? (
+              {/* purchasing covers tap → sheet and sheet → server registration; pending covers
+                  the wait for Apple's notification. Either way the Buy card must not show. */}
+              {pendingProductId === FULL_GUIDE_PRODUCT_ID || purchasingProductId === FULL_GUIDE_PRODUCT_ID ? (
                 <PurchasePendingBanner />
               ) : (
+                <>
+                {purchaseError?.productId === FULL_GUIDE_PRODUCT_ID && (
+                  <AppText variant="body" style={{ color: tokens.colors.danger }}>
+                    {purchaseError.message}
+                  </AppText>
+                )}
                 <components.RequirePurchaseCard
                   productId={FULL_GUIDE_PRODUCT_ID}
                   entitledProductIds={entitledProductIds}
@@ -201,6 +209,7 @@ export default function SiteDetailRoute() {
                 >
                   {null}
                 </components.RequirePurchaseCard>
+                </>
               )}
             </Stack>
           </View>

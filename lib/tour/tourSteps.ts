@@ -79,9 +79,9 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "mapIntro",
     tabKey: "map",
-    dim: 0.25,
-    title: "Find What's Nearby",
-    body: "Every site on the map, closest first.",
+    dim: 0.6,
+    title: "See It on the Map",
+    body: "Every site in the guide, pinned around you. Tap a pin for details.",
   },
 ];
 

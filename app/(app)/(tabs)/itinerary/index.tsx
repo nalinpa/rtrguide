@@ -85,6 +85,7 @@ export default function ItineraryListPage() {
           onCreateNew={() => setIsCreating(true)}
           onBrowse={() => router.push("/(app)/(tabs)/sites")}
           description="Create a trip and start adding Rotorua's sites, walks, and hidden gems to build your perfect itinerary."
+          createLabel="Create a Trip"
           browseLabel="Explore Places to Visit"
         />
         <CreateItineraryModal

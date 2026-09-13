@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { X, Minus, Plus, ExternalLink, Image as ImageIcon, Trash2, ArrowRight } from "lucide-react-native";
+import { X, Minus, Plus, ExternalLink, Image as ImageIcon, Trash2, ArrowRight, Sparkles } from "lucide-react-native";
 
 import { CardShell, AppButton } from "@/lib/uiKit";
 import { tokens } from "@/lib/ui/tokens";
@@ -47,6 +47,10 @@ type EditItemModalProps = {
   onSave: (itemId: string, newDurationSlots: number, note: string) => void;
   onRemove: (itemId: string) => void;
   onMoveDay: (itemId: string, newDayId: string) => void;
+  // Non-premium: show an unlock card in place of the day buttons. Inline rather than
+  // opening PremiumFeatureModal, since iOS drops a Modal presented while this one dismisses.
+  moveLocked?: boolean;
+  onUnlock?: () => void;
 };
 
 export function EditItemModal({
@@ -57,6 +61,8 @@ export function EditItemModal({
   onSave,
   onRemove,
   onMoveDay,
+  moveLocked = false,
+  onUnlock,
 }: EditItemModalProps) {
   const [draftDuration, setDraftDuration] = useState(2);
   const [draftNote, setDraftNote] = useState("");
@@ -164,6 +170,13 @@ export function EditItemModal({
                   <View style={styles.moveLabelWrap}>
                     <Text style={styles.modalLabel}>Move to another day?</Text>
                   </View>
+                  {moveLocked ? (
+                    <TouchableOpacity style={styles.lockedMove} onPress={onUnlock} activeOpacity={0.7}>
+                      <Sparkles color={tokens.colors.accent} size={18} />
+                      <Text style={styles.lockedMoveText}>Moving stops between days is a Premium feature</Text>
+                      <Text style={styles.lockedMoveCta}>Unlock</Text>
+                    </TouchableOpacity>
+                  ) : (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moveScroll}>
                     {otherDays.map((day) => (
                       <TouchableOpacity
@@ -177,6 +190,7 @@ export function EditItemModal({
                       </TouchableOpacity>
                     ))}
                   </ScrollView>
+                  )}
                 </View>
               )}
 
@@ -270,6 +284,17 @@ const styles = StyleSheet.create({
     borderColor: tokens.colors.border,
   },
   moveBtnDisabled: { opacity: 0.5 },
+  lockedMove: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginHorizontal: tokens.space.lg,
+    padding: tokens.space.md,
+    borderRadius: tokens.radius.lg,
+    backgroundColor: tokens.colors.accentDim,
+  },
+  lockedMoveText: { flex: 1, fontSize: 13, fontWeight: "600", color: tokens.colors.text },
+  lockedMoveCta: { fontSize: 13, fontWeight: "800", color: tokens.colors.accent },
   moveBtnText: { fontSize: 13, fontWeight: "700", color: tokens.colors.text2, marginLeft: 6 },
   actionContainer: { paddingHorizontal: tokens.space.lg, paddingBottom: tokens.space.lg },
   removeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: tokens.space.md, paddingVertical: tokens.space.sm },

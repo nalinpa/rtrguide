@@ -612,6 +612,11 @@ export function ItineraryDetailView({ tripId, jumpToDay, jumpToSlot }: Itinerary
         onSave={handleSaveEdit}
         onRemove={handleRemoveItem}
         onMoveDay={handleMoveDay}
+        moveLocked={!isEntitled}
+        onUnlock={() => {
+          setEditingItem(null);
+          requestBuy(FULL_GUIDE_PRODUCT_ID);
+        }}
       />
 
       <PremiumFeatureModal

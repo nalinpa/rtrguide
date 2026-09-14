@@ -17,13 +17,15 @@ export function SiteHero({ imageUrl, imageThumbnailUrl }: SiteHeroProps) {
   const uri = imageUrl ?? imageThumbnailUrl;
   return (
     <View style={styles.container}>
-      {uri ? (
-        <Image source={{ uri }} style={styles.image} contentFit="cover" />
-      ) : (
-        <View style={styles.placeholder}>
-          <ImageOff size={40} color="rgba(255,255,255,0.7)" />
-        </View>
-      )}
+      {/* Sits behind the image so it shows whenever the image is empty: no URL,
+          still loading, or failed offline. */}
+      <View style={[StyleSheet.absoluteFill, styles.placeholder]}>
+        <ImageOff size={40} color="rgba(255,255,255,0.7)" />
+      </View>
+      {/* The detail route is a tab screen, so this stays mounted across sites.
+          Without recyclingKey expo-image keeps the previous site's picture
+          when the new one can't load (offline). */}
+      {uri && <Image source={{ uri }} recyclingKey={uri} style={styles.image} contentFit="cover" />}
       <LinearGradient colors={["transparent", "rgba(36,26,18,0.55)"]} style={StyleSheet.absoluteFill} />
     </View>
   );

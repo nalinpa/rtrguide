@@ -8,7 +8,7 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import { StyleSheet, View, Text, LayoutChangeEvent } from "react-native";
+import { StyleSheet, View, Text, LayoutChangeEvent, Platform } from "react-native";
 import ClusterMapView from "react-native-map-clustering";
 import MapView, { Marker, Region, MapType } from "react-native-maps";
 
@@ -217,8 +217,15 @@ const SitesMapViewInner = forwardRef<
       onRegionChangeComplete={(region: Region) => {
         currentRegionRef.current = region;
       }}
-      minZoomLevel={10}
-      maxZoomLevel={20}
+      // iOS: minZoomLevel/maxZoomLevel run react-native-maps' legacy zoom clamp, which
+      // re-sets the region inside regionDidChange. When MapKit jumps instead of animating
+      // (map not rendering yet, e.g. tab returning from background) that recurses until
+      // a stack overflow (Sentry, build 10). cameraZoomRange uses MapKit's own limits.
+      // ponytail: distances are camera metres, roughly zoom 10 / zoom 19 — tune on device.
+      {...Platform.select({
+        ios: { cameraZoomRange: { minCenterCoordinateDistance: 100, maxCenterCoordinateDistance: 60_000 } },
+        default: { minZoomLevel: 10, maxZoomLevel: 20 },
+      })}
       moveOnMarkerPress={false}
       showsTraffic={false}
       showsBuildings={false}

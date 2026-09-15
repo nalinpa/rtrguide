@@ -23,6 +23,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: "app.blacksands.rtrguide",
     supportsTablet: false,
+    // iPhone XR is the oldest supported device; 17.0 drops iPhone 8/X (max iOS 16).
+    // Native change: needs a new store build, and changes the updates fingerprint.
+    deploymentTarget: "17.0",
     usesAppleSignIn: true,
     googleServicesFile: process.env.GOOGLE_SERVICES_FILE ?? "./GoogleService-Info.plist",
     associatedDomains: ["applinks:commerce.blacksands.app", "applinks:commerce-staging.blacksands.app"],

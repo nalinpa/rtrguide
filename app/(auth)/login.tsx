@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Image } from "expo-image";
@@ -42,27 +42,33 @@ export default function LoginScreen() {
   return (
     <>
       <Screen padded={false}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.container}
-          >
-            <Image
-              source={HERO_IMAGE}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-              contentPosition="bottom"
-            />
-            <LinearGradient
-              colors={[
-                "rgba(31,75,61,0.85)",
-                "rgba(31,75,61,0.55)",
-                tokens.colors.bgBase,
-              ]}
-              locations={[0, 0.4, 0.85]}
-              style={StyleSheet.absoluteFill}
-            />
+        <View style={styles.container}>
+          <Image
+            source={HERO_IMAGE}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition="bottom"
+          />
+          <LinearGradient
+            colors={[
+              "rgba(31,75,61,0.85)",
+              "rgba(31,75,61,0.55)",
+              tokens.colors.bgBase,
+            ]}
+            locations={[0, 0.4, 0.85]}
+            style={StyleSheet.absoluteFill}
+          />
 
+          {/* The form is taller than the space left above the keyboard, so it has to scroll:
+              a fixed column under KeyboardAvoidingView left the password fields hidden.
+              automaticallyAdjustKeyboardInsets (iOS) scrolls the focused field into view. */}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+            showsVerticalScrollIndicator={false}
+          >
             <View
               style={[
                 styles.brandContainer,
@@ -117,8 +123,8 @@ export default function LoginScreen() {
                 </View>
               </LinearGradient>
             </View>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
+          </ScrollView>
+        </View>
       </Screen>
     </>
   );
@@ -128,6 +134,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: tokens.colors.bgBase,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   content: {
     paddingHorizontal: tokens.space.lg,

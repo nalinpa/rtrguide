@@ -41,6 +41,10 @@ const goToApp = () => router.replace("/(app)/(tabs)/sites");
 
 // One layout for every claim state: this route has no header (it sits outside the
 // (app) tabs), so without the top spacing content hugged the status bar.
+// Screen spreads extra props onto its ScrollView but is typed as ViewProps, hence the
+// spread. Without these the sign-in form's password fields sit under the keyboard.
+const KEYBOARD_SCROLL_PROPS = { automaticallyAdjustKeyboardInsets: true, keyboardShouldPersistTaps: "handled" };
+
 function ClaimLayout({
   icon,
   title,
@@ -53,7 +57,7 @@ function ClaimLayout({
   children?: React.ReactNode;
 }) {
   return (
-    <Screen scrollable>
+    <Screen scrollable {...KEYBOARD_SCROLL_PROPS}>
       <Stack gap="sm" align="center" style={styles.header}>
         <View style={styles.iconCircle}>{icon}</View>
         <AppText variant="h1" style={styles.center}>

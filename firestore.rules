@@ -21,9 +21,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // No client reads: premium sites' paid content must only leave through
+    // enginev1/api's locations route, which checks the caller's unlock and reads
+    // with the service account (lib/firestore-admin.ts readLocations). Deploy
+    // that api change BEFORE these rules, or the api's API-key reads 403.
     match /sites/{siteId} {
-      allow read: if true;
-      allow write: if false;
+      allow read, write: if false;
     }
 
     match /siteReviews/{reviewId} {

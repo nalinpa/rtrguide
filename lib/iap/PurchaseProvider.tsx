@@ -4,9 +4,11 @@ import { router } from "expo-router";
 import { useIAP, ErrorCode, getAvailablePurchases, type Purchase } from "expo-iap";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
+import * as Sentry from "@sentry/react-native";
 
 import { useSession } from "@/lib/providers/SessionProvider";
 import { client } from "@/lib/api";
+import { auth } from "@/lib/firebase";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { deriveAppAccountToken } from "./deriveAppAccountToken";
 
@@ -17,6 +19,38 @@ const ENTITLEMENTS_QUERY_KEY_PREFIX = ["rotoruaguide", "entitlements"] as const;
 const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 45;
 const SUPPORT_EMAIL = "support@blacksands.app";
+export const UID_MISMATCH_MESSAGE = `This purchase is linked to another Rotorua Guide account, or one that's been deleted. Sign in with that account, or email ${SUPPORT_EMAIL} and we'll move it to this one.`;
+const PENDING_MESSAGE = "Purchase is pending — it will complete automatically.";
+
+// Finish a transaction only when the server has given a final answer for it. A finished
+// transaction is never redelivered by StoreKit, so finishing on anything retryable leaves a
+// paid user locked until they find Restore.
+//   403 uid_mismatch: tied to another account.  409: refunded or already claimed.
+// Everything else stays unfinished and StoreKit redelivers it on next launch: 401 (expired or
+// revoked session, clock skew, or @blacksands/client turning a failed getToken into a 401),
+// 400/404 (client or config bugs a later build can fix), network/5xx.
+function isFinalRejection(e: unknown): e is ApiError {
+  return e instanceof ApiError && (e.status === 403 || e.status === 409);
+}
+
+function finalRejectionMessage(e: ApiError): string {
+  return e.status === 403
+    ? UID_MISMATCH_MESSAGE
+    : `This purchase has been refunded or already used to unlock another account. Email ${SUPPORT_EMAIL} if that's not right.`;
+}
+
+// register reads the ID token via getToken(), which returns Firebase's cached token. On a 401,
+// force-refresh it once and retry. If the refresh itself fails (offline), that error propagates
+// and the transaction stays unfinished.
+async function registerTransaction(txId: string) {
+  try {
+    return await client.entitlements!.register(txId);
+  } catch (e) {
+    if (!(e instanceof ApiError && e.status === 401) || !auth.currentUser) throw e;
+    await auth.currentUser.getIdToken(true);
+    return client.entitlements!.register(txId);
+  }
+}
 
 type PurchaseContextValue = {
   connected: boolean;
@@ -24,7 +58,9 @@ type PurchaseContextValue = {
   purchasingProductId: string | null;
   pendingProductId: string | null;
   error: { productId: string; message: string } | null;
-  restore: () => Promise<{ restored: number }>;
+  // mismatch: at least one purchase belongs to another account (show UID_MISMATCH_MESSAGE).
+  // failed: purchases left unfinished for a retry (network, 5xx, 401, ...).
+  restore: () => Promise<{ restored: number; mismatch: boolean; failed: number }>;
 };
 
 const PurchaseContext = createContext<PurchaseContextValue | null>(null);
@@ -80,7 +116,7 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
     }
     inFlightTransactionIdsRef.current.add(txId);
     try {
-      const result = await client.entitlements!.register(txId);
+      const result = await registerTransaction(txId);
       await finishTransaction({ purchase, isConsumable: false });
       setError(null);
       if (result.pending) {
@@ -95,22 +131,16 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         setPendingProductId((current) => (current === purchase.productId ? null : current));
       }
     } catch (e) {
-      if (e instanceof ApiError && e.status >= 400 && e.status < 500) {
-        // Not retryable (e.g. uid_mismatch) — finish so StoreKit stops redelivering it, surface the error.
+      if (isFinalRejection(e)) {
         await finishTransaction({ purchase, isConsumable: false });
         setPurchasingProductId(null);
-        setError({
-          productId: purchase.productId,
-          // 403 = uid_mismatch: this Apple ID's purchase is tied to another app account.
-          message:
-            e.status === 403
-              ? `This purchase is linked to another Rotorua Guide account, or one that's been deleted. Sign in with that account, or email ${SUPPORT_EMAIL} and we'll move it to this one.`
-              : `Purchase couldn't be completed. Email ${SUPPORT_EMAIL} and we'll sort it out.`,
-        });
+        setError({ productId: purchase.productId, message: finalRejectionMessage(e) });
       } else {
-        // Network/5xx — leave unfinished, StoreKit redelivers on next launch/foreground.
+        // Left unfinished, StoreKit redelivers on next launch/foreground.
         // purchasingProductId stays set: this isn't a terminal failure, it's still in flight.
-        setError({ productId: purchase.productId, message: "Purchase is pending — it will complete automatically." });
+        // 400/404 won't fix themselves, so make sure they're seen.
+        if (e instanceof ApiError && e.status !== 401 && e.status >= 400 && e.status < 500) Sentry.captureException(e);
+        setError({ productId: purchase.productId, message: PENDING_MESSAGE });
       }
     } finally {
       inFlightTransactionIdsRef.current.delete(txId);
@@ -164,14 +194,27 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
       restore: async () => {
         const purchases = await getAvailablePurchases();
         let restored = 0;
+        let failed = 0;
+        let mismatch = false;
+        // One bad purchase mustn't stop the rest restoring, so each gets its own try/catch.
         for (const purchase of purchases) {
           const txId = purchase.transactionId ?? purchase.id;
-          const result = await client.entitlements!.register(txId);
-          await finishTransaction({ purchase, isConsumable: false });
-          if (result.granted) restored += 1;
+          try {
+            const result = await registerTransaction(txId);
+            await finishTransaction({ purchase, isConsumable: false });
+            if (result.granted) restored += 1;
+          } catch (e) {
+            if (isFinalRejection(e)) {
+              if (e.status === 403) mismatch = true;
+              await finishTransaction({ purchase, isConsumable: false }).catch(() => {});
+            } else {
+              failed += 1;
+              Sentry.captureException(e);
+            }
+          }
         }
         queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
-        return { restored };
+        return { restored, mismatch, failed };
       },
     }),
     [connected, purchasingProductId, pendingProductId, error, uid, requestPurchase, finishTransaction, queryClient],

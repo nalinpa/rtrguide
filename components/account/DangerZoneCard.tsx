@@ -74,6 +74,7 @@ export function DangerZoneCard() {
             <Text style={styles.modalTitle}>Are you absolutely sure?</Text>
             <Text style={styles.modalBody}>
               All progress and reviews will be permanently erased from Rotorua Guide's records.
+              Any unlock you've bought stays with this account and won't carry over to a new one.
             </Text>
 
             <TouchableOpacity

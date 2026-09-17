@@ -16,6 +16,7 @@ const ENTITLEMENTS_QUERY_KEY_PREFIX = ["rotoruaguide", "entitlements"] as const;
 // notification to land, so the poll gave up and the paywall reappeared mid-purchase.
 const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 45;
+const SUPPORT_EMAIL = "support@blacksands.app";
 
 type PurchaseContextValue = {
   connected: boolean;
@@ -98,7 +99,14 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         // Not retryable (e.g. uid_mismatch) — finish so StoreKit stops redelivering it, surface the error.
         await finishTransaction({ purchase, isConsumable: false });
         setPurchasingProductId(null);
-        setError({ productId: purchase.productId, message: "Purchase couldn't be completed. Please contact support." });
+        setError({
+          productId: purchase.productId,
+          // 403 = uid_mismatch: this Apple ID's purchase is tied to another app account.
+          message:
+            e.status === 403
+              ? `This purchase is linked to another Rotorua Guide account, or one that's been deleted. Sign in with that account, or email ${SUPPORT_EMAIL} and we'll move it to this one.`
+              : `Purchase couldn't be completed. Email ${SUPPORT_EMAIL} and we'll sort it out.`,
+        });
       } else {
         // Network/5xx — leave unfinished, StoreKit redelivers on next launch/foreground.
         // purchasingProductId stays set: this isn't a terminal failure, it's still in flight.

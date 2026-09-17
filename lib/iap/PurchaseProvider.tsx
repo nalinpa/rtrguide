@@ -6,7 +6,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@blacksands/client";
 
 import { useSession } from "@/lib/providers/SessionProvider";
-import { hooksBag } from "@/lib/hooksBag";
 import { client } from "@/lib/api";
 import { FULL_GUIDE_PRODUCT_ID } from "@/lib/constants/commerce";
 import { deriveAppAccountToken } from "./deriveAppAccountToken";
@@ -33,7 +32,6 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
   const { session } = useSession();
   const uid = session.status === "authed" ? session.uid : null;
   const queryClient = useQueryClient();
-  const { requestReview } = hooksBag.useReviewPrompt();
   const [purchasingProductId, setPurchasingProductId] = useState<string | null>(null);
   const [pendingProductId, setPendingProductId] = useState<string | null>(null);
   const [error, setError] = useState<{ productId: string; message: string } | null>(null);
@@ -67,7 +65,6 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         const granted = data?.entitlements.some((e) => e.productId === productId);
         if (granted) {
           setPendingProductId((current) => (current === productId ? null : current));
-          requestReview();
           return;
         }
         pollForGrant(productId, pollUid, attempt + 1);
@@ -95,7 +92,6 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         await queryClient.invalidateQueries({ queryKey: [...ENTITLEMENTS_QUERY_KEY_PREFIX, uid] });
         setPurchasingProductId(null);
         setPendingProductId((current) => (current === purchase.productId ? null : current));
-        requestReview();
       }
     } catch (e) {
       if (e instanceof ApiError && e.status >= 400 && e.status < 500) {

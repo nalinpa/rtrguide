@@ -90,6 +90,8 @@ describe("PurchaseProvider completePurchase", () => {
     await deliver(purchase("tx-1"));
 
     await waitFor(() => expect(result.current.error?.message).toMatch(/pending/));
+    expect(result.current.purchasingProductId).toBeNull();
+    expect(result.current.pendingProductId).toBeNull();
     expect(mockRegister).toHaveBeenCalledTimes(2);
     expect(finishTransaction).not.toHaveBeenCalled();
   });
@@ -102,6 +104,8 @@ describe("PurchaseProvider completePurchase", () => {
     await deliver(purchase("tx-1"));
 
     await waitFor(() => expect(result.current.error?.message).toMatch(/pending/));
+    expect(result.current.purchasingProductId).toBeNull();
+    expect(result.current.pendingProductId).toBeNull();
     expect(finishTransaction).not.toHaveBeenCalled();
   });
 
@@ -112,6 +116,8 @@ describe("PurchaseProvider completePurchase", () => {
     await deliver(purchase("tx-1"));
 
     await waitFor(() => expect(result.current.error?.message).toMatch(/pending/));
+    expect(result.current.purchasingProductId).toBeNull();
+    expect(result.current.pendingProductId).toBeNull();
     expect(finishTransaction).not.toHaveBeenCalled();
   });
 
@@ -145,6 +151,8 @@ describe("PurchaseProvider completePurchase", () => {
     await deliver(purchase("tx-1"));
 
     await waitFor(() => expect(result.current.error?.message).toMatch(/pending/));
+    expect(result.current.purchasingProductId).toBeNull();
+    expect(result.current.pendingProductId).toBeNull();
     expect(finishTransaction).not.toHaveBeenCalled();
   });
 });

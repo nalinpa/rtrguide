@@ -19,8 +19,8 @@ const ENTITLEMENTS_QUERY_KEY_PREFIX = ["rotoruaguide", "entitlements"] as const;
 const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 45;
 const SUPPORT_EMAIL = "support@blacksands.app";
+const PENDING_MESSAGE = "Purchase is pending — it will complete automatically. Reopen the app if it doesn't.";
 export const UID_MISMATCH_MESSAGE = `This purchase is linked to another Rotorua Guide account, or one that's been deleted. Sign in with that account, or email ${SUPPORT_EMAIL} and we'll move it to this one.`;
-const PENDING_MESSAGE = "Purchase is pending — it will complete automatically.";
 
 // Finish a transaction only when the server has given a final answer for it. A finished
 // transaction is never redelivered by StoreKit, so finishing on anything retryable leaves a
@@ -136,10 +136,14 @@ export function PurchaseProvider({ children }: { children: React.ReactNode }) {
         setPurchasingProductId(null);
         setError({ productId: purchase.productId, message: finalRejectionMessage(e) });
       } else {
-        // Left unfinished, StoreKit redelivers on next launch/foreground.
-        // purchasingProductId stays set: this isn't a terminal failure, it's still in flight.
+        // Left unfinished, StoreKit redelivers on next launch/foreground. Clear
+        // purchasingProductId so the message is actually visible: PurchasePendingBanner
+        // outranks the error text while it's set, which spun "Finishing your purchase"
+        // forever. No pollForGrant here — register never reached the server, so there's no
+        // grant coming, and its refetches flip the entitlement gate's full-screen loader.
         // 400/404 won't fix themselves, so make sure they're seen.
         if (e instanceof ApiError && e.status !== 401 && e.status >= 400 && e.status < 500) Sentry.captureException(e);
+        setPurchasingProductId(null);
         setError({ productId: purchase.productId, message: PENDING_MESSAGE });
       }
     } finally {

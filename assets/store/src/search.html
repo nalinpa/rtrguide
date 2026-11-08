@@ -13,7 +13,12 @@ const vw = (1000 * W) / H;
 const textLeft = W * 0.07;
 const phoneW = H * (W / H > 1.6 ? 0.6 : 0.53);
 const phoneLeft = W - W * 0.07 - phoneW;
-const phoneTop = H * 0.1;
+let phoneTop = H * 0.1;
+if (v.phoneCutAt) {
+  // Move the phone down just enough that the bottom edge cuts through a card, not a label.
+  const s = phoneW / (Phone.W + 24);
+  phoneTop = Math.max(phoneTop, H - (v.phoneCutAt + 12) * s);
+}
 
 stage.innerHTML = v.searchPhoto ? `<img id="bgimg" src="${v.photo}" style="position:absolute;inset:${v.searchBlur ? -H * 0.04 : 0}px;width:${v.searchBlur ? W + H * 0.08 : W}px;height:${v.searchBlur ? H * 1.08 : H}px;object-fit:cover;object-position:${v.focus};${v.searchBlur ? `filter:blur(${H * v.searchBlur}px)` : ""}">
   <div style="position:absolute;inset:0;background:${v.searchTint || "linear-gradient(90deg, rgba(16,46,44,0.92) 0%, rgba(16,46,44,0.80) 38%, rgba(16,46,44,0.15) 70%, rgba(16,46,44,0) 100%)"}"></div>` : `<svg class="scene" viewBox="0 0 ${vw} 1000">
@@ -46,6 +51,7 @@ Promise.all([document.fonts.ready, bgReady]).then(() => {
   while (hl.offsetWidth > maxW && size > 40) { size -= 4; hl.style.fontSize = size + "px"; }
   if (v.headlineScale32 && W / H < 1.6) { size = Math.round(size * v.headlineScale32); hl.style.fontSize = size + "px"; }
   let sub = Math.max(H * 0.05, size * 0.4);
+  if (v.subScale169 && W / H >= 1.6) sub *= v.subScale169;
   sl.style.fontSize = sub + "px";
   while (sl.offsetWidth > maxW && sub > 30) { sub -= 2; sl.style.fontSize = sub + "px"; }
   document.body.dataset.headline = Math.round(size);

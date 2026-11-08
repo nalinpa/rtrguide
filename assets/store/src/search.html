@@ -15,8 +15,8 @@ const phoneW = H * (W / H > 1.6 ? 0.6 : 0.53);
 const phoneLeft = W - W * 0.07 - phoneW;
 const phoneTop = H * 0.1;
 
-stage.innerHTML = v.searchPhoto ? `<img id="bgimg" src="${v.photo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${v.focus}">
-  <div style="position:absolute;inset:0;background:linear-gradient(90deg, rgba(16,46,44,0.92) 0%, rgba(16,46,44,0.80) 38%, rgba(16,46,44,0.15) 70%, rgba(16,46,44,0) 100%)"></div>` : `<svg class="scene" viewBox="0 0 ${vw} 1000">
+stage.innerHTML = v.searchPhoto ? `<img id="bgimg" src="${v.photo}" style="position:absolute;inset:${v.searchBlur ? -H * 0.04 : 0}px;width:${v.searchBlur ? W + H * 0.08 : W}px;height:${v.searchBlur ? H * 1.08 : H}px;object-fit:cover;object-position:${v.focus};${v.searchBlur ? `filter:blur(${H * v.searchBlur}px)` : ""}">
+  <div style="position:absolute;inset:0;background:${v.searchTint || "linear-gradient(90deg, rgba(16,46,44,0.92) 0%, rgba(16,46,44,0.80) 38%, rgba(16,46,44,0.15) 70%, rgba(16,46,44,0) 100%)"}"></div>` : `<svg class="scene" viewBox="0 0 ${vw} 1000">
   ${Scene.background(v, vw, { glowX: vw * 0.72, glowY: 380, glowR: 520, ringX: vw * 0.72 })}
   <path d="${Scene.hillPath(vw, 860, 90, 11, 7, 1000)}" fill="${v.hills[0]}" fill-opacity="0.85"/>
   <path d="${Scene.hillPath(vw, 935, 50, 23, 6, 1000)}" fill="${v.hills[1]}" fill-opacity="0.9"/>
@@ -44,6 +44,7 @@ Promise.all([document.fonts.ready, bgReady]).then(() => {
   hl.parentNode.style.fontSize = "0";
   hl.style.fontSize = size + "px";
   while (hl.offsetWidth > maxW && size > 40) { size -= 4; hl.style.fontSize = size + "px"; }
+  if (v.headlineScale32 && W / H < 1.6) { size = Math.round(size * v.headlineScale32); hl.style.fontSize = size + "px"; }
   let sub = Math.max(H * 0.05, size * 0.4);
   sl.style.fontSize = sub + "px";
   while (sl.offsetWidth > maxW && sub > 30) { sub -= 2; sl.style.fontSize = sub + "px"; }

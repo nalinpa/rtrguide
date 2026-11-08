@@ -12,11 +12,13 @@ stage.style.cssText = `width:${W}px;height:${H}px`;
 if (v.photo) {
   // Photo-led header: cover-fit with a focal point, plus a light brand-tinted grade.
   stage.innerHTML = `<img src="${v.photo}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:${v.focus || "50% 50%"}">
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(36,26,18,0.18) 0%, rgba(36,26,18,0) 28%, rgba(36,26,18,0) 70%, ${v.grade || "rgba(31,75,61,0.35)"} 100%)"></div>`;
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(36,26,18,0.18) 0%, rgba(36,26,18,0) 28%, rgba(36,26,18,0) 70%, ${v.grade || "rgba(31,75,61,0.35)"} 100%)"></div>
+    ${v.headerScrim ? `<div style="position:absolute;inset:0;background:${v.headerScrim}"></div>` : ""}
+    ${v.headerFade ? `<div style="position:absolute;left:0;right:0;bottom:0;height:12%;background:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.35) 100%)"></div>` : ""}`;
   if (v.headerLine) {
     // Short line over the teal water, kept inside the iPhone crop (central 65%) and below the top buttons.
-    const x0 = W * 0.175 + W * 0.65 * 0.05;
-    stage.insertAdjacentHTML("beforeend", `<div class="headline" style="position:absolute;left:${x0}px;top:${H * 0.30}px;color:#FBF7F1;font-size:${H * 0.115}px;text-shadow:0 ${H * 0.006}px ${H * 0.03}px rgba(10,40,40,0.45)">${v.headerLine.join("<br>")}</div>`);
+    const x0 = v.headerTextX != null ? W * v.headerTextX : W * 0.175 + W * 0.65 * 0.05;
+    stage.insertAdjacentHTML("beforeend", `<div class="headline" style="position:absolute;left:${x0}px;top:${H * 0.30}px;color:#FBF7F1;font-size:${Math.min(H * 0.115, W * 0.0493)}px;text-shadow:0 ${H * 0.006}px ${H * 0.03}px rgba(10,40,40,0.45)">${v.headerLine.join("<br>")}</div>`);
   }
   const img = stage.querySelector("img");
   window.__imgReady = img.decode().catch(() => {});

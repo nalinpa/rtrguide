@@ -14,3 +14,6 @@ scripts/images/
 scripts/*firebase-adminsdk*.json
 # Apple private keys (Sign in with Apple, App Store Connect) — never commit
 *.p8
+
+# Store artwork renders per version (reproducible from assets/store/src)
+assets/store/versions/

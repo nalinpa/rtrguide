@@ -1,0 +1,45 @@
+/* Shared styles for the App Store header and search-results templates.
+   Colours mirror lib/ui/tokens.ts. */
+@font-face { font-family: "Inter"; font-weight: 400; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 500; src: url("fonts/inter-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; src: url("fonts/inter-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 700; src: url("fonts/inter-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 800; src: url("fonts/inter-latin-800-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 900; src: url("fonts/inter-latin-900-normal.woff2") format("woff2"); }
+
+:root {
+  --bgBase: #FBF7F1;
+  --bgSurface: #F5EDE1;
+  --bgCard: #FFFFFF;
+  --bgElevated: #F0DEC9;
+  --border: #DCC9AE;
+  --borderStrong: #B49B7A;
+  --accent: #C1571C;
+  --accentWarm: #8C3D10;
+  --surf: #1F4B3D;
+  --text: #241A12;
+  --text2: #6B5A48;
+  --textMuted: #8C7A63;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: var(--bgBase); }
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01" 0;
+}
+#stage { position: relative; overflow: hidden; }
+#stage > svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Headline type: the heavy, tightly tracked grotesque used on the existing screenshots. */
+.headline {
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+}
+.subline {
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+}

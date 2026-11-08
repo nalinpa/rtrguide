@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Search results template</title>
+<link rel="stylesheet" href="shared.css">
+<script src="versions.js"></script><script src="scene.js"></script><script src="phone.js"></script>
+</head><body><div id="stage"></div>
+<script>
+// Search results: headline + real Plans UI in a phone. Query: ?v=A&w=3840&h=2560
+const q = new URLSearchParams(location.search);
+const v = VERSIONS[q.get("v") || "A"], W = +q.get("w") || 3840, H = +q.get("h") || 2560;
+const stage = document.getElementById("stage");
+stage.style.cssText = `width:${W}px;height:${H}px`;
+const vw = (1000 * W) / H;
+const textLeft = W * 0.07;
+const phoneW = H * (W / H > 1.6 ? 0.6 : 0.53);
+const phoneLeft = W - W * 0.07 - phoneW;
+const phoneTop = H * 0.1;
+
+stage.innerHTML = `<svg class="scene" viewBox="0 0 ${vw} 1000">
+  ${Scene.background(v, vw, { glowX: vw * 0.72, glowY: 380, glowR: 520, ringX: vw * 0.72 })}
+  <path d="${Scene.hillPath(vw, 860, 90, 11, 7, 1000)}" fill="${v.hills[0]}" fill-opacity="0.85"/>
+  <path d="${Scene.hillPath(vw, 935, 50, 23, 6, 1000)}" fill="${v.hills[1]}" fill-opacity="0.9"/>
+</svg>`;
+
+const text = document.createElement("div");
+const maxW = phoneLeft - textLeft - H * 0.06;
+text.style.cssText = `position:absolute;left:${textLeft}px;top:0;bottom:0;width:${maxW}px;display:flex;flex-direction:column;justify-content:center;padding-bottom:${H * 0.04}px`;
+text.innerHTML = `
+  <div style="color:${v.textColor}"><span id="hl" class="headline" style="display:inline-block;white-space:nowrap">${v.headline.join("<br>")}</span></div>
+  <div style="color:${v.subColor};margin-top:${H * 0.045}px;font-size:0"><span id="sl" class="subline" style="display:inline-block;white-space:nowrap">${v.sub.join("<br>")}</span></div>`;
+stage.appendChild(text);
+
+const ph = Phone.phone(phoneW);
+ph.style.left = phoneLeft + "px";
+ph.style.top = phoneTop + "px";
+stage.appendChild(ph);
+
+document.fonts.ready.then(() => {
+  // Largest headline that fits the column; subline scales with it.
+  const hl = document.getElementById("hl"), sl = document.getElementById("sl");
+  let size = H * 0.125;
+  hl.parentNode.style.fontSize = "0";
+  hl.style.fontSize = size + "px";
+  while (hl.offsetWidth > maxW && size > 40) { size -= 4; hl.style.fontSize = size + "px"; }
+  let sub = Math.max(H * 0.05, size * 0.4);
+  sl.style.fontSize = sub + "px";
+  while (sl.offsetWidth > maxW && sub > 30) { sub -= 2; sl.style.fontSize = sub + "px"; }
+  document.body.dataset.headline = Math.round(size);
+  document.body.dataset.sub = Math.round(sub);
+  document.body.dataset.ready = "1";
+});
+</script></body></html>
